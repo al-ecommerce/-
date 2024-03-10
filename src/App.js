@@ -1,24 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+
+import Home from "./pages/home";
+import VehicleC from "./categories/vehicle";
+import Art from "./categories/art";
+import Fashion from "./categories/fashion";
+import Property from "./categories/property";
+import HB from "./categories/h&b";
+import Electronic from "./categories/electronic";
+import Agric from "./categories/agric";
+import BK from "./categories/babies_kids";
+import Error from "./pages/error";
+import HomeA from "./categories/home_furn";
+import SignLog from "./components/sign_login";
+import Sell from "./pages/sell";
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+    <Routes>
+      <Route>
+      <Route path="/" element={<Home />} />
+      <Route path="*" element={<Error />} />
+        <Route path="/fashion" element={<Fashion />} />
+        <Route path="/sell" element={<Sell />} />
+        <Route path="/sign_login" element={<SignLog />} />
+        <Route path="/h&b" element={<HB />} />
+        <Route path="/home_appl" element={<HomeA />} />
+        <Route path="/B&K" element={<BK />} />
+        <Route path="/art" element={<Art />} />
+        <Route path="/agric" element={<Agric />} />
+        <Route path="/property" element={<Property />} />
+       <Route path="/electronics" element={<Electronic />} />
+        <Route path="/vehicle" element={<VehicleC />} />
+      </Route>
+    </Routes>
+    </BrowserRouter>
   );
 }
 

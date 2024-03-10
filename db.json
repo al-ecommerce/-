@@ -1,0 +1,338 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "product": "Shoes",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "2",
+      "product": "Ladies",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "3",
+      "product": "Shoes",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "4",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "5",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "6",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "7",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "8",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "9",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "10",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "12",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "13",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "14",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "15",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "16",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "17",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "18",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "19",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "20",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "21",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "22",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "23",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "24",
+      "product": "Bags",
+      "price": 120,
+      "image": "src/./img/products/grill.jpg"
+    },
+    {
+      "id": "25",
+      "product": "Bags",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "26",
+      "product": "call",
+      "price": 120,
+      "image": "/img/products/grill.jpg"
+    },
+    {
+      "id": "eb59",
+      "product": "samsung",
+      "price": 200
+    }
+  ],
+  "vehicle": [
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "8253"
+    },
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "ea94"
+    }
+  ],
+  "art_craft": [
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "e958"
+    },
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "d213"
+    }
+  ],
+  "electronic": [
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "52ca"
+    },
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "20ba"
+    }
+  ],
+  "health_beauty": [
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "3f75"
+    },
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "25a2"
+    }
+  ],
+  "fashion": [
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "b866"
+    },
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "0c8a"
+    }
+  ],
+  "babies_kids": [
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "cddf"
+    },
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "9c5b"
+    }
+  ],
+  "agric": [
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "c52b"
+    },
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "ac4f"
+    }
+  ],
+  "property": [
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "e381"
+    },
+    {
+      "product": "Unknown",
+      "price": 0,
+      "image": "/img/products/loader.gif",
+      "id": "ef90"
+    }
+  ],
+  "categories": [
+    {
+      "category": "Vehicles",
+      "link": "/vehicle",
+      "id": "0fbc"
+    },
+    {
+      "category": "Art and Craft",
+      "link": "/art",
+      "id": "ef30"
+    },
+    {
+      "category": "Property",
+      "link": "/property",
+      "id": "b1a6"
+    },
+    {
+      "category": "Electronics",
+      "link": "/electronics",
+      "id": "ec22"
+    },
+    {
+      "category": "Home,Furniture & Appliances",
+      "link": "/home_appl",
+      "id": "893a"
+    },
+    {
+      "category": "Health & Beauty",
+      "link": "/h&b",
+      "id": "52ff"
+    },
+    {
+      "category": "Fashion",
+      "link": "/fashion",
+      "id": "8a87"
+    },
+    {
+      "category": "Babies and Kids",
+      "link": "/B&K",
+      "id": "82cf"
+    },
+    {
+      "category": "Agriculture & Food",
+      "link": "/agric",
+      "id": "ab7c"
+    }
+  ],
+  "account": [
+    {
+      "id": 1,
+      "username": "AL",
+      "email": "kwasyamzi@gmail.com",
+      "passkey": "1ak2AK3Y"
+    },
+    {
+      "id": "db1b",
+      "username": "Asvan",
+      "email": "kamzi5456@gmail.com",
+      "passkey": "ppppp000000000"
+    },
+    {
+      "id": "dbb9",
+      "username": "Asvan",
+      "email": "dd@gmail.com",
+      "passkey": "pppooooppp"
+    }
+  ]
+}
