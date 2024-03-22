@@ -185,7 +185,8 @@ useEffect(()=>{
                         </div>
                         <div className="col-lg-4 col-md-6">
                             <div className="checkout__order">
-                                <h4 className="order__title" onClick={myPost}>My POST</h4>
+                                <h4 className="order__title" >My POST</h4>
+                                <h6 style={{cursor:"pointer",color:"orange", fontWeight:"800"}} onClick={myPost}>GET</h6>
                                 <section className="checkout__total__products" id="det">
                                    
                                    
