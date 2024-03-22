@@ -11,6 +11,51 @@ function myPost(){
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
+
+
+    fetch("http://localhost:3001/property")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
+
+    fetch("http://localhost:3001/fashion")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("http://localhost:3001/agric")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
+
+    fetch("http://localhost:3001/products")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("http://localhost:3001/art_craft")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
+
+    fetch("http://localhost:3001/babies_kids")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("http://localhost:3001/electronic")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
+    
+    fetch("http://localhost:3001/health_beauty")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
 }
 
 function fetchDetails(data){
@@ -80,7 +125,7 @@ function PostGo(){
     .then(res => res.json())
     .then(data => {
         console.log(data)
-    alert("success");
+    alert(`<a>Success</a>`);
     document.getElementById("prod").value="";
     document.getElementById("price").value="";
     document.getElementById("color").value="";
