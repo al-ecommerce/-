@@ -154,6 +154,22 @@
       "id": "eb59",
       "product": "samsung",
       "price": 200
+    },
+    {
+      "id": "9fab",
+      "email": "kwasyamzi@gmail.com",
+      "product": "GAs",
+      "price": "GHC 20",
+      "color": "",
+      "image": "/img/products/loader.gif",
+      "country": "togo",
+      "seller_name": "Amzi",
+      "date": "March,24 2024",
+      "size": "",
+      "contact": "000",
+      "description": "h",
+      "category": "products",
+      "status": "posted"
     }
   ],
   "vehicle": [
@@ -168,6 +184,48 @@
       "price": 0,
       "image": "/img/products/loader.gif",
       "id": "ea94"
+    },
+    {
+      "id": "4e54",
+      "email": "",
+      "product": "gggggg",
+      "price": "2222",
+      "color": "wwwwww",
+      "country": "dddddddd",
+      "seller_name": "ddddd",
+      "size": "ddddd",
+      "contact": "333333",
+      "description": "d",
+      "category": "vehicle"
+    },
+    {
+      "id": "41d0",
+      "email": "",
+      "product": "gggggg",
+      "price": "2222",
+      "color": "wwwwww",
+      "country": "dddddddd",
+      "seller_name": "ddddd",
+      "size": "ddddd",
+      "contact": "333333",
+      "description": "d",
+      "category": "vehicle"
+    },
+    {
+      "id": "bc02",
+      "email": "kwasyamzi@gmail.com",
+      "product": "f",
+      "price": "5",
+      "color": "",
+      "image": "f",
+      "country": "f",
+      "seller_name": "f",
+      "date": "March,24 2024",
+      "size": "",
+      "contact": "4",
+      "description": "r",
+      "category": "vehicle",
+      "status": "posted"
     }
   ],
   "art_craft": [
@@ -238,6 +296,19 @@
       "price": 0,
       "image": "/img/products/loader.gif",
       "id": "9c5b"
+    },
+    {
+      "id": "1120",
+      "email": "",
+      "product": "gggggg",
+      "price": "2222",
+      "color": "wwwwww",
+      "country": "dddddddd",
+      "seller_name": "ddddd",
+      "size": "ddddd",
+      "contact": "333333",
+      "description": "d",
+      "category": "babies_kids"
     }
   ],
   "agric": [
@@ -266,58 +337,97 @@
       "price": 0,
       "image": "/img/products/loader.gif",
       "id": "ef90"
+    },
+    {
+      "id": "60a4",
+      "email": "",
+      "product": "gggggg",
+      "price": "2222",
+      "color": "wwwwww",
+      "country": "dddddddd",
+      "seller_name": "ddddd",
+      "size": "ddddd",
+      "contact": "333333",
+      "description": "d",
+      "category": "property"
     }
   ],
   "categories": [
     {
       "category": "Vehicles",
+      "value": "vehicle",
       "link": "/vehicle",
       "id": "0fbc"
     },
     {
       "category": "Art and Craft",
+      "value": "art_craft",
       "link": "/art",
       "id": "ef30"
     },
     {
       "category": "Property",
+      "value": "property",
       "link": "/property",
       "id": "b1a6"
     },
     {
       "category": "Electronics",
+      "value": "electronic",
       "link": "/electronics",
       "id": "ec22"
     },
     {
       "category": "Home,Furniture & Appliances",
+      "value": "products",
       "link": "/home_appl",
       "id": "893a"
     },
     {
       "category": "Health & Beauty",
+      "value": "health_beauty",
       "link": "/h&b",
       "id": "52ff"
     },
     {
       "category": "Fashion",
+      "value": "fashion",
       "link": "/fashion",
       "id": "8a87"
     },
     {
       "category": "Babies and Kids",
+      "value": "babies_kids",
       "link": "/B&K",
       "id": "82cf"
     },
     {
       "category": "Agriculture & Food",
+      "value": "agric",
       "link": "/agric",
       "id": "ab7c"
     }
   ],
+  "orders":[
+    {
+      "id":"2999",
+      "email_to":"kwasyamzi.gmail.com",
+      "email":"sankofa@gmail.com",
+      "product":"GAs",
+      "quantity":"1",
+      "phone":"02331111111"
+    }
+  ],
+  "update":[
+    {
+      "text":"Your subscribsion has ended",
+      "color":"",
+      "display":"none"
+    }
+  ],
   "account": [
     {
-      "id": 1,
+      "id": "1",
       "username": "AL",
       "email": "kwasyamzi@gmail.com",
       "passkey": "1ak2AK3Y"
@@ -333,6 +443,24 @@
       "username": "Asvan",
       "email": "dd@gmail.com",
       "passkey": "pppooooppp"
+    },
+    {
+      "id": "a1f7",
+      "username": "pppp",
+      "email": "hhhh@gmail.com",
+      "passkey": "aaaapppp"
+    },
+    {
+      "id": "420d",
+      "username": "pppp",
+      "email": "ff@gmail.com",
+      "passkey": "eeeeeeeeeeee"
+    },
+    {
+      "id": "2945",
+      "username": "llll",
+      "email": "pppp@gmail.com",
+      "passkey": "ppppppppp"
     }
   ]
 }
