@@ -77,7 +77,6 @@ tr.innerHTML+=`
 <td>${data[i].product}</td>
 <td>${data[i].price}</td>
 <td>${data[i].category}</td>
-<td>${data[i].description}</td>
 <td>${data[i].date}</td>
 
 `
@@ -99,6 +98,7 @@ function PostGo(){
     var size=document.getElementById("size").value;
     var contact=document.getElementById("contact").value;
     var descrip=document.getElementById("descrip").value;
+    var material=document.getElementById("material").value;
     var image=document.getElementById("img").value;
     const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const d=new Date();
@@ -126,6 +126,7 @@ let year= d.getFullYear();
             "size":size,
             "contact":contact,
             "description":descrip,
+            "materialU":material,
             "category":cat,
             "status":"posted"
         }),
@@ -146,6 +147,7 @@ let year= d.getFullYear();
     document.getElementById("size").value="";
     document.getElementById("contact").value="";
     document.getElementById("descrip").value="";
+    document.getElementById("material").value="";
     document.getElementById("img").value="";
       
     }
@@ -225,6 +227,7 @@ function updateDetails(data){
         document.getElementById("sizeupd").value=data[i].size;
         document.getElementById("contactupd").value=data[i].contact;
         document.getElementById("descripupd").value=data[i].description;
+        document.getElementById("materialupd").value=data[i].materialU;
     document.getElementById("imgupd").value=data[i].image;
     }
     
@@ -341,6 +344,7 @@ function UpdateGo(){
     var sizeupd=document.getElementById("sizeupd").value;
     var contactupd=document.getElementById("contactupd").value;
     var descripupd=document.getElementById("descripupd").value;
+    var materialupd=document.getElementById("materialupd").value;
 var imgupd=document.getElementById("imgupd").value;
 var prodid=document.getElementById("prodid").value;
 
@@ -357,7 +361,8 @@ fetch(`http://localhost:3001/${catupd}/${prodid}`, {
         "seller_name":nameupd,
         "size":sizeupd,
         "contact":contactupd,
-        "description":descripupd
+        "description":descripupd,
+        "materialU":materialupd
     }),
 
     headers:{
@@ -376,6 +381,7 @@ document.getElementById("nameupd").value="";
 document.getElementById("sizeupd").value="";
 document.getElementById("contactupd").value="";
 document.getElementById("descripupd").value="";
+document.getElementById("materialupd").value="";
 document.getElementById("imgupd").value="";
 document.getElementById("prodid").value="";
 document.getElementById("catupd").value="";
@@ -410,6 +416,14 @@ useEffect(()=>{
 <br/>
 <br/>
 
+<div id="chkorders">
+    <p>Check Orders</p>
+</div>
+
+
+<div className="chkorders">
+
+</div>
 <section className="checkout spad">
         <div className="container">
             <h2 style={{textAlign:"justify",fontWeight:"700"}}>Welcome <a id="wlcm"></a></h2>
@@ -473,8 +487,14 @@ useEffect(()=>{
                                 </div>
                                 <div className="col-lg-6">
                                     <div className="checkout__input">
-                                        <p>Description<span>*</span></p>
+                                        <p>Product Information<span>*</span></p>
                                         <textarea id="descrip" placeholder="brief" type="text" required></textarea>
+                                    </div>
+                                </div>
+                                <div className="col-lg-6">
+                                    <div className="checkout__input">
+                                        <p>Material Used<span>*</span></p>
+                                        <textarea id="material" placeholder="material" type="text"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -492,7 +512,6 @@ useEffect(()=>{
                                     <th>Product</th>
                                     <th>Price</th>
                                     <th>Category</th>
-                                    <th>Descrip</th>
                                     <th>Date_P</th>
                                     </tr>
 
@@ -572,8 +591,14 @@ useEffect(()=>{
                                 </div>
                                 <div className="col-lg-6">
                                     <div className="checkout__input">
-                                        <p>Description<span>*</span></p>
-                                        <textarea id="descripupd" placeholder="brief" type="text" ></textarea>
+                                        <p>Product Information<span>*</span></p>
+                                        <textarea id="descripupd" placeholder="brief" type="text"></textarea>
+                                    </div>
+                                </div>
+                                <div className="col-lg-6">
+                                    <div className="checkout__input">
+                                        <p>Material Used<span>*</span></p>
+                                        <textarea id="materialupd" placeholder="material" type="text" ></textarea>
                                     </div>
                                 </div>
                             </div>
