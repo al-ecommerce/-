@@ -29,7 +29,9 @@ const handleDes = (el) => {
     var  prev_image=document.getElementById("preview_image");
     var  prev_product=document.getElementById("preview_product");
     var  prev_price=document.getElementById("preview_price");
-    var  prev_color=document.getElementById("preview_color");
+        var  prev_color=document.getElementById("preview_color");
+    var  prev_seller=document.getElementById("preview_seller");
+   
    
     prodV.style.display="none";
     chkout.style.display="none";
@@ -40,9 +42,12 @@ const handleDes = (el) => {
     prev_det.innerHTML=`${el.description}`;
     prev_mat.innerHTML=`${el.materialU}`;
     prev_cont.innerHTML=`${el.contact}`;
+    prev_cont.href=`tel:${el.contact}`;
     prev_image.src=`${el.image}`;
     prev_product.innerHTML=`${el.product}`;
-    prev_price.innerHTML=`${el.price}`
+    
+    prev_price.innerHTML=`${el.price}`;
+    prev_seller.innerHTML="Posted by: "+`${el.seller_name}`
     prev_color.innerHTML="Available Color: "+`${el.color}`
   }
 
@@ -91,7 +96,7 @@ useEffect(()=>{
                         <div className="col-lg-3 col-md-6 col-sm-6 mix new-arrivals animate__animated animate__fadeInUp" key={el.id}>
                     <div className="product__item">
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
-                            <span className="label">New</span>
+                            
                             <ul className="product__hover">
                                 <li><a title="description" onClick={()=>handleDes(el)}><i className="fa fa-heart-o"></i></a></li>
                                 <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>

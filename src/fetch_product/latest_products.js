@@ -126,7 +126,7 @@ useEffect(()=>{
                         <div className="col-lg-3 col-md-6 col-sm-6 mix new-arrivals animate__animated animate__fadeInUp" key={el.id}>
                     <div className="product__item">
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
-                            <span className="label">New</span>
+                            
                             <ul className="product__hover">
                                 <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
                                 <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
@@ -143,7 +143,7 @@ useEffect(()=>{
                                 <i className="fa fa-star-o"></i>
                                 <i className="fa fa-star-o"></i>
                             </div>
-                            <h5>GHC {el.price}</h5>
+                            <h5>{el.price}</h5>
                             <div className="product__color__select">
                                 <label htmlFor="pc-1">
                                     <input type="radio" id="pc-1"/>
@@ -167,7 +167,7 @@ useEffect(()=>{
                         <div className="col-lg-3 col-md-6 col-sm-6 mix new-arrivals animate__animated animate__fadeInUp" key={el.id}>
                     <div className="product__item">
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
-                            <span className="label">New</span>
+                            
                             <ul className="product__hover">
                                 <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
                                 <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
@@ -184,7 +184,7 @@ useEffect(()=>{
                                 <i className="fa fa-star-o"></i>
                                 <i className="fa fa-star-o"></i>
                             </div>
-                            <h5>GHC {el.price}</h5>
+                            <h5>{el.price}</h5>
                             <div className="product__color__select">
                                 <label htmlFor="pc-1">
                                     <input type="radio" id="pc-1"/>
@@ -207,7 +207,7 @@ useEffect(()=>{
                         <div className="col-lg-3 col-md-6 col-sm-6 mix new-arrivals animate__animated animate__fadeInUp" key={el.id}>
                     <div className="product__item">
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
-                            <span className="label">New</span>
+                            
                             <ul className="product__hover">
                                 <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
                                 <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
@@ -224,7 +224,7 @@ useEffect(()=>{
                                 <i className="fa fa-star-o"></i>
                                 <i className="fa fa-star-o"></i>
                             </div>
-                            <h5>GHC {el.price}</h5>
+                            <h5>{el.price}</h5>
                             <div className="product__color__select">
                                 <label htmlFor="pc-1">
                                     <input type="radio" id="pc-1"/>
@@ -248,7 +248,7 @@ useEffect(()=>{
                         <div className="col-lg-3 col-md-6 col-sm-6 mix new-arrivals animate__animated animate__fadeInUp" key={el.id}>
                     <div className="product__item">
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
-                            <span className="label">New</span>
+                            
                             <ul className="product__hover">
                                 <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
                                 <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
@@ -265,7 +265,7 @@ useEffect(()=>{
                                 <i className="fa fa-star-o"></i>
                                 <i className="fa fa-star-o"></i>
                             </div>
-                            <h5>GHC {el.price}</h5>
+                            <h5>{el.price}</h5>
                             <div className="product__color__select">
                                 <label htmlFor="pc-1">
                                     <input type="radio" id="pc-1"/>
@@ -289,7 +289,7 @@ useEffect(()=>{
                         <div className="col-lg-3 col-md-6 col-sm-6 mix new-arrivals animate__animated animate__fadeInUp" key={el.id}>
                     <div className="product__item">
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
-                            <span className="label">New</span>
+                            
                             <ul className="product__hover">
                                 <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
                                 <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
@@ -306,7 +306,7 @@ useEffect(()=>{
                                 <i className="fa fa-star-o"></i>
                                 <i className="fa fa-star-o"></i>
                             </div>
-                            <h5>GHC {el.price}</h5>
+                            <h5>{el.price}</h5>
                             <div className="product__color__select">
                                 <label htmlFor="pc-1">
                                     <input type="radio" id="pc-1"/>
@@ -329,7 +329,7 @@ useEffect(()=>{
                         <div className="col-lg-3 col-md-6 col-sm-6 mix new-arrivals animate__animated animate__fadeInUp" key={el.id}>
                     <div className="product__item">
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
-                            <span className="label">New</span>
+                            
                             <ul className="product__hover">
                                 <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
                                 <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
@@ -346,7 +346,7 @@ useEffect(()=>{
                                 <i className="fa fa-star-o"></i>
                                 <i className="fa fa-star-o"></i>
                             </div>
-                            <h5>GHC {el.price}</h5>
+                            <h5>{el.price}</h5>
                             <div className="product__color__select">
                                 <label htmlFor="pc-1">
                                     <input type="radio" id="pc-1"/>
@@ -370,7 +370,7 @@ useEffect(()=>{
                         <div className="col-lg-3 col-md-6 col-sm-6 mix new-arrivals animate__animated animate__fadeInUp" key={el.id}>
                     <div className="product__item">
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
-                            <span className="label">New</span>
+                            
                             <ul className="product__hover">
                                 <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
                                 <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
@@ -387,7 +387,7 @@ useEffect(()=>{
                                 <i className="fa fa-star-o"></i>
                                 <i className="fa fa-star-o"></i>
                             </div>
-                            <h5>GHC {el.price}</h5>
+                            <h5>{el.price}</h5>
                             <div className="product__color__select">
                                 <label htmlFor="pc-1">
                                     <input type="radio" id="pc-1"/>
@@ -410,7 +410,7 @@ useEffect(()=>{
                         <div className="col-lg-3 col-md-6 col-sm-6 mix new-arrivals animate__animated animate__fadeInUp" key={el.id}>
                     <div className="product__item">
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
-                            <span className="label">New</span>
+                            
                             <ul className="product__hover">
                                 <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
                                 <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
@@ -427,7 +427,7 @@ useEffect(()=>{
                                 <i className="fa fa-star-o"></i>
                                 <i className="fa fa-star-o"></i>
                             </div>
-                            <h5>GHC {el.price}</h5>
+                            <h5>{el.price}</h5>
                             <div className="product__color__select">
                                 <label htmlFor="pc-1">
                                     <input type="radio" id="pc-1"/>
@@ -453,7 +453,7 @@ useEffect(()=>{
                         <div className="col-lg-3 col-md-6 col-sm-6 mix new-arrivals animate__animated animate__fadeInUp" key={el.id}>
                     <div className="product__item">
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
-                            <span className="label">New</span>
+                            
                             <ul className="product__hover">
                                 <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
                                 <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
@@ -470,7 +470,7 @@ useEffect(()=>{
                                 <i className="fa fa-star-o"></i>
                                 <i className="fa fa-star-o"></i>
                             </div>
-                            <h5>GHC {el.price}</h5>
+                            <h5>{el.price}</h5>
                             <div className="product__color__select">
                                 <label htmlFor="pc-1">
                                     <input type="radio" id="pc-1"/>
