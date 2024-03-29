@@ -87,6 +87,42 @@ det.appendChild(tr)
 }
 
 
+
+function myOrder(){
+    document.getElementById("checkingord").style.display="block"
+   
+    fetch("http://localhost:3001/orders")
+    .then(res=> res.json())
+    .then(data=> fetchOrder(data))
+    .catch(err => console.log(err))
+}
+
+function fetchOrder(data){
+    var email=document.getElementById("loginemail").value;
+   
+    for(var i=0; i< data.length; i++){
+    if(email === data[i].email_to){
+var ordd=document.getElementById("ordd");
+var tr=document.createElement("tr");
+
+tr.innerHTML+=`
+<td>${data[i].email}</td>
+<td>${data[i].product}</td>
+<td>${data[i].phone}</td>
+<td>${data[i].name}</td>
+<td>${data[i].quantity}</td>
+<td>${data[i].country}</td>
+<td>${data[i].address}</td>
+<td>${data[i].date}</td>
+
+`
+
+ordd.appendChild(tr)
+    }
+    }
+}
+
+
 function PostGo(){
     var cat=document.getElementById("select").value;
     var email=document.getElementById("loginemail").value;
@@ -416,14 +452,36 @@ useEffect(()=>{
 <br/>
 <br/>
 
-<div id="chkorders">
-    <p>Check Orders</p>
-</div>
+<button id="chkorders" onClick={myOrder}>
+    Check Orders
+</button>
+
+<div id="checkingord" style={{display:"none"}}>
+                            <div className="checkout__order">
+                                <h4 className="order__title" >Orders</h4>
+                                <section style={{overflowX:"auto"}} className="checkout__total__products">
+                                <table className="table"  id="ordd">
+                                    <tr>
+                                    <th>Email</th>
+                                    <th>Product</th>
+                                    <th>Phone</th>
+                                    <th>Name</th>
+                                    <th>Quantity</th>
+                                    <th>Country</th>
+                                    <th>Address</th>
+                                    <th>Date_P</th>
+                                    </tr>
 
 
-<div className="chkorders">
+                                </table>   
+                                                                    
+                                </section>
+                                
+                            
+                         </div>
+                         </div>
 
-</div>
+
 <section className="checkout spad">
         <div className="container">
             <h2 style={{textAlign:"justify",fontWeight:"700"}}>Welcome <a id="wlcm"></a></h2>
@@ -434,7 +492,7 @@ useEffect(()=>{
                     <div className="row">
                         <div className="col-lg-8 col-md-6">
                             <h6 className="checkout__title">Details</h6>
-                             
+                             <p>Post your products now for free. You can click on "check orders" button to see whether someone has ordered for your posted product. </p>
                             <div className="row">
                                 <div className="col-lg-6">
                                     <div className="checkout__input">
@@ -504,8 +562,9 @@ useEffect(()=>{
                         <div className="col-lg-4 col-md-6">
                             <div className="checkout__order">
                                 <h4 className="order__title" >My POST</h4>
+                                <p>Click on GET to view your posts. If you haven't posted anything yet, then nothing would be shown. The id or product_id helps you to update and delete a post.</p>
                                 <h6 style={{cursor:"pointer",color:"orange", fontWeight:"800"}} onClick={myPost}>GET</h6>
-                                <section className="checkout__total__products">
+                                <section style={{overflowX:"auto"}} className="checkout__total__products">
                                 <table className="table" id="det">
                                     <tr>
                                     <th>Id</th>
@@ -532,6 +591,7 @@ useEffect(()=>{
 
 
                 <form action="#" onSubmit={UpdateGo} id="upd" style={{display:"none"}}>
+                    <p>To update a product, type the product id in the Product Id field. This will load the product enquiries to be edited.</p>
                     <div className="row">
                     <div className="col-lg-6">
                                     <div className="checkout__input">
@@ -617,6 +677,7 @@ useEffect(()=>{
 
 
                 <form action="#" onSubmit={DeleteGo} id="del"  style={{display:"none"}}>
+                    <p>To delete a product, type the product id. If the product id exist, then it will load the product enquiries. Then click the Delete button to delete.</p>
                     <div className="row">
                     <div className="col-lg-6">
                                     <div className="checkout__input">

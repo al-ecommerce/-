@@ -17,6 +17,7 @@ function PushChk(){
     const d=new Date();
 let monthy = month[d.getMonth()];
 let year= d.getFullYear();
+let time=d.getTime();
     
     var date=d.getDate();
 
@@ -32,7 +33,7 @@ let year= d.getFullYear();
             "name":chk_nm,
             "country":chk_ctr,
             "order_notes":chk_ord,
-            "date":monthy+","+date+" "+year
+            "date":monthy+","+date+" "+year+" "+time
         }),
 
         headers:{
