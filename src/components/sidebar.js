@@ -44,13 +44,15 @@ useEffect(()=>{
 
 
       <li class="nav-heading">POST</li>
+      <Link to="/sign_login">
       <li class="nav-item">
         <a class="nav-link collapsed">
           <i class="bi bi-dash-circle"></i>
           <span>Sell</span>
         </a>
       </li>
-
+      </Link>
+      
       <li class="nav-item">
         <a class="nav-link collapsed">
           <i class="bi bi-file-earmark"></i>

@@ -34,8 +34,11 @@ useEffect(()=>{
     return(
         <>
         <header className="top_header">
-      <a>AL<span className="s">ECOM</span></a>
-      <Link to="/sign_login">
+            <Link to="/">
+                     <a style={{textDecoration:"none",color:"white"}}>AL<span className="s">ECOM</span></a>
+                     </Link>
+
+ <Link to="/sign_login">
        <a className="sell">Sell</a>
        </Link>
        <a className="mobile-nav" onClick={Overlay}>&#9776;</a>

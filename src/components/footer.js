@@ -10,8 +10,8 @@ export default function Footer(){
                         <div class="footer-info">
                             <h3 style={{fontWeight:"400"}}>AL<span className="s" style={{fontSize:"25px"}}>ECOM</span></h3>
                             <p>
-                                Dansoman<br/>Ghana<br/><br/>
-                                <strong>Phone:</strong> 0243126855<br/>
+                                Accra<br/>Ghana<br/><br/>
+                                <strong>Phone:</strong> 0549271528<br/>
                                 <strong>Email:</strong> info@example.com<br/>
                             </p>
                             <div class="social-links mt-3">
