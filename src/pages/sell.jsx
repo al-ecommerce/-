@@ -106,9 +106,9 @@ var ordd=document.getElementById("ordd");
 var tr=document.createElement("tr");
 
 tr.innerHTML+=`
-<td>${data[i].email}</td>
+<td onclick="document.location.href='mailto:${data[i].email}'" style="color:blue;cursor:pointer">${data[i].email}</td>
 <td>${data[i].product}</td>
-<td>${data[i].phone}</td>
+<td onclick="document.location.href='tel:${data[i].phone}'" style="color:blue;cursor:pointer">${data[i].phone}</td>
 <td>${data[i].name}</td>
 <td>${data[i].quantity}</td>
 <td>${data[i].country}</td>
@@ -136,13 +136,15 @@ function PostGo(){
     var descrip=document.getElementById("descrip").value;
     var material=document.getElementById("material").value;
     var image=document.getElementById("img").value;
-    const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    // const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const d=new Date();
-let monthy = month[d.getMonth()];
-let year= d.getFullYear();
+// let monthy = month[d.getMonth()];
+// let year= d.getFullYear();
     
-    var date=d.getDate();
+    // var date=d.getDate();
 
+    let date=d.toLocaleDateString()
+   let time=d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
     if(image == ""){
         image="/img/products/loader.gif";
@@ -158,7 +160,7 @@ let year= d.getFullYear();
             "image":image,
             "country":country,
             "seller_name":name,
-            "date":monthy+","+date+" "+year,
+            "date":date+" "+time,
             "size":size,
             "contact":contact,
             "description":descrip,

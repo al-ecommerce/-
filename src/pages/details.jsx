@@ -36,6 +36,7 @@ export default function Details(){
                             <h3 id="preview_price"></h3>
                             <p id="preview_color"></p>
                           
+                            <h5 id="preview_seller"></h5>
                         </div>
                     </div>
                 </div>

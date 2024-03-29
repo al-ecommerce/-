@@ -31,17 +31,48 @@ function Home() {
     <Header />
     <div id="main">
    <Banner />
+
+   <section class="features-area section_gap">
+		<div class="container">
+			<div class="row features-inner">
+				<div class="col-lg-3 col-md-6 col-sm-6">
+					<div class="single-features">
+						<div class="f-icon">
+						</div>
+						<h6>Free Delivery</h6>
+						<p>Free Shipping on all order</p>
+					</div>
+				</div>
+				<div class="col-lg-3 col-md-6 col-sm-6">
+					<div class="single-features">
+						<div class="f-icon">
+						</div>
+						<h6>Return Policy</h6>
+						<p>Free Shipping on all order</p>
+					</div>
+				</div>
+				<div class="col-lg-3 col-md-6 col-sm-6">
+					<div class="single-features">
+						<div class="f-icon">
+						</div>
+						<h6>24/7 Support</h6>
+						<p>Free Shipping on all order</p>
+					</div>
+				</div>
+				<div class="col-lg-3 col-md-6 col-sm-6">
+					<div class="single-features">
+						<div class="f-icon">
+						</div>
+						<h6>Secure Payment</h6>
+						<p>Free Shipping on all order</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
 <Latest />
 <Sidebar />
 
-{/* 
-{data.map(datas=>(
-  <div>
-    <p>{datas.abbreviation}</p>
-    
-    <p>{datas.mean}</p>
-  </div>
-))} */}
 </div>
 
 <Footer />

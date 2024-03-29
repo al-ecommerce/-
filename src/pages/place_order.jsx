@@ -13,13 +13,13 @@ function PushChk(){
     var chk_ord=document.getElementById("chk_ord").value;
     var chk_email=document.getElementById("chk_email").value;
     var chk_prod=document.getElementById("chk_prod").value;
-    const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    // const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const d=new Date();
-let monthy = month[d.getMonth()];
-let year= d.getFullYear();
-let time=d.getTime();
-    
-    var date=d.getDate();
+// let monthy = month[d.getMonth()];
+// let year= d.getFullYear();
+let time=d.toLocaleTimeString([],{ hour:'2-digit', minute:'2-digit'});
+    let date=d.toLocaleDateString();
+    // var date=d.getDate();
 
     fetch(path,{
         method:"POST",
@@ -33,7 +33,7 @@ let time=d.getTime();
             "name":chk_nm,
             "country":chk_ctr,
             "order_notes":chk_ord,
-            "date":monthy+","+date+" "+year+" "+time
+            "date":date+" "+time
         }),
 
         headers:{
