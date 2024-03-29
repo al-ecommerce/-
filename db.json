@@ -1,357 +1,66 @@
 {
-  "products": [
-    {
-      "id": "1",
-      "product": "Shoes",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "2",
-      "product": "Ladies",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "3",
-      "product": "Shoes",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "4",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "5",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "6",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "7",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "8",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "9",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "10",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "12",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "13",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "14",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "15",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "16",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "17",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "18",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "19",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "20",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "21",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "22",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "23",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "24",
-      "product": "Bags",
-      "price": 120,
-      "image": "src/./img/products/grill.jpg"
-    },
-    {
-      "id": "25",
-      "product": "Bags",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "26",
-      "product": "call",
-      "price": 120,
-      "image": "/img/products/grill.jpg"
-    },
-    {
-      "id": "eb59",
-      "product": "samsung",
-      "price": 200
-    },
-    {
-      "id": "9fab",
-      "email": "kwasyamzi@gmail.com",
-      "product": "GAs",
-      "price": "GHC 20",
-      "color": "",
-      "image": "/img/products/loader.gif",
-      "country": "togo",
-      "seller_name": "Amzi",
-      "date": "March,24 2024",
-      "size": "",
-      "contact": "000",
-      "description": "h",
-      "category": "products",
-      "status": "posted"
-    }
-  ],
+  "products": [],
   "vehicle": [
     {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "8253"
-    },
-    {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "ea94"
-    },
-    {
-      "id": "4e54",
-      "email": "",
-      "product": "gggggg",
-      "price": "2222",
-      "color": "wwwwww",
-      "country": "dddddddd",
-      "seller_name": "ddddd",
-      "size": "ddddd",
-      "contact": "333333",
-      "description": "d",
-      "category": "vehicle"
-    },
-    {
-      "id": "41d0",
-      "email": "",
-      "product": "gggggg",
-      "price": "2222",
-      "color": "wwwwww",
-      "country": "dddddddd",
-      "seller_name": "ddddd",
-      "size": "ddddd",
-      "contact": "333333",
-      "description": "d",
-      "category": "vehicle"
-    },
-    {
-      "id": "bc02",
+      "id": "0dd8",
       "email": "kwasyamzi@gmail.com",
-      "product": "f",
-      "price": "5",
-      "color": "",
-      "image": "f",
-      "country": "f",
-      "seller_name": "f",
-      "date": "March,24 2024",
+      "product": "Toyota",
+      "price": "GHC 3000",
+      "color": "red",
+      "image": "/img/products/loader.gif",
+      "country": "GHANA",
+      "seller_name": "ADONKO",
+      "date": "March,28 2024",
+      "size": "none",
+      "contact": "0266666666",
+      "description": "NIce car accross the globe",
+      "materialU": "",
+      "category": "vehicle",
+      "status": "posted"
+    },
+    {
+      "id": "14eb",
+      "email": "kwasyamzi@gmail.com",
+      "product": "Nissan",
+      "price": "GHC 90000",
+      "color": "red",
+      "image": "/img/products/bath-towel.jpg",
+      "country": "togo",
+      "seller_name": "An",
+      "date": "March,29 2024",
       "size": "",
-      "contact": "4",
-      "description": "r",
+      "contact": "077888",
+      "description": "nbfbg",
+      "materialU": "",
       "category": "vehicle",
       "status": "posted"
     }
   ],
-  "art_craft": [
-    {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "e958"
-    },
-    {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "d213"
-    }
-  ],
-  "electronic": [
-    {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "52ca"
-    },
-    {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "20ba"
-    }
-  ],
-  "health_beauty": [
-    {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "3f75"
-    },
-    {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "25a2"
-    }
-  ],
-  "fashion": [
-    {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "b866"
-    },
-    {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "0c8a"
-    }
-  ],
+  "art_craft": [],
+  "electronic": [],
+  "health_beauty": [],
+  "fashion": [],
   "babies_kids": [
     {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "cddf"
-    },
-    {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "9c5b"
-    },
-    {
-      "id": "1120",
-      "email": "",
-      "product": "gggggg",
-      "price": "2222",
-      "color": "wwwwww",
-      "country": "dddddddd",
-      "seller_name": "ddddd",
-      "size": "ddddd",
-      "contact": "333333",
-      "description": "d",
-      "category": "babies_kids"
+      "id": "98ec",
+      "email": "kwasyamzi@gmail.com",
+      "product": "Bath Towel",
+      "price": "GHC 6",
+      "color": "both colors",
+      "image": "/img/products/bath-towel.jpg",
+      "country": "Ghana",
+      "seller_name": "Asvan",
+      "date": "March,29 2024",
+      "size": "",
+      "contact": "0243126855",
+      "description": "It is flexible good and nice",
+      "materialU": "cloth",
+      "category": "babies_kids",
+      "status": "posted"
     }
   ],
-  "agric": [
-    {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "c52b"
-    },
-    {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "ac4f"
-    }
-  ],
-  "property": [
-    {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "e381"
-    },
-    {
-      "product": "Unknown",
-      "price": 0,
-      "image": "/img/products/loader.gif",
-      "id": "ef90"
-    },
-    {
-      "id": "60a4",
-      "email": "",
-      "product": "gggggg",
-      "price": "2222",
-      "color": "wwwwww",
-      "country": "dddddddd",
-      "seller_name": "ddddd",
-      "size": "ddddd",
-      "contact": "333333",
-      "description": "d",
-      "category": "property"
-    }
-  ],
+  "agric": [],
+  "property": [],
   "categories": [
     {
       "category": "Vehicles",
@@ -390,7 +99,7 @@
       "id": "52ff"
     },
     {
-      "category": "Fashion",
+      "category": "Fashion & Clothes",
       "value": "fashion",
       "link": "/fashion",
       "id": "8a87"
@@ -408,21 +117,53 @@
       "id": "ab7c"
     }
   ],
-  "orders":[
+  "orders": [
     {
-      "id":"2999",
-      "email_to":"kwasyamzi.gmail.com",
-      "email":"sankofa@gmail.com",
-      "product":"GAs",
-      "quantity":"1",
-      "phone":"02331111111"
+      "id": "a954",
+      "email_to": "kwasyamzi@gmail.com",
+      "quantity": "07",
+      "email": "ll@gmail.com",
+      "phone": "9",
+      "product": "Tundra",
+      "address": "iiiii",
+      "name": "pppp",
+      "country": "pp",
+      "order_notes": "",
+      "date": "March,28 2024"
+    },
+    {
+      "id": "fcdb",
+      "email_to": "kwasyamzi@gmail.com",
+      "quantity": "9",
+      "email": "ll@gmail.com",
+      "phone": "88888888888",
+      "product": "Toyota",
+      "address": "iiiii",
+      "name": "pppp",
+      "country": "pp",
+      "order_notes": "",
+      "date": "March,28 2024"
+    },
+    {
+      "id": "64a6",
+      "email_to": "kwasyamzi@gmail.com",
+      "quantity": "8",
+      "email": "ll@gmail.com",
+      "phone": "00000",
+      "product": "Nissan",
+      "address": "iiiii",
+      "name": "pppp",
+      "country": "pp",
+      "order_notes": "",
+      "date": "March,29 2024 1711705555563"
     }
   ],
-  "update":[
+  "update": [
     {
-      "text":"Your subscribsion has ended",
-      "color":"",
-      "display":"none"
+      "text": "Your subscribsion has ended",
+      "color": "",
+      "display": "none",
+      "id": "e711"
     }
   ],
   "account": [
