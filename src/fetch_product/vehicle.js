@@ -26,6 +26,10 @@ const handleDes = (el) => {
     var  prev_det=document.getElementById("preview_details");
     var  prev_mat=document.getElementById("preview_material");
     var  prev_cont=document.getElementById("preview_contact");
+    var  prev_image=document.getElementById("preview_image");
+    var  prev_product=document.getElementById("preview_product");
+    var  prev_price=document.getElementById("preview_price");
+    var  prev_color=document.getElementById("preview_color");
    
     prodV.style.display="none";
     chkout.style.display="none";
@@ -36,6 +40,10 @@ const handleDes = (el) => {
     prev_det.innerHTML=`${el.description}`;
     prev_mat.innerHTML=`${el.materialU}`;
     prev_cont.innerHTML=`${el.contact}`;
+    prev_image.src=`${el.image}`;
+    prev_product.innerHTML=`${el.product}`;
+    prev_price.innerHTML=`${el.price}`
+    prev_color.innerHTML="Available Color: "+`${el.color}`
   }
 
   const placeOrder = (el) => {
