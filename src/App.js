@@ -12,7 +12,9 @@ import BK from "./categories/babies_kids";
 import Error from "./pages/error";
 import HomeA from "./categories/home_furn";
 import SignLog from "./components/sign_login";
-import Sell from "./pages/sell";
+import Details from "./pages/details";
+import PlaceO from "./pages/place_order";
+// import Sell from "./pages/sell";
 
 
 function App() {
@@ -23,7 +25,7 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="*" element={<Error />} />
         <Route path="/fashion" element={<Fashion />} />
-        <Route path="/sell" element={<Sell />} />
+        {/* <Route path="/sell" element={<Sell />} /> */}
         <Route path="/sign_login" element={<SignLog />} />
         <Route path="/h&b" element={<HB />} />
         <Route path="/home_appl" element={<HomeA />} />
@@ -32,6 +34,8 @@ function App() {
         <Route path="/agric" element={<Agric />} />
         <Route path="/property" element={<Property />} />
        <Route path="/electronics" element={<Electronic />} />
+       <Route path="/checkout" element={<PlaceO />} />
+       <Route path="/details" element={<Details />} />
         <Route path="/vehicle" element={<VehicleC />} />
       </Route>
     </Routes>
