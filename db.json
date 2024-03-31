@@ -1,0 +1,249 @@
+{
+  "products": [
+    {
+      "id": "e72c",
+      "email": "kwasyamzi@gmail.com",
+      "product": "Copper Saucepan",
+      "price": "GHC 800",
+      "color": "",
+      "image": "/img/products/copper-saucepan.jpg",
+      "country": "Ghana",
+      "seller_name": ".",
+      "date": "3/29/2024 11:03 PM",
+      "size": "",
+      "contact": "0243126855",
+      "description": "Quality and Affordable Saucepan",
+      "materialU": "copper",
+      "category": "products",
+      "status": "posted"
+    },
+    {
+      "id": "3081",
+      "email": "kwasyamzi@gmail.com",
+      "product": "Led Light",
+      "price": "GHC 100",
+      "color": "",
+      "image": "/img/products/loader.gif",
+      "country": "Ghana",
+      "seller_name": ".",
+      "date": "3/29/2024 11:15 PM",
+      "size": "",
+      "contact": "0243126855",
+      "description": "Led light",
+      "materialU": "LED",
+      "category": "products",
+      "status": "posted"
+    },
+    {
+      "id": "343b",
+      "email": "kwasyamzi@gmail.com",
+      "product": "Nike Shoe",
+      "price": "GHC 200",
+      "color": "",
+      "image": "/img/products/loader.gif",
+      "country": "GHANA",
+      "seller_name": ".",
+      "date": "3/29/2024 11:16 PM",
+      "size": "",
+      "contact": "0243126855",
+      "description": "Shoe",
+      "materialU": "",
+      "category": "products",
+      "status": "posted"
+    }
+  ],
+  "vehicle": [
+    {
+      "id": "aaa7",
+      "email": "kwasyamzi@gmail.com",
+      "product": "Toyota",
+      "price": "GHC 200000",
+      "color": "black",
+      "image": "/img/products/loader.gif",
+      "country": "Ghana",
+      "seller_name": "Asvan",
+      "date": "3/29/2024 11:15 AM",
+      "size": "",
+      "contact": "00077777777777",
+      "description": "nothing",
+      "materialU": "haha",
+      "category": "vehicle",
+      "status": "posted"
+    }
+  ],
+  "art_craft": [],
+  "electronic": [],
+  "health_beauty": [],
+  "fashion": [],
+  "babies_kids": [],
+  "agric": [
+    {
+      "id": "1486",
+      "email": "kwasyamzi@gmail.com",
+      "product": "gobe",
+      "price": "3",
+      "color": "",
+      "image": "/img/products/loader.gif",
+      "country": "Ghana",
+      "seller_name": "Asvan",
+      "date": "3/29/2024 07:34 PM",
+      "size": "",
+      "contact": "3",
+      "description": "dddddd",
+      "materialU": "",
+      "category": "agric",
+      "status": "posted"
+    }
+  ],
+  "property": [],
+  "categories": [
+    {
+      "category": "Vehicles",
+      "value": "vehicle",
+      "link": "/vehicle",
+      "id": "0fbc"
+    },
+    {
+      "category": "Art and Craft",
+      "value": "art_craft",
+      "link": "/art",
+      "id": "ef30"
+    },
+    {
+      "category": "Property",
+      "value": "property",
+      "link": "/property",
+      "id": "b1a6"
+    },
+    {
+      "category": "Electronics",
+      "value": "electronic",
+      "link": "/electronics",
+      "id": "ec22"
+    },
+    {
+      "category": "Home,Furniture & Appliances",
+      "value": "products",
+      "link": "/home_appl",
+      "id": "893a"
+    },
+    {
+      "category": "Health & Beauty",
+      "value": "health_beauty",
+      "link": "/h&b",
+      "id": "52ff"
+    },
+    {
+      "category": "Fashion & Clothes",
+      "value": "fashion",
+      "link": "/fashion",
+      "id": "8a87"
+    },
+    {
+      "category": "Babies and Kids",
+      "value": "babies_kids",
+      "link": "/B&K",
+      "id": "82cf"
+    },
+    {
+      "category": "Agriculture & Food",
+      "value": "agric",
+      "link": "/agric",
+      "id": "ab7c"
+    }
+  ],
+  "orders": [
+    {
+      "id": "a954",
+      "email_to": "kwasyamzi@gmail.com",
+      "quantity": "07",
+      "email": "ll@gmail.com",
+      "phone": "9",
+      "product": "Tundra",
+      "address": "iiiii",
+      "name": "pppp",
+      "country": "pp",
+      "order_notes": "",
+      "date": "March,28 2024"
+    },
+    {
+      "id": "fcdb",
+      "email_to": "kwasyamzi@gmail.com",
+      "quantity": "9",
+      "email": "ll@gmail.com",
+      "phone": "88888888888",
+      "product": "Toyota",
+      "address": "iiiii",
+      "name": "pppp",
+      "country": "pp",
+      "order_notes": "",
+      "date": "March,28 2024"
+    },
+    {
+      "id": "64a6",
+      "email_to": "kwasyamzi@gmail.com",
+      "quantity": "8",
+      "email": "ll@gmail.com",
+      "phone": "00000",
+      "product": "Nissan",
+      "address": "iiiii",
+      "name": "pppp",
+      "country": "pp",
+      "order_notes": "",
+      "date": "March,29 2024 1711705555563"
+    },
+    {
+      "id": "c6de",
+      "email_to": "kwasyamzi@gmail.com",
+      "quantity": "-1",
+      "email": "kwasyamzi@gmail.com",
+      "phone": "0345454",
+      "product": "Toyota",
+      "address": "",
+      "name": "ff",
+      "country": "Ghana",
+      "order_notes": "",
+      "date": "3/29/2024 5"
+    },
+    {
+      "id": "d7af",
+      "email_to": "kwasyamzi@gmail.com",
+      "quantity": "7",
+      "email": "kwasyamzi@gmail.com",
+      "phone": "0786680",
+      "product": "Toyota",
+      "address": "iiiii",
+      "name": "pppp",
+      "country": "Ghana",
+      "order_notes": "",
+      "date": "3/29/2024 11:09 AM"
+    }
+  ],
+  "passcode": [
+    {
+      "psk": "al.com",
+      "id": "4162"
+    },
+    {
+      "psk": "0909",
+      "id": "0902"
+    }
+  ],
+  "update": [
+    {
+      "text": "",
+      "color": "",
+      "display": "none",
+      "id": "e711"
+    }
+  ],
+  "account": [
+    {
+      "id": "2af6",
+      "username": "AL",
+      "email": "kwasyamzi@gmail.com",
+      "passkey": "1AK2ak3Y",
+      "notice": ""
+    }
+  ]
+}
