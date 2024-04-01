@@ -12,7 +12,7 @@ var readonly={
 }
 
 
-var path="http://localhost:3001/account";
+var path="https://json-server-3w0y.onrender.com/account";
 
 function PostSign(){
 
@@ -164,7 +164,7 @@ function PatchPs(){
     var compare_ps=document.getElementById("compare_ps").value;
 
     if(compare_ps == create_ps && create_ps.length >=8){
-        fetch(`http://localhost:3001/account/${accoid}`,{
+        fetch(`https://json-server-3w0y.onrender.com/account/${accoid}`,{
             method:"PATCH",
             body: JSON.stringify({
                 "passkey":create_ps
@@ -249,7 +249,7 @@ export default function SignLog(){
             </Link>
                 <div className="form-content">
                     <header>Login</header>
-                    <form action="#" className="form" onSubmit={LogInto}>
+                    <form className="form" onSubmit={LogInto}>
                     <input style={readonly} id="loginread" readOnly/>
                      
                         <div className="field input-field">
@@ -262,7 +262,7 @@ export default function SignLog(){
                         </div>
 
                         <div className="form-link">
-                            <a href="#" className="forgot-pass" onClick={checkacPs}>Forgot password?</a>
+                            <a  className="forgot-pass" onClick={checkacPs}>Forgot password?</a>
                            
                         </div>
 
@@ -273,13 +273,13 @@ export default function SignLog(){
 
                         <div className="field button-field">
                             
-                            <button>Login</button>
+                            <button type="submit">Login</button>
                             
                         </div>
                     </form>
 
                     <div className="form-link">
-                        <span>Don't have an account? <a href="#" className="link signup-link" onClick={()=>{document.getElementById("signup").style.display="block";document.getElementById("forgot").style.display="none";document.getElementById("login").style.display="none"}}>Signup</a></span>
+                        <span>Don't have an account? <a  className="link signup-link" onClick={()=>{document.getElementById("signup").style.display="block";document.getElementById("forgot").style.display="none";document.getElementById("login").style.display="none"}}>Signup</a></span>
                     </div>
                 </div>
 
@@ -288,7 +288,7 @@ export default function SignLog(){
                
 
                 <div className="media-options">
-                    <a href="#" className="field google">
+                    <a  className="field google">
                         <img src={require("../img/google.png")} alt="" className="google-img"/>
                         <span>Login with Google</span>
                     </a>
@@ -304,7 +304,7 @@ export default function SignLog(){
             </Link>
                 <div className="form-content">
                     <header>Signup</header>
-                    <form action="#" className="form" onSubmit={PostSign}>
+                    <form  className="form" onSubmit={PostSign}>
                         
                     <input style={readonly} id="signupread" readOnly/>
                         <div className="field input-field">
@@ -327,7 +327,7 @@ export default function SignLog(){
                     </form>
 
                     <div className="form-link">
-                        <span>Already have an account? <a href="#" className="link login-link" onClick={()=>{document.getElementById("signup").style.display="none";document.getElementById("login").style.display="block";document.getElementById("forgot").style.display="none"}}>Login</a></span>
+                        <span>Already have an account? <a  className="link login-link" onClick={()=>{document.getElementById("signup").style.display="none";document.getElementById("login").style.display="block";document.getElementById("forgot").style.display="none"}}>Login</a></span>
                     </div>
                 </div>
 
@@ -335,7 +335,7 @@ export default function SignLog(){
 
                 
                 <div className="media-options">
-                    <a href="#" className="field google">
+                    <a  className="field google">
                         <img src={require("../img/google.png")} alt="" className="google-img" />
                         <span>Login with Google</span>
                     </a>
@@ -349,7 +349,7 @@ export default function SignLog(){
             </Link>
                 <div className="form-content">
                     <header>Forgot Password</header>
-                    <form action="#" className="form" onSubmit={PatchPs}>
+                    <form  className="form" onSubmit={PatchPs}>
                         
                     <input style={readonly} id="err_msg" readOnly/>
                     <input style={{padding:"2px 3px",display:"none",width:"100%",border:"none"}} id="account_id" readOnly/>
@@ -370,7 +370,7 @@ export default function SignLog(){
                     </form>
 
                     <div className="form-link">
-                        <span>Don't have an account? <a href="#" className="link signup-link" onClick={()=>{document.getElementById("signup").style.display="block";document.getElementById("forgot").style.display="none";document.getElementById("login").style.display="none"}}>Signup</a></span>
+                        <span>Don't have an account? <a  className="link signup-link" onClick={()=>{document.getElementById("signup").style.display="block";document.getElementById("forgot").style.display="none";document.getElementById("login").style.display="none"}}>Signup</a></span>
                     </div>
                 </div>
 

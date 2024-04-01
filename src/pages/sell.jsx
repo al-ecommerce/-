@@ -13,52 +13,52 @@ const oper={
 }
 
 function myPost(){
-    fetch("http://localhost:3001/vehicle")
+    fetch("https://json-server-3w0y.onrender.com/vehicle")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("http://localhost:3001/property")
+    fetch("https://json-server-3w0y.onrender.com/property")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("http://localhost:3001/fashion")
+    fetch("https://json-server-3w0y.onrender.com/fashion")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
-    fetch("http://localhost:3001/agric")
-    .then(res=> res.json())
-    .then(data=> fetchDetails(data))
-    .catch(err => console.log(err))
-
-
-    fetch("http://localhost:3001/products")
-    .then(res=> res.json())
-    .then(data=> fetchDetails(data))
-    .catch(err => console.log(err))
-
-    fetch("http://localhost:3001/art_craft")
+    fetch("https://json-server-3w0y.onrender.com/agric")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("http://localhost:3001/babies_kids")
+    fetch("https://json-server-3w0y.onrender.com/products")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
-    fetch("http://localhost:3001/electronic")
+    fetch("https://json-server-3w0y.onrender.com/art_craft")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("http://localhost:3001/health_beauty")
+    fetch("https://json-server-3w0y.onrender.com/babies_kids")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("https://json-server-3w0y.onrender.com/electronic")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
+
+    fetch("https://json-server-3w0y.onrender.com/health_beauty")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
@@ -91,7 +91,7 @@ det.appendChild(tr)
 function myOrder(){
     document.getElementById("checkingord").style.display="block"
    
-    fetch("http://localhost:3001/orders")
+    fetch("https://json-server-3w0y.onrender.com/orders")
     .then(res=> res.json())
     .then(data=> fetchOrder(data))
     .catch(err => console.log(err))
@@ -147,10 +147,10 @@ function PostGo(){
    let time=d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
     if(image == ""){
-        image="/img/products/loader.gif";
+        image="https://miro.medium.com/v2/resize:fit:1400/1*okbBhXU2x0f_eFyUVyc-gA.gif";
     }
 
-    fetch(`http://localhost:3001/${cat}`, {
+    fetch(`https://json-server-3w0y.onrender.com/${cat}`, {
         method:"POST",
         body:JSON.stringify({
             "email":email,
@@ -197,52 +197,52 @@ function PostGo(){
 
 
 function fetchID(){
-    fetch("http://localhost:3001/vehicle")
+    fetch("https://json-server-3w0y.onrender.com/vehicle")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("http://localhost:3001/property")
+    fetch("https://json-server-3w0y.onrender.com/property")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("http://localhost:3001/fashion")
+    fetch("https://json-server-3w0y.onrender.com/fashion")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
-    fetch("http://localhost:3001/agric")
-    .then(res=> res.json())
-    .then(data=> updateDetails(data))
-    .catch(err => console.log(err))
-
-
-    fetch("http://localhost:3001/products")
-    .then(res=> res.json())
-    .then(data=> updateDetails(data))
-    .catch(err => console.log(err))
-
-    fetch("http://localhost:3001/art_craft")
+    fetch("https://json-server-3w0y.onrender.com/agric")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("http://localhost:3001/babies_kids")
+    fetch("https://json-server-3w0y.onrender.com/products")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
-    fetch("http://localhost:3001/electronic")
+    fetch("https://json-server-3w0y.onrender.com/art_craft")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("http://localhost:3001/health_beauty")
+    fetch("https://json-server-3w0y.onrender.com/babies_kids")
+    .then(res=> res.json())
+    .then(data=> updateDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("https://json-server-3w0y.onrender.com/electronic")
+    .then(res=> res.json())
+    .then(data=> updateDetails(data))
+    .catch(err => console.log(err))
+
+
+    fetch("https://json-server-3w0y.onrender.com/health_beauty")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
@@ -275,52 +275,52 @@ function updateDetails(data){
 
 
 function deleteID(){
-    fetch("http://localhost:3001/vehicle")
+    fetch("https://json-server-3w0y.onrender.com/vehicle")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("http://localhost:3001/property")
+    fetch("https://json-server-3w0y.onrender.com/property")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("http://localhost:3001/fashion")
+    fetch("https://json-server-3w0y.onrender.com/fashion")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
-    fetch("http://localhost:3001/agric")
-    .then(res=> res.json())
-    .then(data=> deleteDetails(data))
-    .catch(err => console.log(err))
-
-
-    fetch("http://localhost:3001/products")
-    .then(res=> res.json())
-    .then(data=> deleteDetails(data))
-    .catch(err => console.log(err))
-
-    fetch("http://localhost:3001/art_craft")
+    fetch("https://json-server-3w0y.onrender.com/agric")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("http://localhost:3001/babies_kids")
+    fetch("https://json-server-3w0y.onrender.com/products")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
-    fetch("http://localhost:3001/electronic")
+    fetch("https://json-server-3w0y.onrender.com/art_craft")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("http://localhost:3001/health_beauty")
+    fetch("https://json-server-3w0y.onrender.com/babies_kids")
+    .then(res=> res.json())
+    .then(data=> deleteDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("https://json-server-3w0y.onrender.com/electronic")
+    .then(res=> res.json())
+    .then(data=> deleteDetails(data))
+    .catch(err => console.log(err))
+
+
+    fetch("https://json-server-3w0y.onrender.com/health_beauty")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
@@ -351,7 +351,7 @@ var prodid=document.getElementById("delid").value;
 
 
 
-fetch(`http://localhost:3001/${catdel}/${prodid}`, {
+fetch(`https://json-server-3w0y.onrender.com/${catdel}/${prodid}`, {
     method:"DELETE",
     headers:{
         "Content-type":"application/json"
@@ -388,7 +388,7 @@ var prodid=document.getElementById("prodid").value;
 
 
 
-fetch(`http://localhost:3001/${catupd}/${prodid}`, {
+fetch(`https://json-server-3w0y.onrender.com/${catupd}/${prodid}`, {
     method:"PATCH",
     body:JSON.stringify({
         "product":produpd,
@@ -437,7 +437,7 @@ const [cat, setCat]=useState([]);
 
 
 useEffect(()=>{
-    fetch("http://localhost:3001/categories")
+    fetch("https://json-server-3w0y.onrender.com/categories")
     .then(res => res.json())
     .then(data => setCat(data))
     .catch(err => console.log(err))
@@ -496,7 +496,7 @@ useEffect(()=>{
             <div className="checkout__form">
             <input id="loginemail" style={{visibility:"hidden"}} readOnly/>
                       
-                <form action="#" id="pst" onSubmit={PostGo}>
+                <form  id="pst" onSubmit={PostGo}>
                     <div className="row">
                         <div className="col-lg-8 col-md-6">
                             <h6 className="checkout__title">Details</h6>
@@ -598,7 +598,7 @@ useEffect(()=>{
 
 
 
-                <form action="#" onSubmit={UpdateGo} id="upd" style={{display:"none"}}>
+                <form  onSubmit={UpdateGo} id="upd" style={{display:"none"}}>
                     <p>To update a product, type the product id in the Product Id field. This will load the product enquiries to be edited.</p>
                     <div className="row">
                     <div className="col-lg-6">
@@ -684,7 +684,7 @@ useEffect(()=>{
                 </form>
 
 
-                <form action="#" onSubmit={DeleteGo} id="del"  style={{display:"none"}}>
+                <form  onSubmit={DeleteGo} id="del"  style={{display:"none"}}>
                     <p>To delete a product, type the product id. If the product id exist, then it will load the product enquiries. Then click the Delete button to delete.</p>
                     <div className="row">
                     <div className="col-lg-6">

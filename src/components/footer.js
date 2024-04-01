@@ -15,32 +15,32 @@ export default function Footer(){
                                 <strong>Email:</strong> info@example.com<br/>
                             </p>
                             <div class="social-links mt-3">
-                                <a href="#" class="twitter"><i class="fa fa-twitter"></i></a>
-                                <a href="#" class="facebook"><i class="fa fa-facebook"></i></a>
-                                <a href="#" class="instagram"><i class="fa fa-instagram"></i></a>
-                                <a href="#" class="google-plus"><i class="fa fa-skype"></i></a>
-                                <a href="#" class="linkedin"><i class="fa fa-linkedin"></i></a>
+                                <a  class="twitter"><i class="fa fa-twitter"></i></a>
+                                <a  class="facebook"><i class="fa fa-facebook"></i></a>
+                                <a  class="instagram"><i class="fa fa-instagram"></i></a>
+                                <a  class="google-plus"><i class="fa fa-skype"></i></a>
+                                <a  class="linkedin"><i class="fa fa-linkedin"></i></a>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-2 col-md-6 footer-links">
                         <h4>Useful Links</h4>
                         <ul>
-                            <li><i class="fa fa-chevron-right"></i> <a href="#">Home</a></li>
+                            <li><i class="fa fa-chevron-right"></i> <a >Home</a></li>
                             <li><i class="fa fa-chevron-right"></i> <a href="#contact">Contact us</a></li>
-                            <li><i class="fa fa-chevron-right"></i> <a href="#">Services</a></li>
-                            <li><i class="fa fa-chevron-right"></i> <a href="#">Terms of service</a></li>
-                            <li><i class="fa fa-chevron-right"></i> <a href="#">Privacy policy</a></li>
+                            <li><i class="fa fa-chevron-right"></i> <a >Services</a></li>
+                            <li><i class="fa fa-chevron-right"></i> <a >Terms of service</a></li>
+                            <li><i class="fa fa-chevron-right"></i> <a >Privacy policy</a></li>
                         </ul>
                     </div>
                     <div class="col-lg-3 col-md-6 footer-links">
                         <h4>Our Sales</h4>
                         <ul>
-                            <li><i class="fa fa-chevron-right"></i> <a href="#">Women</a></li>
-                            <li><i class="fa fa-chevron-right"></i> <a href="#">Men</a></li>
-                            <li><i class="fa fa-chevron-right"></i> <a href="#">Kids</a></li>
-                            <li><i class="fa fa-chevron-right"></i> <a href="#">Appliances</a></li>
-                            <li><i class="fa fa-chevron-right"></i> <a href="#">Shoes</a></li>
+                            <li><i class="fa fa-chevron-right"></i> <a >Women</a></li>
+                            <li><i class="fa fa-chevron-right"></i> <a >Men</a></li>
+                            <li><i class="fa fa-chevron-right"></i> <a >Kids</a></li>
+                            <li><i class="fa fa-chevron-right"></i> <a >Appliances</a></li>
+                            <li><i class="fa fa-chevron-right"></i> <a >Shoes</a></li>
                         </ul>
                     </div>
                     <div class="col-lg-4 col-md-6 footer-newsletter">

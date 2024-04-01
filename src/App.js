@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { HashRouter, Route, Routes } from "react-router-dom";
 
 import Home from "./pages/home";
 import VehicleC from "./categories/vehicle";
@@ -21,10 +21,10 @@ import Contact from "./pages/contact";
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
     <Routes>
       <Route>
-      <Route path="/" element={<Home />} />
+      <Route exact path="/" element={<Home />} />
       <Route path="*" element={<Error />} />
         <Route path="/fashion" element={<Fashion />} />
         {/* <Route path="/sell" element={<Sell />} /> */}
@@ -43,7 +43,7 @@ function App() {
         <Route path="/dev" element={<Dev />} />
       </Route>
     </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

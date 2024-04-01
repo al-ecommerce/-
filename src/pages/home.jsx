@@ -14,7 +14,7 @@ import Catg from "../components/catg";
 
 function Home() {
 
-//   var path="http://localhost:3001/terms"
+//   var path="https://json-server-3w0y.onrender.com/terms"
 // const [data, setData]=useState([])
 
 

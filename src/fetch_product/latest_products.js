@@ -3,6 +3,8 @@ import "./product.css"
 import React from "react";
 
 
+
+
 function Latest(){
 
 
@@ -19,16 +21,16 @@ const [ag, setAg]=useState([]);
 const [ele, setEl]=useState([]);
 
 
-var path="http://localhost:3001/products";
-var pathv="http://localhost:3001/vehicle";
+var path="https://json-server-3w0y.onrender.com/products";
+var pathv="https://json-server-3w0y.onrender.com/vehicle";
 
-var pathf="http://localhost:3001/fashion"
-var patha="http://localhost:3001/art_craft"
-var pathbk="http://localhost:3001/babies_kids"
-var pathhb="http://localhost:3001/health_beauty"
-var pathp="http://localhost:3001/property"
-var pathe="http://localhost:3001/electronic"
-var pathag="http://localhost:3001/agric"
+var pathf="https://json-server-3w0y.onrender.com/fashion"
+var patha="https://json-server-3w0y.onrender.com/art_craft"
+var pathbk="https://json-server-3w0y.onrender.com/babies_kids"
+var pathhb="https://json-server-3w0y.onrender.com/health_beauty"
+var pathp="https://json-server-3w0y.onrender.com/property"
+var pathe="https://json-server-3w0y.onrender.com/electronic"
+var pathag="https://json-server-3w0y.onrender.com/agric"
 
 const fetching= ()=>{
     fetch(path)
@@ -128,9 +130,9 @@ useEffect(()=>{
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
                             
                             <ul className="product__hover">
-                                <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
-                                <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
-                                <li><a href="#"><i className="fa fa-search"></i></a></li>
+                                <li><a ><i className="fa fa-id-card-o"></i></a></li>
+                                <li><a ><i className="fa fa-reorder"></i><span>Compare</span></a></li>
+                                <li><a ><i className="fa fa-file-code-o" onClick={()=>{navigator.clipboard.writeText(el.product);alert("Copied the text: " + el.product)}}></i></a></li>
                             </ul>
                         </div>
                         <div className="product__item__text">
@@ -169,9 +171,9 @@ useEffect(()=>{
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
                             
                             <ul className="product__hover">
-                                <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
-                                <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
-                                <li><a href="#"><i className="fa fa-search"></i></a></li>
+                                <li><a ><i className="fa fa-id-card-o"></i></a></li>
+                                <li><a ><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
+                                <li><a ><i className="fa fa-file-code-o" onClick={()=>{navigator.clipboard.writeText(el.product);alert("Copied the text: " + el.product)}}></i></a></li>
                             </ul>
                         </div>
                         <div className="product__item__text">
@@ -209,9 +211,9 @@ useEffect(()=>{
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
                             
                             <ul className="product__hover">
-                                <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
-                                <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
-                                <li><a href="#"><i className="fa fa-search"></i></a></li>
+                                <li><a ><i className="fa fa-id-card-o"></i></a></li>
+                                <li><a ><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
+                                <li><a ><i className="fa fa-file-code-o" onClick={()=>{navigator.clipboard.writeText(el.product);alert("Copied the text: " + el.product)}}></i></a></li>
                             </ul>
                         </div>
                         <div className="product__item__text">
@@ -250,9 +252,9 @@ useEffect(()=>{
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
                             
                             <ul className="product__hover">
-                                <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
-                                <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
-                                <li><a href="#"><i className="fa fa-search"></i></a></li>
+                                <li><a ><i className="fa fa-id-card-o"></i></a></li>
+                                <li><a ><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
+                                <li><a ><i className="fa fa-file-code-o" onClick={()=>{navigator.clipboard.writeText(el.product);alert("Copied the text: " + el.product)}}></i></a></li>
                             </ul>
                         </div>
                         <div className="product__item__text">
@@ -291,9 +293,9 @@ useEffect(()=>{
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
                             
                             <ul className="product__hover">
-                                <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
-                                <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
-                                <li><a href="#"><i className="fa fa-search"></i></a></li>
+                                <li><a ><i className="fa fa-id-card-o"></i></a></li>
+                                <li><a ><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
+                                <li><a ><i className="fa fa-file-code-o" onClick={()=>{navigator.clipboard.writeText(el.product);alert("Copied the text: " + el.product)}}></i></a></li>
                             </ul>
                         </div>
                         <div className="product__item__text">
@@ -331,9 +333,9 @@ useEffect(()=>{
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
                             
                             <ul className="product__hover">
-                                <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
-                                <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
-                                <li><a href="#"><i className="fa fa-search"></i></a></li>
+                                <li><a ><i className="fa fa-id-card-o"></i></a></li>
+                                <li><a ><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
+                                <li><a ><i className="fa fa-file-code-o" onClick={()=>{navigator.clipboard.writeText(el.product);alert("Copied the text: " + el.product)}}></i></a></li>
                             </ul>
                         </div>
                         <div className="product__item__text">
@@ -372,9 +374,9 @@ useEffect(()=>{
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
                             
                             <ul className="product__hover">
-                                <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
-                                <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
-                                <li><a href="#"><i className="fa fa-search"></i></a></li>
+                                <li><a ><i className="fa fa-id-card-o"></i></a></li>
+                                <li><a ><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
+                                <li><a ><i className="fa fa-file-code-o" onClick={()=>{navigator.clipboard.writeText(el.product);alert("Copied the text: " + el.product)}}></i></a></li>
                             </ul>
                         </div>
                         <div className="product__item__text">
@@ -412,9 +414,9 @@ useEffect(()=>{
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
                             
                             <ul className="product__hover">
-                                <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
-                                <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
-                                <li><a href="#"><i className="fa fa-search"></i></a></li>
+                                <li><a ><i className="fa fa-id-card-o"></i></a></li>
+                                <li><a ><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
+                                <li><a ><i className="fa fa-file-code-o" onClick={()=>{navigator.clipboard.writeText(el.product);alert("Copied the text: " + el.product)}}></i></a></li>
                             </ul>
                         </div>
                         <div className="product__item__text">
@@ -455,9 +457,9 @@ useEffect(()=>{
                         <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
                             
                             <ul className="product__hover">
-                                <li><a href="#"><i className="fa fa-heart-o"></i></a></li>
-                                <li><a href="#"><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
-                                <li><a href="#"><i className="fa fa-search"></i></a></li>
+                                <li><a ><i className="fa fa-id-card-o"></i></a></li>
+                                <li><a ><i className="fa fa-reorder"></i> <span>Compare</span></a></li>
+                                <li><a ><i className="fa fa-file-code-o" onClick={()=>{navigator.clipboard.writeText(el.product);alert("Copied the text: " + el.product)}}></i></a></li>
                             </ul>
                         </div>
                         <div className="product__item__text">

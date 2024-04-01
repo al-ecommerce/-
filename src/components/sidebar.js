@@ -10,7 +10,7 @@ function Sidebar(){
 const [category,setCategory]=useState([]);
 
 useEffect(()=>{
-    fetch("http://localhost:3001/categories")
+    fetch("https://json-server-3w0y.onrender.com/categories")
     .then(res => res.json())
     .then(data => setCategory(data))
     .catch(err => console.log(err))

@@ -2,7 +2,7 @@
 
 
 function PushChk(){
-    var path="http://localhost:3001/orders";
+    var path="https://json-server-3w0y.onrender.com/orders";
 
     var chk_eml=document.getElementById("chk_eml").value;
     var chk_q=document.getElementById("chk_q").value;

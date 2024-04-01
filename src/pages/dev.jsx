@@ -6,7 +6,7 @@ import Devfetch from "../components/dev_fetch";
 import Update from "../components/update";
 
 function fetchE(){
-  fetch("http://localhost:3001/passcode")
+  fetch("https://json-server-3w0y.onrender.com/passcode")
   .then(res => res.json())
   .then(data => passkey(data))
 }

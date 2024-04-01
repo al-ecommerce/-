@@ -13,7 +13,7 @@ export default function Catg(){
                     </div>
                     <div class="col-lg-4">
                         <div class="categories__hot__deal">
-                            <img src="img/products/knife-holder.jpg" alt="" style={{maxWidth:"120px",maxHeight: "400px"}}/>
+                            <img src={require("../img/products/knife-holder.jpg")} alt="" style={{maxWidth:"120px",maxHeight: "400px"}}/>
                             <div class="hot__deal__sticker">
                                 <span>Sale Of</span>
                                 <h5>GHC99.99</h5>

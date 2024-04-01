@@ -9,9 +9,9 @@ const get= {
     padding:"10px 12px"
 }
 
-var cat_path="http://localhost:3001/categories"
-var acc_path="http://localhost:3001/account"
-var upd_path="http://localhost:3001/update"
+var cat_path="https://json-server-3w0y.onrender.com/categories"
+var acc_path="https://json-server-3w0y.onrender.com/account"
+var upd_path="https://json-server-3w0y.onrender.com/update"
 
 
 function ctg(){
@@ -106,6 +106,66 @@ function appendUpd(data){
 }
 
 
+function Getall(){
+    var endpoint=document.getElementById("url_all").value;
+
+    
+    var prompty=prompt("Enter Code");
+
+    if(prompty == "200618"){
+    fetch(`https://json-server-3w0y.onrender.com/${endpoint}`)
+        .then(res => res.json())
+        .then(data=> appendGetall(data))
+        .catch(err=> console.log(err))
+    }
+    
+}
+
+function appendGetall(data){
+    for(var i=0; i < data.length;i++){
+        var table=document.getElementById("table3");
+        var tr=document.createElement("tr");
+        tr.innerHTML=`
+        <td>${data[i].id}</td>
+        <td>${data[i].email}</td>
+        <td>${data[i].seller_name}</td>
+        <td>${data[i].product}</td>
+        <td>${data[i].image}</td>
+        <td>${data[i].country}</td>
+        <td>${data[i].contact}</td>
+        <td>${data[i].category}</td>
+        <td>${data[i].price}</td>
+        <td>${data[i].date}</td>
+        <td>${data[i].description}</td>
+        <td>${data[i].email_to}</td>
+        <td>${data[i].color}</td>`
+
+        table.appendChild(tr)
+    }
+}
+
+function Deleteall(){
+    var endpoint=document.getElementById("url_all").value;
+
+    
+    var prompty=prompt("Enter Code");
+
+    if(prompty == "200618"){
+    fetch(`https://json-server-3w0y.onrender.com/${endpoint}`,{
+        method:"DELETE",
+        headers:{
+            "Content-type":"application/json"
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log(data)
+    alert("Deleted Success")
+    })
+    .catch(err => console.log(err))
+}
+}
+
 
 function accS(){
     var input=document.getElementById("acc_search");
@@ -134,7 +194,7 @@ function deleteAcc(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch(`http://localhost:3001/account/${ac_id}`,{
+    fetch(`https://json-server-3w0y.onrender.com/account/${ac_id}`,{
         method:"DELETE",
         headers:{
             "Content-type":"application/json"
@@ -156,7 +216,7 @@ function PatchAcc(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch(`http://localhost:3001/account/${ac_id}`,{
+    fetch(`https://json-server-3w0y.onrender.com/account/${ac_id}`,{
         method:"PATCH",
         body:JSON.stringify({
             "notice":notice
@@ -185,7 +245,7 @@ function updU(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch(`http://localhost:3001/update/${upd_id}`,{
+    fetch(`https://json-server-3w0y.onrender.com/update/${upd_id}`,{
         method:"PATCH",
         body:JSON.stringify({
             "text":upd_text,
@@ -214,7 +274,7 @@ function postCtg(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch("http://localhost:3001/categories",{
+    fetch("https://json-server-3w0y.onrender.com/categories",{
         method:"POST",
         body:JSON.stringify({
             "category":p_cat,
@@ -239,7 +299,7 @@ function delCtg(){
 
     if(prompty == "200618"){
     var p_id=document.getElementById("p_id").value;
-    fetch(`http://localhost:3001/categories/${p_id}`,{
+    fetch(`https://json-server-3w0y.onrender.com/categories/${p_id}`,{
         method:"DELETE",
         headers:{
             "Content-type":"applicaton/json"
@@ -338,6 +398,21 @@ export default function Devfetch(){
                 </tr>
        
             </table>
+        </div>
+
+        <div>
+        <h4>All</h4>
+            <a onClick={Getall} style={get}>GET</a>
+            <a onClick={Deleteall} style={get}>DELETE</a>
+        
+        <br/>
+        <br/>
+        <input type="text" style={{padding:"4px 20px"}} id="url_all"/>
+
+
+        <table className="table" id="table3">
+
+        </table>
         </div>
     </section>
     </>

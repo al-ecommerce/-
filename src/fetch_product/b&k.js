@@ -9,6 +9,8 @@ import Inputq from "../components/inputquery";
 
 
 
+
+
 function proD(){
     document.getElementById("productsV").style.display="block";
     document.getElementById("prds").style.display="none";
@@ -71,7 +73,7 @@ const handleDes = (el) => {
 const [product, setProduct]=useState([]);
 
 
-var path="http://localhost:3001/babies_kids";
+var path="https://json-server-3w0y.onrender.com/babies_kids";
 
 const fetching= ()=>{
     fetch(path)
@@ -115,10 +117,10 @@ useEffect(()=>{
                                         <div class="card-body">
                                             <div class="shop__sidebar__brand">
                                                 <ul>
-                                                    <li><a href="#">Louis Vuitton</a></li>
-                                                    <li><a href="#">Chanel</a></li>
-                                                    <li><a href="#">Hermes</a></li>
-                                                    <li><a href="#">Gucci</a></li>
+                                                    <li><a >Louis Vuitton</a></li>
+                                                    <li><a >Chanel</a></li>
+                                                    <li><a >Hermes</a></li>
+                                                    <li><a >Gucci</a></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -132,12 +134,12 @@ useEffect(()=>{
                                         <div class="card-body">
                                             <div class="shop__sidebar__price">
                                                 <ul>
-                                                    <li><a href="#">$0.00 - $50.00</a></li>
-                                                    <li><a href="#">$50.00 - $100.00</a></li>
-                                                    <li><a href="#">$100.00 - $150.00</a></li>
-                                                    <li><a href="#">$150.00 - $200.00</a></li>
-                                                    <li><a href="#">$200.00 - $250.00</a></li>
-                                                    <li><a href="#">250.00+</a></li>
+                                                    <li><a >$0.00 - $50.00</a></li>
+                                                    <li><a >$50.00 - $100.00</a></li>
+                                                    <li><a >$100.00 - $150.00</a></li>
+                                                    <li><a >$150.00 - $200.00</a></li>
+                                                    <li><a >$200.00 - $250.00</a></li>
+                                                    <li><a >250.00+</a></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -247,15 +249,15 @@ useEffect(()=>{
                             <div class="product__item">
                                 <div class="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
                                     <ul class="product__hover">
-                                        <li><a href="#" onClick={()=>handleDes(el)}><img src={require("../img/icon/heart.png")} alt=""/></a></li>
-                                        <li><a href="#"><img src={require("../img/icon/compare.png")} alt=""/> <span>Compare</span></a>
+                                        <li><a  onClick={()=>handleDes(el)}><i className="fa fa-id-card-o"></i></a></li>
+                                        <li><a ><i className="fa fa-reorder"></i> <span>Compare</span></a>
                                         </li>
-                                        <li><a href="#"><img src={require("../img/icon/search.png")} alt=""/></a></li>
+                                        <li><a ><i className="fa fa-file-code-o" onClick={()=>{navigator.clipboard.writeText(el.product);alert("Copied the text: " + el.product)}}></i></a></li>
                                     </ul>
                                 </div>
                                 <div class="product__item__text">
                                     <h6 className="ppp">{el.product}</h6>
-                                    <a href="#" class="add-cart" onClick={()=>placeOrder(el)}>+ Add To Cart</a>
+                                    <a  class="add-cart" onClick={()=>placeOrder(el)}>+ Add To Cart</a>
                                     <div class="rating">
                                         <i class="fa fa-star-o"></i>
                                         <i class="fa fa-star-o"></i>
