@@ -19,6 +19,9 @@ import Contact from "./pages/contact";
 import Payment from "./pages/payment";
 import Blog from "./pages/blog";
 import InsGuide from "./pages/ins_guide";
+import AutoP from "./categories/auto";
+import Footwear from "./categories/footwear";
+import Jewellery from "./categories/jewellery";
 // import Sell from "./pages/sell";
 
 
@@ -42,6 +45,9 @@ function App() {
        <Route path="/checkout" element={<PlaceO />} />
        <Route path="/details" element={<Details />} />
         <Route path="/vehicle" element={<VehicleC />} />
+        <Route path="/autoparts" element={<AutoP />} />
+        <Route path="/footwear" element={<Footwear />} />
+        <Route path="/jewellery" element={<Jewellery />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/contact" element={<Contact />} />
