@@ -25,7 +25,7 @@ export default function Header(){
 const [category,setCategory]=useState([]);
 
 useEffect(()=>{
-    fetch("https://json-server-3w0y.onrender.com/categories")
+    fetch("https://faint-dandelion-lilac.glitch.me/categories")
     .then(res => res.json())
     .then(data => setCategory(data))
     .catch(err => console.log(err))
@@ -64,10 +64,15 @@ useEffect(()=>{
              <li style={color}>FAQ</li>
              </Link>
 
+             <Link to="/blog">
+             <li style={color}>Blog</li>
+             </Link>
       <Link to="/contact">
              <li style={color}>Contact</li>
              </Link>
-
+             <Link to="/ins_guide">
+             <li style={color}>Installation Guide</li>
+             </Link>
             <Link to="/dev">
              <li style={color}>Dev</li>
              </Link>

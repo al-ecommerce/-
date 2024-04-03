@@ -6,7 +6,7 @@ import Devfetch from "../components/dev_fetch";
 import Update from "../components/update";
 
 function fetchE(){
-  fetch("https://json-server-3w0y.onrender.com/passcode")
+  fetch("https://faint-dandelion-lilac.glitch.me/passcode")
   .then(res => res.json())
   .then(data => passkey(data))
 }

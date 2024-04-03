@@ -14,7 +14,7 @@ import Catg from "../components/catg";
 
 function Home() {
 
-//   var path="https://json-server-3w0y.onrender.com/terms"
+//   var path="https://faint-dandelion-lilac.glitch.me/terms"
 // const [data, setData]=useState([])
 
 
@@ -28,45 +28,63 @@ function Home() {
 // },[])
   
 
+function loadApp(){
+setTimeout(()=>{
+	
+var loadery=document.getElementById("loadery");
+var the_main=document.getElementById("the_main");
 
+	loadery.style.display="none";
+	the_main.style.display="block"
+}, 5000)
+}
   return (
-    <section>
+    <section onLoad={loadApp()}>
+		<div id="loadery" className="loadery">
+			<center>
+				<div className="text">
+			<a>AL<span>ECOM</span></a>
+			<p>The best sales app</p>
+			</div>
+			</center>
+		</div>
+		<div id="the_main" style={{display:"none"}}>
     <Header />
     <div id="main">
 		
 <Update />
    <Banner />
 
-   <section class="features-area section_gap">
-		<div class="container">
-			<div class="row features-inner">
-				<div class="col-lg-3 col-md-6 col-sm-6">
-					<div class="single-features">
-						<div class="f-icon">
+   <section className="features-area section_gap">
+		<div className="container">
+			<div className="row features-inner">
+				<div className="col-lg-3 col-md-6 col-sm-6">
+					<div className="single-features">
+						<div className="f-icon">
 						</div>
 						<h6>Free Delivery</h6>
 						<p>Free Shipping on all order</p>
 					</div>
 				</div>
-				<div class="col-lg-3 col-md-6 col-sm-6">
-					<div class="single-features">
-						<div class="f-icon">
+				<div className="col-lg-3 col-md-6 col-sm-6">
+					<div className="single-features">
+						<div className="f-icon">
 						</div>
 						<h6>Return Policy</h6>
 						<p>Free Shipping on all order</p>
 					</div>
 				</div>
-				<div class="col-lg-3 col-md-6 col-sm-6">
-					<div class="single-features">
-						<div class="f-icon">
+				<div className="col-lg-3 col-md-6 col-sm-6">
+					<div className="single-features">
+						<div className="f-icon">
 						</div>
 						<h6>24/7 Support</h6>
 						<p>Free Shipping on all order</p>
 					</div>
 				</div>
-				<div class="col-lg-3 col-md-6 col-sm-6">
-					<div class="single-features">
-						<div class="f-icon">
+				<div className="col-lg-3 col-md-6 col-sm-6">
+					<div className="single-features">
+						<div className="f-icon">
 						</div>
 						<h6>Secure Payment</h6>
 						<p>Free Shipping on all order</p>
@@ -86,6 +104,7 @@ function Home() {
 </div>
 
 <Footer />
+</div>
     </section>
    
   )

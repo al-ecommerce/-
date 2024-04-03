@@ -13,52 +13,52 @@ const oper={
 }
 
 function myPost(){
-    fetch("https://json-server-3w0y.onrender.com/vehicle")
+    fetch("https://faint-dandelion-lilac.glitch.me/vehicle")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://json-server-3w0y.onrender.com/property")
+    fetch("https://faint-dandelion-lilac.glitch.me/property")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://json-server-3w0y.onrender.com/fashion")
+    fetch("https://faint-dandelion-lilac.glitch.me/fashion")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
-    fetch("https://json-server-3w0y.onrender.com/agric")
-    .then(res=> res.json())
-    .then(data=> fetchDetails(data))
-    .catch(err => console.log(err))
-
-
-    fetch("https://json-server-3w0y.onrender.com/products")
-    .then(res=> res.json())
-    .then(data=> fetchDetails(data))
-    .catch(err => console.log(err))
-
-    fetch("https://json-server-3w0y.onrender.com/art_craft")
+    fetch("https://faint-dandelion-lilac.glitch.me/agric")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://json-server-3w0y.onrender.com/babies_kids")
+    fetch("https://faint-dandelion-lilac.glitch.me/products")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
-    fetch("https://json-server-3w0y.onrender.com/electronic")
+    fetch("https://faint-dandelion-lilac.glitch.me/art_craft")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://json-server-3w0y.onrender.com/health_beauty")
+    fetch("https://faint-dandelion-lilac.glitch.me/babies_kids")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("https://faint-dandelion-lilac.glitch.me/electronic")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
+
+    fetch("https://faint-dandelion-lilac.glitch.me/health_beauty")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
@@ -73,7 +73,7 @@ var det=document.getElementById("det");
 var tr=document.createElement("tr");
 
 tr.innerHTML+=`
-<td>${data[i].id}</td>
+<td onclick="navigator.clipboard.writeText(${data[i].id});alert('Copied ${data[i].id}');">${data[i].id}</td>
 <td>${data[i].product}</td>
 <td>${data[i].price}</td>
 <td>${data[i].category}</td>
@@ -91,7 +91,7 @@ det.appendChild(tr)
 function myOrder(){
     document.getElementById("checkingord").style.display="block"
    
-    fetch("https://json-server-3w0y.onrender.com/orders")
+    fetch("https://faint-dandelion-lilac.glitch.me/orders")
     .then(res=> res.json())
     .then(data=> fetchOrder(data))
     .catch(err => console.log(err))
@@ -145,14 +145,15 @@ function PostGo(){
 
     let date=d.toLocaleDateString()
    let time=d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-
+   var id = Date.now().toString(36) + Math.random().toString(36).substr(2);
     if(image == ""){
         image="https://miro.medium.com/v2/resize:fit:1400/1*okbBhXU2x0f_eFyUVyc-gA.gif";
     }
 
-    fetch(`https://json-server-3w0y.onrender.com/${cat}`, {
+    fetch(`https://faint-dandelion-lilac.glitch.me/${cat}`, {
         method:"POST",
         body:JSON.stringify({
+            "id":id,
             "email":email,
             "product":product,
             "price":price,
@@ -197,52 +198,52 @@ function PostGo(){
 
 
 function fetchID(){
-    fetch("https://json-server-3w0y.onrender.com/vehicle")
+    fetch("https://faint-dandelion-lilac.glitch.me/vehicle")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://json-server-3w0y.onrender.com/property")
+    fetch("https://faint-dandelion-lilac.glitch.me/property")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://json-server-3w0y.onrender.com/fashion")
+    fetch("https://faint-dandelion-lilac.glitch.me/fashion")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
-    fetch("https://json-server-3w0y.onrender.com/agric")
-    .then(res=> res.json())
-    .then(data=> updateDetails(data))
-    .catch(err => console.log(err))
-
-
-    fetch("https://json-server-3w0y.onrender.com/products")
-    .then(res=> res.json())
-    .then(data=> updateDetails(data))
-    .catch(err => console.log(err))
-
-    fetch("https://json-server-3w0y.onrender.com/art_craft")
+    fetch("https://faint-dandelion-lilac.glitch.me/agric")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://json-server-3w0y.onrender.com/babies_kids")
+    fetch("https://faint-dandelion-lilac.glitch.me/products")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
-    fetch("https://json-server-3w0y.onrender.com/electronic")
+    fetch("https://faint-dandelion-lilac.glitch.me/art_craft")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://json-server-3w0y.onrender.com/health_beauty")
+    fetch("https://faint-dandelion-lilac.glitch.me/babies_kids")
+    .then(res=> res.json())
+    .then(data=> updateDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("https://faint-dandelion-lilac.glitch.me/electronic")
+    .then(res=> res.json())
+    .then(data=> updateDetails(data))
+    .catch(err => console.log(err))
+
+
+    fetch("https://faint-dandelion-lilac.glitch.me/health_beauty")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
@@ -275,52 +276,52 @@ function updateDetails(data){
 
 
 function deleteID(){
-    fetch("https://json-server-3w0y.onrender.com/vehicle")
+    fetch("https://faint-dandelion-lilac.glitch.me/vehicle")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://json-server-3w0y.onrender.com/property")
+    fetch("https://faint-dandelion-lilac.glitch.me/property")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://json-server-3w0y.onrender.com/fashion")
+    fetch("https://faint-dandelion-lilac.glitch.me/fashion")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
-    fetch("https://json-server-3w0y.onrender.com/agric")
-    .then(res=> res.json())
-    .then(data=> deleteDetails(data))
-    .catch(err => console.log(err))
-
-
-    fetch("https://json-server-3w0y.onrender.com/products")
-    .then(res=> res.json())
-    .then(data=> deleteDetails(data))
-    .catch(err => console.log(err))
-
-    fetch("https://json-server-3w0y.onrender.com/art_craft")
+    fetch("https://faint-dandelion-lilac.glitch.me/agric")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://json-server-3w0y.onrender.com/babies_kids")
+    fetch("https://faint-dandelion-lilac.glitch.me/products")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
-    fetch("https://json-server-3w0y.onrender.com/electronic")
+    fetch("https://faint-dandelion-lilac.glitch.me/art_craft")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://json-server-3w0y.onrender.com/health_beauty")
+    fetch("https://faint-dandelion-lilac.glitch.me/babies_kids")
+    .then(res=> res.json())
+    .then(data=> deleteDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("https://faint-dandelion-lilac.glitch.me/electronic")
+    .then(res=> res.json())
+    .then(data=> deleteDetails(data))
+    .catch(err => console.log(err))
+
+
+    fetch("https://faint-dandelion-lilac.glitch.me/health_beauty")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
@@ -351,7 +352,7 @@ var prodid=document.getElementById("delid").value;
 
 
 
-fetch(`https://json-server-3w0y.onrender.com/${catdel}/${prodid}`, {
+fetch(`https://faint-dandelion-lilac.glitch.me/${catdel}/${prodid}`, {
     method:"DELETE",
     headers:{
         "Content-type":"application/json"
@@ -388,7 +389,7 @@ var prodid=document.getElementById("prodid").value;
 
 
 
-fetch(`https://json-server-3w0y.onrender.com/${catupd}/${prodid}`, {
+fetch(`https://faint-dandelion-lilac.glitch.me/${catupd}/${prodid}`, {
     method:"PATCH",
     body:JSON.stringify({
         "product":produpd,
@@ -437,7 +438,7 @@ const [cat, setCat]=useState([]);
 
 
 useEffect(()=>{
-    fetch("https://json-server-3w0y.onrender.com/categories")
+    fetch("https://faint-dandelion-lilac.glitch.me/categories")
     .then(res => res.json())
     .then(data => setCat(data))
     .catch(err => console.log(err))
@@ -599,7 +600,7 @@ useEffect(()=>{
 
 
                 <form  onSubmit={UpdateGo} id="upd" style={{display:"none"}}>
-                    <p>To update a product, type the product id in the Product Id field. This will load the product enquiries to be edited.</p>
+                    <p>To update a product, type the product id or select the id from the "My POST" at post a product page.in the Product Id field. This will load the product enquiries to be edited.</p>
                     <div className="row">
                     <div className="col-lg-6">
                                     <div className="checkout__input">

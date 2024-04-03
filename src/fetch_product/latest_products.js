@@ -21,16 +21,16 @@ const [ag, setAg]=useState([]);
 const [ele, setEl]=useState([]);
 
 
-var path="https://json-server-3w0y.onrender.com/products";
-var pathv="https://json-server-3w0y.onrender.com/vehicle";
+var path="https://faint-dandelion-lilac.glitch.me/products";
+var pathv="https://faint-dandelion-lilac.glitch.me/vehicle";
 
-var pathf="https://json-server-3w0y.onrender.com/fashion"
-var patha="https://json-server-3w0y.onrender.com/art_craft"
-var pathbk="https://json-server-3w0y.onrender.com/babies_kids"
-var pathhb="https://json-server-3w0y.onrender.com/health_beauty"
-var pathp="https://json-server-3w0y.onrender.com/property"
-var pathe="https://json-server-3w0y.onrender.com/electronic"
-var pathag="https://json-server-3w0y.onrender.com/agric"
+var pathf="https://faint-dandelion-lilac.glitch.me/fashion"
+var patha="https://faint-dandelion-lilac.glitch.me/art_craft"
+var pathbk="https://faint-dandelion-lilac.glitch.me/babies_kids"
+var pathhb="https://faint-dandelion-lilac.glitch.me/health_beauty"
+var pathp="https://faint-dandelion-lilac.glitch.me/property"
+var pathe="https://faint-dandelion-lilac.glitch.me/electronic"
+var pathag="https://faint-dandelion-lilac.glitch.me/agric"
 
 const fetching= ()=>{
     fetch(path)

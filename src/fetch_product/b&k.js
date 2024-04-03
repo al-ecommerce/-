@@ -73,7 +73,7 @@ const handleDes = (el) => {
 const [product, setProduct]=useState([]);
 
 
-var path="https://json-server-3w0y.onrender.com/babies_kids";
+var path="https://faint-dandelion-lilac.glitch.me/babies_kids";
 
 const fetching= ()=>{
     fetch(path)
@@ -96,26 +96,26 @@ useEffect(()=>{
 <br/>
 <br/>
 
-        <section class="shop spad" id="productsV">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="shop__sidebar">
-                        <div class="shop__sidebar__search">
+        <section className="shop spad" id="productsV">
+        <div className="container">
+            <div className="row">
+                <div className="col-lg-3">
+                    <div className="shop__sidebar">
+                        <div className="shop__sidebar__search">
                             <form>
                                 <Inputq />
                             </form>
                         </div>
-                        <div class="shop__sidebar__accordion">
-                            <div class="accordion" id="accordionExample">
+                        <div className="shop__sidebar__accordion">
+                            <div className="accordion" id="accordionExample">
                                 
-                                <div class="card">
-                                    <div class="card-heading">
+                                <div className="card">
+                                    <div className="card-heading">
                                         <a data-toggle="collapse" data-target="#collapseTwo">Branding</a>
                                     </div>
-                                    <div id="collapseTwo" class="collapse show" data-parent="#accordionExample">
-                                        <div class="card-body">
-                                            <div class="shop__sidebar__brand">
+                                    <div id="collapseTwo" className="collapse show" data-parent="#accordionExample">
+                                        <div className="card-body">
+                                            <div className="shop__sidebar__brand">
                                                 <ul>
                                                     <li><a >Louis Vuitton</a></li>
                                                     <li><a >Chanel</a></li>
@@ -126,13 +126,13 @@ useEffect(()=>{
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card">
-                                    <div class="card-heading">
+                                <div className="card">
+                                    <div className="card-heading">
                                         <a data-toggle="collapse" data-target="#collapseThree">Filter Price</a>
                                     </div>
-                                    <div id="collapseThree" class="collapse show" data-parent="#accordionExample">
-                                        <div class="card-body">
-                                            <div class="shop__sidebar__price">
+                                    <div id="collapseThree" className="collapse show" data-parent="#accordionExample">
+                                        <div className="card-body">
+                                            <div className="shop__sidebar__price">
                                                 <ul>
                                                     <li><a >$0.00 - $50.00</a></li>
                                                     <li><a >$50.00 - $100.00</a></li>
@@ -145,13 +145,13 @@ useEffect(()=>{
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card">
-                                    <div class="card-heading">
+                                <div className="card">
+                                    <div className="card-heading">
                                         <a data-toggle="collapse" data-target="#collapseFour">Size</a>
                                     </div>
-                                    <div id="collapseFour" class="collapse show" data-parent="#accordionExample">
-                                        <div class="card-body">
-                                            <div class="shop__sidebar__size">
+                                    <div id="collapseFour" className="collapse show" data-parent="#accordionExample">
+                                        <div className="card-body">
+                                            <div className="shop__sidebar__size">
                                                 <label for="xs">xs
                                                     <input type="radio" id="xs"/>
                                                 </label>
@@ -180,38 +180,38 @@ useEffect(()=>{
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card">
-                                    <div class="card-heading">
+                                <div className="card">
+                                    <div className="card-heading">
                                         <a data-toggle="collapse" data-target="#collapseFive">Colors</a>
                                     </div>
-                                    <div id="collapseFive" class="collapse show" data-parent="#accordionExample">
-                                        <div class="card-body">
-                                            <div class="shop__sidebar__color">
-                                                <label class="c-1" for="sp-1">
+                                    <div id="collapseFive" className="collapse show" data-parent="#accordionExample">
+                                        <div className="card-body">
+                                            <div className="shop__sidebar__color">
+                                                <label className="c-1" for="sp-1">
                                                     <input type="radio" id="sp-1"/>
                                                 </label>
-                                                <label class="c-2" for="sp-2">
+                                                <label className="c-2" for="sp-2">
                                                     <input type="radio" id="sp-2"/>
                                                 </label>
-                                                <label class="c-3" for="sp-3">
+                                                <label className="c-3" for="sp-3">
                                                     <input type="radio" id="sp-3"/>
                                                 </label>
-                                                <label class="c-4" for="sp-4">
+                                                <label className="c-4" for="sp-4">
                                                     <input type="radio" id="sp-4"/>
                                                 </label>
-                                                <label class="c-5" for="sp-5">
+                                                <label className="c-5" for="sp-5">
                                                     <input type="radio" id="sp-5"/>
                                                 </label>
-                                                <label class="c-6" for="sp-6">
+                                                <label className="c-6" for="sp-6">
                                                     <input type="radio" id="sp-6"/>
                                                 </label>
-                                                <label class="c-7" for="sp-7">
+                                                <label className="c-7" for="sp-7">
                                                     <input type="radio" id="sp-7"/>
                                                 </label>
-                                                <label class="c-8" for="sp-8">
+                                                <label className="c-8" for="sp-8">
                                                     <input type="radio" id="sp-8"/>
                                                 </label>
-                                                <label class="c-9" for="sp-9">
+                                                <label className="c-9" for="sp-9">
                                                     <input type="radio" id="sp-9"/>
                                                 </label>
                                             </div>
@@ -223,16 +223,16 @@ useEffect(()=>{
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-9">
-                    <div class="shop__product__option">
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6 col-sm-6">
-                                <div class="shop__product__option__left">
+                <div className="col-lg-9">
+                    <div className="shop__product__option">
+                        <div className="row">
+                            <div className="col-lg-6 col-md-6 col-sm-6">
+                                <div className="shop__product__option__left">
                                     <p id="results">Showing...</p>
                                 </div>
                             </div>
-                            <div class="col-lg-6 col-md-6 col-sm-6">
-                                <div class="shop__product__option__right">
+                            <div className="col-lg-6 col-md-6 col-sm-6">
+                                <div className="shop__product__option__right">
                                     <p>Sort by Price:</p>
                                     <select>
                                         <option value="">Low To High</option>
@@ -243,37 +243,37 @@ useEffect(()=>{
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div className="row">
                     {product.map((el)=>(
-                        <div class="col-lg-4 col-md-6 col-sm-6 key_prd" key={el.id}>
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
-                                    <ul class="product__hover">
+                        <div className="col-lg-4 col-md-6 col-sm-6 key_prd" key={el.id}>
+                            <div className="product__item">
+                                <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
+                                    <ul className="product__hover">
                                         <li><a  onClick={()=>handleDes(el)}><i className="fa fa-id-card-o"></i></a></li>
                                         <li><a ><i className="fa fa-reorder"></i> <span>Compare</span></a>
                                         </li>
                                         <li><a ><i className="fa fa-file-code-o" onClick={()=>{navigator.clipboard.writeText(el.product);alert("Copied the text: " + el.product)}}></i></a></li>
                                     </ul>
                                 </div>
-                                <div class="product__item__text">
+                                <div className="product__item__text">
                                     <h6 className="ppp">{el.product}</h6>
-                                    <a  class="add-cart" onClick={()=>placeOrder(el)}>+ Add To Cart</a>
-                                    <div class="rating">
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-o"></i>
+                                    <a  className="add-cart" onClick={()=>placeOrder(el)}>+ Add To Cart</a>
+                                    <div className="rating">
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
                                     </div>
                                     <h5>{el.price}</h5>
-                                    <div class="product__color__select">
+                                    <div className="product__color__select">
                                         <label for="pc-40">
                                             <input type="radio" id="pc-40"/>
                                         </label>
-                                        <label class="active black" for="pc-41">
+                                        <label className="active black" for="pc-41">
                                             <input type="radio" id="pc-41"/>
                                         </label>
-                                        <label class="grey" for="pc-42">
+                                        <label className="grey" for="pc-42">
                                             <input type="radio" id="pc-42"/>
                                         </label>
                                     </div>

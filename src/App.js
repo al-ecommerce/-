@@ -16,6 +16,9 @@ import Details from "./pages/details";
 import PlaceO from "./pages/place_order";
 import Dev from "./pages/dev";
 import Contact from "./pages/contact";
+import Payment from "./pages/payment";
+import Blog from "./pages/blog";
+import InsGuide from "./pages/ins_guide";
 // import Sell from "./pages/sell";
 
 
@@ -39,8 +42,11 @@ function App() {
        <Route path="/checkout" element={<PlaceO />} />
        <Route path="/details" element={<Details />} />
         <Route path="/vehicle" element={<VehicleC />} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/blog" element={<Blog />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/dev" element={<Dev />} />
+        <Route path="/ins_guide" element={<InsGuide />} />
       </Route>
     </Routes>
     </HashRouter>

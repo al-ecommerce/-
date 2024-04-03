@@ -9,9 +9,9 @@ const get= {
     padding:"10px 12px"
 }
 
-var cat_path="https://json-server-3w0y.onrender.com/categories"
-var acc_path="https://json-server-3w0y.onrender.com/account"
-var upd_path="https://json-server-3w0y.onrender.com/update"
+var cat_path="https://faint-dandelion-lilac.glitch.me/categories"
+var acc_path="https://faint-dandelion-lilac.glitch.me/account"
+var upd_path="https://faint-dandelion-lilac.glitch.me/update"
 
 
 function ctg(){
@@ -44,6 +44,36 @@ function appendCat(data){
 
 
 
+function blg(){
+    
+    var prompty=prompt("Enter Code");
+
+    if(prompty == "200618"){
+    fetch("https://faint-dandelion-lilac.glitch.me/blog")
+    .then(res => res.json())
+    .then(data => appendBlg(data))
+    .catch(err=> console.log(err))
+    }
+}
+
+function appendBlg(data){
+    for(var i=0; i< data.length; i++){
+        var tr=document.createElement("tr");
+        tr.innerHTML=`
+        <td>${data[i].id}</td>
+        <td>${data[i].title}</td>
+        <td>${data[i].image}</td>
+        <td>${data[i].date}</td>
+        `
+
+        var table=document.getElementById("table4");
+
+        table.appendChild(tr);
+    }
+}
+
+
+
 function acc(){
     
     var prompty=prompt("Enter Code");
@@ -64,7 +94,7 @@ function appendAcc(data){
         tr.innerHTML=`
         <td>${data[i].id}</td>
         <td>${data[i].username}</td>
-        <td class="td_email" style="color;blue" onclick="document.location.href='mailto:${data[i].email}'">${data[i].email}</td>
+        <td className="td_email" style="color;blue" onclick="document.location.href='mailto:${data[i].email}'">${data[i].email}</td>
         <td>${data[i].notice}</td>
         `
 
@@ -113,7 +143,7 @@ function Getall(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch(`https://json-server-3w0y.onrender.com/${endpoint}`)
+    fetch(`https://faint-dandelion-lilac.glitch.me/${endpoint}`)
         .then(res => res.json())
         .then(data=> appendGetall(data))
         .catch(err=> console.log(err))
@@ -151,7 +181,7 @@ function Deleteall(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch(`https://json-server-3w0y.onrender.com/${endpoint}`,{
+    fetch(`https://faint-dandelion-lilac.glitch.me/${endpoint}`,{
         method:"DELETE",
         headers:{
             "Content-type":"application/json"
@@ -194,7 +224,7 @@ function deleteAcc(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch(`https://json-server-3w0y.onrender.com/account/${ac_id}`,{
+    fetch(`https://faint-dandelion-lilac.glitch.me/account/${ac_id}`,{
         method:"DELETE",
         headers:{
             "Content-type":"application/json"
@@ -216,7 +246,7 @@ function PatchAcc(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch(`https://json-server-3w0y.onrender.com/account/${ac_id}`,{
+    fetch(`https://faint-dandelion-lilac.glitch.me/account/${ac_id}`,{
         method:"PATCH",
         body:JSON.stringify({
             "notice":notice
@@ -245,7 +275,7 @@ function updU(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch(`https://json-server-3w0y.onrender.com/update/${upd_id}`,{
+    fetch(`https://faint-dandelion-lilac.glitch.me/update/${upd_id}`,{
         method:"PATCH",
         body:JSON.stringify({
             "text":upd_text,
@@ -267,19 +297,23 @@ function updU(){
 
 
 function postCtg(){
-    var p_cat=document.getElementById("p_cat").value;
-    var p_val=document.getElementById("p_val").value;
-    var p_link=document.getElementById("p_link").value;
+    
+    var id = Date.now().toString(36) + Math.random().toString(36).substr(2);
   
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch("https://json-server-3w0y.onrender.com/categories",{
+        const catp=document.getElementById("catp").value;
+        const valp=document.getElementById("valp").value;
+        const linkp=document.getElementById("linkp").value;
+        
+        fetch("https://faint-dandelion-lilac.glitch.me/categories",{
         method:"POST",
         body:JSON.stringify({
-            "category":p_cat,
-            "value":p_val,
-            "link":p_link
+            "category":catp,
+            "value":valp,
+            "link":linkp,
+            "id":id
         }),
         headers:{
             "Content-type":"applicaton/json"
@@ -294,12 +328,43 @@ function postCtg(){
 }
 }
 
+
+function postBlg(){
+    var b_title=document.getElementById("b_title").value;
+    var b_img=document.getElementById("b_img").value;
+  var d=new Date();
+  var time=d.toLocaleDateString();
+  var id = Date.now().toString(36) + Math.random().toString(36).substr(2);
+    var prompty=prompt("Enter Code");
+
+    if(prompty == "200618"){
+    fetch("https://faint-dandelion-lilac.glitch.me/blog",{
+        method:"POST",
+        body:JSON.stringify({
+            "id":id,
+            "title":b_title,
+            "image":b_img,
+            "date":time
+        }),
+        headers:{
+            "Content-type":"applicaton/json"
+        }
+    })
+    .then(res=> res.json())
+    .then(data => {
+        console.log(data)
+    alert("Added Blog")
+    })
+    .catch(err => console.log(err))
+}
+}
+
 function delCtg(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
     var p_id=document.getElementById("p_id").value;
-    fetch(`https://json-server-3w0y.onrender.com/categories/${p_id}`,{
+    fetch(`https://faint-dandelion-lilac.glitch.me/categories/${p_id}`,{
         method:"DELETE",
         headers:{
             "Content-type":"applicaton/json"
@@ -315,6 +380,39 @@ function delCtg(){
 }
 
 }
+
+
+
+function delBlg(){
+    var prompty=prompt("Enter Code");
+
+    if(prompty == "200618"){
+    var b_id=document.getElementById("b_id").value;
+    fetch(`https://faint-dandelion-lilac.glitch.me/blog/${b_id}`,{
+        method:"DELETE",
+        headers:{
+            "Content-type":"applicaton/json"
+        }
+    })
+    .then(res=> res.json())
+    .then(data => {
+        console.log(data)
+    alert("Deleted Cat")
+    })
+    .catch(err => console.log(err))
+
+}
+
+}
+
+function Database(){
+    
+    var prompty=prompt("Enter Code");
+
+    if(prompty == "200618"){
+    document.getElementById("dt").href="https://faint-dandelion-lilac.glitch.me/";
+    }
+}
 export default function Devfetch(){
 
 
@@ -323,6 +421,8 @@ export default function Devfetch(){
 
     <section>
         <div>
+<a onClick={Database} id="dt">Database</a>
+
         <h4>Account</h4>
         <p>Number of Account : <a id="acc_length"></a></p>
         
@@ -361,9 +461,9 @@ export default function Devfetch(){
         
         <input placeholder="id" id="p_id" style={{padding:"4px 20px"}}/>
    <br/>
-        <input placeholder="Category" id="p_cat" style={{padding:"4px 20px"}}/>
-   <input placeholder="value" id="p_val" style={{padding:"4px 20px"}}/>
-   <input placeholder="link" id="p_link" style={{padding:"4px 20px"}}/>
+        <input placeholder="Category" id="catp" style={{padding:"4px 20px"}}/>
+   <input placeholder="value" id="valp" style={{padding:"4px 20px"}}/>
+   <input placeholder="link" id="linkp" style={{padding:"4px 20px"}}/>
  
             <table className="table" id="table1">
                 <tr>
@@ -371,6 +471,31 @@ export default function Devfetch(){
                     <th>Category</th>
                     <th>Value(db_name)</th>
                     <th>Link</th>
+                </tr>
+       
+            </table>
+        </div>
+
+        <div>
+            <h4>Blog</h4>
+            <a onClick={blg} style={get}>GET</a>
+            <a onClick={postBlg} style={get}>POST</a>
+            <a onClick={delBlg} style={get}>DELETE</a>
+            
+        <br/>
+        <br/>
+        
+        <input placeholder="id" id="b_id" style={{padding:"4px 20px"}}/>
+   <br/>
+        <input placeholder="blog_title" id="b_title" style={{padding:"4px 20px"}}/>
+   <input placeholder="image" id="b_img" style={{padding:"4px 20px"}}/>
+ 
+            <table className="table" id="table4">
+                <tr>
+                   <th>Id</th>
+                    <th>Title</th>
+                    <th>Image</th>
+                    <th>Date</th>
                 </tr>
        
             </table>

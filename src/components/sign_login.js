@@ -12,7 +12,7 @@ var readonly={
 }
 
 
-var path="https://json-server-3w0y.onrender.com/account";
+var path="https://faint-dandelion-lilac.glitch.me/account";
 
 function PostSign(){
 
@@ -21,15 +21,20 @@ function PostSign(){
     var email= document.getElementById("email").value;
     var username=document.getElementById("username").value;
     var passkey=document.getElementById("passkey").value;
+ var d=new Date();
+ var time=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+ var id = Date.now().toString(36) + Math.random().toString(36).substr(2);
 
 if(passkey.length >=8){
      fetch(path, {
         method:"POST",
         body:JSON.stringify({
+            "id":id,
             "username":username,
             "email":email,
             "passkey":passkey,
-            "notice":""
+            "notice":"",
+            "date":time
         }),
         headers:{
             "Content-type":"application/json"
@@ -164,7 +169,7 @@ function PatchPs(){
     var compare_ps=document.getElementById("compare_ps").value;
 
     if(compare_ps == create_ps && create_ps.length >=8){
-        fetch(`https://json-server-3w0y.onrender.com/account/${accoid}`,{
+        fetch(`https://faint-dandelion-lilac.glitch.me/account/${accoid}`,{
             method:"PATCH",
             body: JSON.stringify({
                 "passkey":create_ps

@@ -3,47 +3,47 @@ import { Link } from "react-router-dom";
 export default function Catg(){
     return(
         <>
-        <section class="categories spad">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-3">
-                        <div class="categories__text">
+        <section className="categories spad">
+            <div className="container">
+                <div className="row">
+                    <div className="col-lg-3">
+                        <div className="categories__text">
                             <h2>Clothings Hot <br /> <span>Kitchenware</span> <br /> Accessories</h2>
                         </div>
                     </div>
-                    <div class="col-lg-4">
-                        <div class="categories__hot__deal">
+                    <div className="col-lg-4">
+                        <div className="categories__hot__deal">
                             <img src={require("../img/products/knife-holder.jpg")} alt="" style={{maxWidth:"120px",maxHeight: "400px"}}/>
-                            <div class="hot__deal__sticker">
+                            <div className="hot__deal__sticker">
                                 <span>Sale Of</span>
                                 <h5>GHC99.99</h5>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 offset-lg-1">
-                        <div class="categories__deal__countdown">
+                    <div className="col-lg-4 offset-lg-1">
+                        <div className="categories__deal__countdown">
                             <span>Deal Of The Week</span>
                             <h2>Knife Holder</h2>
-                            <div class="categories__deal__countdown__timer" id="countdown">
-                                <div class="cd-item">
+                            <div className="categories__deal__countdown__timer" id="countdown">
+                                <div className="cd-item">
                                     <span>3</span>
                                     <p>Days</p>
                                 </div>
-                                <div class="cd-item">
+                                <div className="cd-item">
                                     <span>1</span>
                                     <p>Hours</p>
                                 </div>
-                                <div class="cd-item">
+                                <div className="cd-item">
                                     <span>50</span>
                                     <p>Minutes</p>
                                 </div>
-                                <div class="cd-item">
+                                <div className="cd-item">
                                     <span>18</span>
                                     <p>Seconds</p>
                                 </div>
                             </div>
                             <Link to="/home_appl">
-                            <a class="primary-btn">Shop now</a>
+                            <a className="primary-btn">Shop now</a>
                             </Link>
                         </div>
                     </div>

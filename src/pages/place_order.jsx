@@ -2,7 +2,7 @@
 
 
 function PushChk(){
-    var path="https://json-server-3w0y.onrender.com/orders";
+    var path="https://faint-dandelion-lilac.glitch.me/orders";
 
     var chk_eml=document.getElementById("chk_eml").value;
     var chk_q=document.getElementById("chk_q").value;
@@ -21,9 +21,12 @@ let time=d.toLocaleTimeString([],{ hour:'2-digit', minute:'2-digit'});
     let date=d.toLocaleDateString();
     // var date=d.getDate();
 
+    var id = Date.now().toString(36) + Math.random().toString(36).substr(2);
+    
     fetch(path,{
         method:"POST",
         body:JSON.stringify({
+            "id":id,
             "email_to": chk_eml,
             "quantity": chk_q,
             "email":chk_email,
