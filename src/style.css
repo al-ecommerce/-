@@ -63,13 +63,13 @@
 .sell{
     position:absolute;
     right:70px;
-    background-color:#09dd09;
+    background-color:#393a39;
     padding:10px 20px;
     top:0;
     color: white;
     text-decoration: none;
     border-radius:10px;
-    border:1px solid grey;
+    border:none;
     animation: sell 3s linear infinite alternate;
 }
 
@@ -2526,7 +2526,7 @@ tr:nth-child(even) {
 }
 
 .loadery .text{
-padding-top: 330px;
+padding-top: 280px;
 }
 
 .loadery p{

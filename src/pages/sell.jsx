@@ -605,7 +605,7 @@ useEffect(()=>{
                     <div className="col-lg-6">
                                     <div className="checkout__input">
                                         <p>Product ID<span>*</span></p>
-                                        <input onKeyDown={fetchID} id="prodid" type="text" required/>
+                                        <input onKeyDown={fetchID} onInput={fetchID} id="prodid" type="text" required/>
                                     </div>
                                 </div>
                         <div className="col-lg-8 col-md-6" id="updF" style={{display:"none"}}>
@@ -691,7 +691,7 @@ useEffect(()=>{
                     <div className="col-lg-6">
                                     <div className="checkout__input">
                                         <p>Product ID<span>*</span></p>
-                                        <input onKeyDown={deleteID} id="delid" type="text" required/>
+                                        <input onKeyDown={deleteID} onInput={deleteID} id="delid" type="text" required/>
                                     </div>
                                 </div>
                         <div className="col-lg-8 col-md-6" id="delF" style={{display:"none"}}>

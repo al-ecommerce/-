@@ -103,14 +103,7 @@ useEffect(()=>{
           <span>Blank</span>
         </a>
       </li>
-      <Link to="/dev">
-      <li className="nav-item" style={{marginTop:"30px"}}>
-        <a className="nav-link collapsed">
-          <i className="bi bi-dash-circle"></i>
-          <span>Dev</span>
-        </a>
-      </li>
-      </Link>
+     
     </ul>
 
   </aside>

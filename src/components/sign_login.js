@@ -2,7 +2,8 @@
 import { Link } from "react-router-dom";
 
 import Sell from "../pages/sell";
-
+import { useEffect, useRef, useState } from "react";
+import emailjs from '@emailjs/browser';
 
 
 var readonly={
@@ -55,7 +56,7 @@ if(passkey.length >=8){
         
         document.getElementById("login").style.display="block"
         },3000)
-
+alert("Signup Successful. Login")
             document.getElementById("signupread").value="Success! Login"
             document.getElementById("signupread").style.color="green"
      
@@ -98,10 +99,33 @@ else{
 
                 document.getElementById("signupread").value="email already exist"
                 document.getElementById("signupread").style.color="red"
+                
             }
         }
     }
 
+    function EmaiLink(){
+        fetch(path)
+        .then(res => res.json())
+        .then(data=> emailLink(data))
+        .catch(err => console.log(err))
+    }
+
+    function emailLink(data){
+
+        for(var i=0; i< data.length; i++){
+            var email=document.getElementById("compare_email").value;
+
+            if(email === data[i].email){
+                document.getElementById("email_link").style.display="block";
+            
+            }
+            else{
+                document.getElementById("err_msg").value="email does not exist";
+            }
+            
+        }
+    }
     function LogInto(){
 
         var check=document.getElementById("check");
@@ -163,60 +187,58 @@ localStorage.setItem("checking", check.checked)
     }
 
 
-function PatchPs(){
-    var accoid=document.getElementById("account_id").value;
-    var create_ps=document.getElementById("create_ps").value;
-    var compare_ps=document.getElementById("compare_ps").value;
+// function PatchPs(){
+//     var accoid=document.getElementById("account_id").value;
+//     var create_ps=document.getElementById("create_ps").value;
+//     var compare_ps=document.getElementById("compare_ps").value;
 
-    if(compare_ps == create_ps && create_ps.length >=8){
-        fetch(`https://faint-dandelion-lilac.glitch.me/account/${accoid}`,{
-            method:"PATCH",
-            body: JSON.stringify({
-                "passkey":create_ps
-            }),
-            headers:{
-                "Content-type":"application/json"
-            }
-        })
-        .then(res => res.json())
-        .then(data=> {
-            console.log(data)
+//     if(compare_ps == create_ps && create_ps.length >=8){
+//         fetch(`https://faint-dandelion-lilac.glitch.me/account/${accoid}`,{
+//             method:"PATCH",
+//             body: JSON.stringify({
+//                 "passkey":create_ps
+//             }),
+//             headers:{
+//                 "Content-type":"application/json"
+//             }
+//         })
+//         .then(res => res.json())
+//         .then(data=> {
+//             console.log(data)
         
-alert("Password recreated successfully")
-    document.getElementById("logp").value=create_ps
+// alert("Password recreated successfully")
+//     document.getElementById("logp").value=create_ps
   
     
-    document.getElementById("forgot").style.display="none";
-    document.getElementById("signup").style.display="none"
-    document.getElementById("login").style.display="block"
-        })
-        .catch(err => console.log(err))
-    }
+//     document.getElementById("forgot").style.display="none";
+//     document.getElementById("signup").style.display="none"
+//     document.getElementById("login").style.display="block"
+//         })
+//         .catch(err => console.log(err))
+//     }
 
-    else if(compare_ps !== create_ps){
-        document.getElementById("err_msg").value="Password does not match";
-        document.getElementById("err_msg").style.color="red";
-        setTimeout(()=>{
-            document.getElementById("err_msg").value=null;
-        },3000)
-
-        
-    }
-    else if(create_ps.length < 8){
-        document.getElementById("err_msg").value="Password must be at least 8 characters";
-        document.getElementById("err_msg").style.color="red";
-        setTimeout(()=>{
-            document.getElementById("err_msg").value=null;
-        },3000)
+//     else if(compare_ps !== create_ps){
+//         document.getElementById("err_msg").value="Password does not match";
+//         document.getElementById("err_msg").style.color="red";
+//         setTimeout(()=>{
+//             document.getElementById("err_msg").value=null;
+//         },3000)
 
         
-    }
-}
+//     }
+//     else if(create_ps.length < 8){
+//         document.getElementById("err_msg").value="Password must be at least 8 characters";
+//         document.getElementById("err_msg").style.color="red";
+//         setTimeout(()=>{
+//             document.getElementById("err_msg").value=null;
+//         },3000)
+
+        
+//     }
+// }
 
 
     function checkacPs(){
-        document.getElementById("create_ps").value=null
-        document.getElementById("compare_ps").value=null;
     
         document.getElementById("forgot").style.display="block";
         document.getElementById("signup").style.display="none"
@@ -239,11 +261,49 @@ alert("Password recreated successfully")
            
            }
     }
-
-
-
-export default function SignLog(){
    
+export default function SignLog(){
+    
+    // useEffect(() => emailjs.init("neoIsEgbi-PZwadW3"), []);
+    // // Add these
+    // const PatchPs = async (e) => {
+    //     const emailRef = useRef<HTMLInputElement>();
+    //     const nameRef = useRef<HTMLInputElement>();
+
+    //     const [loading, setLoading] = useState(false);
+    //   e.preventDefault();
+    //   const serviceId = "service_30gqve5";
+    //   const templateId = "template_2l9r3sl";
+    //   try {
+    //     setLoading(true);
+    //     await emailjs.send(serviceId, templateId, {
+    //       recipient: emailRef.current.value
+    //     });
+    //     alert("email successfully sent. Check inbox");
+    //   } catch (error) {
+    //     console.log(error);
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
+    const form = useRef();
+    const PatchPs = (e) => {
+        var to_email=document.getElementById("compare_email").value;
+        e.preventDefault();
+        emailjs.sendForm('service_30gqve5', 'template_2l9r3sl', form.current, 'neoIsEgbi-PZwadW3')
+            .then((result) => {
+                console.log(result.text);
+                console.log("message sent!")
+                
+                document.getElementById("err_msg").value="Success. Check your mail and continue.";
+                document.location.href="#/sign_login"
+            }, (error) => {
+                console.log(error.text);
+                console.log("error sending message, try again!");
+                document.getElementById("err_msg").value="Error. Try again"
+            });
+        };
+
 
     return(
         <div>
@@ -354,22 +414,17 @@ export default function SignLog(){
             </Link>
                 <div className="form-content">
                     <header>Forgot Password</header>
-                    <form  className="form" onSubmit={PatchPs}>
+                    <form ref={form} className="form">
                         
                     <input style={readonly} id="err_msg" readOnly/>
-                    <input style={{padding:"2px 3px",display:"none",width:"100%",border:"none"}} id="account_id" readOnly/>
-                        
+                   
                         <div className="field input-field">
-                            <input type="password" placeholder="Create password" id="create_ps" required/>
+                            <input type="email" onKeyDown={EmaiLink} name="email" placeholder="Verify email" id="compare_email"  required/>
                         </div>
 
-                        <div className="field input-field">
-                            <input type="password" placeholder="Confirm password" id="compare_ps" className="password" required/>
-                        </div>
-
-                        <div className="field button-field">
+                        <div className="field button-field" id="email_link" style={{display:"none"}}>
                             
-                            <button >Change Password</button>
+                            <button  onClick={PatchPs}>Email link</button>
                             
                         </div>
                     </form>

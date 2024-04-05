@@ -39,7 +39,7 @@ useEffect(()=>{
                      </Link>
 
  <Link to="/sign_login">
-       <a className="sell">Sell</a>
+       <a className="sell"><i className="fa fa-shopping-cart"></i>&emsp;Sign In</a>
        </Link>
        <a className="mobile-nav" onClick={Overlay}>&#9776;</a>
         </header>
@@ -73,9 +73,7 @@ useEffect(()=>{
              <Link to="/ins_guide">
              <li style={color}>Installation Guide</li>
              </Link>
-            <Link to="/dev">
-             <li style={color}>Dev</li>
-             </Link>
+           
             </ul>
                 </div>
         </>

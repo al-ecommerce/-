@@ -48,7 +48,9 @@ const handleDes = (el) => {
     prev_cont.innerHTML=`${el.contact}`;
     prev_cont.href=`tel:${el.contact}`;
     prev_image.src=`${el.image}`;
+
     prev_product.innerHTML=`${el.product}`;
+    document.getElementById("allproduct").value=path;
     
     prev_price.innerHTML=`${el.price}`;
     prev_seller.innerHTML="Posted by: "+`${el.seller_name}`

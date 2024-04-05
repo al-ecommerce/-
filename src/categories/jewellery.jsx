@@ -16,7 +16,7 @@ function Jewellery() {
     <Header />
     <div id="main">
 <Update />
-   <Breadcrumb title="Footwear and Shoes" />
+   <Breadcrumb title="Jewellery" />
 <Jewelry />
 <Sidebar />
 

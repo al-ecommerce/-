@@ -22,6 +22,7 @@ import InsGuide from "./pages/ins_guide";
 import AutoP from "./categories/auto";
 import Footwear from "./categories/footwear";
 import Jewellery from "./categories/jewellery";
+import FP from "./components/forgot_password";
 // import Sell from "./pages/sell";
 
 
@@ -49,6 +50,7 @@ function App() {
         <Route path="/footwear" element={<Footwear />} />
         <Route path="/jewellery" element={<Jewellery />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/user/%/id/account/ps/1546/fp" element={<FP />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/dev" element={<Dev />} />
