@@ -16,7 +16,7 @@ function Fashion() {
     <Header />
     <div id="main">
 <Update />
-   <Breadcrumb title="Fashion" />
+   <Breadcrumb title="Fashion and Clothing" />
 <Fash />
 <Sidebar />
 

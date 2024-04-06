@@ -4,10 +4,10 @@ export default function Details(){
     const [product, setProduct]=useState([]);
 
 
-var path="https://faint-dandelion-lilac.glitch.me/fashion";
 
 const fetching= ()=>{
-    fetch(path)
+
+    fetch("https://faint-dandelion-lilac.glitch.me/products")
     .then(res => res.json())
     .then(data =>setProduct(data))
     .catch(err => console.log(err))
@@ -21,46 +21,33 @@ useEffect(()=>{
 
     return(
         <>
-    <section className="shop-details">
-       
-        <div className="product__details__pic">
-            <div className="container">
-                <div className="row">
-                    <div className="col-lg-6 col-md-9">
-                        <div className="tab-content">
-                            <div className="tab-pane active" id="tabs-1" role="tabpanel">
-                                <div className="product__details__pic__item">
-                                    <img id="preview_image" style={{width:"100%",maxHeight:"400px"}} alt=""/>
-                                </div>
-                            </div>
-                            
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div className="product__details__content">
-            <div className="container">
-                <div className="row d-flex justify-content-center">
-                    <div className="col-lg-8">
-                        <div className="product__details__text">
-                            <h4 id="preview_product"></h4>
-                            <div className="rating">
-                                <i className="fa fa-star"></i>
-                                <i className="fa fa-star"></i>
-                                <i className="fa fa-star"></i>
-                                <i className="fa fa-star"></i>
-                                <i className="fa fa-star-o"></i>
-                                <span> - 5 Reviews</span>
-                            </div>
-                            <h3 id="preview_price"></h3>
-                            <p id="preview_color"></p>
+        <div className="product_image_area">
+		<div className="container">
+			<div className="row s_product_inner">
+				<div className="col-lg-6">
+					<div className="s_Product_carousel">
+						<div className="single-prd-item">
+							<img className="img-fluid" id="preview_image" alt=""/>
+						</div>
+					</div>
+				</div>
+				<div className="col-lg-5 offset-lg-1">
+					<div className="s_product_text">
+						<h3 id="preview_product"></h3>
+						<h2 id="preview_price"></h2>
+                        <p id="preview_color"></p>
                           
-                            <h5 id="preview_seller"></h5>
-                        </div>
-                    </div>
-                </div>
-                <div className="row">
+                          <h5 id="preview_seller"></h5>
+						<ul className="list">
+							<li id="preview_cat"></li>
+							<li><a id="preview_avail"></a></li>
+						</ul>
+						
+						
+					</div>
+				</div>
+			</div>
+            <div className="row">
                     <div className="col-lg-12">
                         <div className="product__details__tab">
                             <ul className="nav nav-tabs" role="tablist">
@@ -97,20 +84,21 @@ useEffect(()=>{
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
+
+		</div>
+	</div>
+	
 
 
-    <section class="product spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <h3 class="product-title">Related Product</h3>
+    <section className="product spad">
+        <div className="container">
+            <div className="row">
+                <div className="col-lg-12">
+                    <h3 className="product-title">Related Product</h3>
                 </div>
             </div>
-            <div class="row">
-            {product.slice(0,4).map((el)=>(
+            <div className="row">
+            {product.slice(2,6).map((el)=>(
                         <div className="col-lg-4 col-md-6 col-sm-6 key_prd" key={el.id}>
                             <div className="product__item">
                                 <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
@@ -123,7 +111,7 @@ useEffect(()=>{
                                 </div>
                                 <div className="product__item__text">
                                     <h6 className="ppp">{el.product}</h6>
-                                    <a className="add-cart" onClick={()=>window.location.reload()}>+ Add To Cart</a>
+                                    <a className="add-cart" onClick={()=>window.location.reload()}>+ Place Order</a>
                                     <div className="rating">
                                         <i className="fa fa-star-o"></i>
                                         <i className="fa fa-star-o"></i>

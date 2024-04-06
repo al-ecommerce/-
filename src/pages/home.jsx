@@ -35,7 +35,7 @@ var loadery=document.getElementById("loadery");
 var the_main=document.getElementById("the_main");
 
 	loadery.style.display="none";
-	the_main.style.display="block"
+	the_main.style.display="block";
 }, 5000)
 }
   return (

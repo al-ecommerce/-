@@ -32,8 +32,12 @@ const handleDes = (el) => {
     var  prev_cont=document.getElementById("preview_contact");
     var  prev_image=document.getElementById("preview_image");
     var  prev_product=document.getElementById("preview_product");
+        
     var  prev_price=document.getElementById("preview_price");
+    var  prev_avail=document.getElementById("preview_avail");
+    var  prev_cat=document.getElementById("preview_cat");
         var  prev_color=document.getElementById("preview_color");
+    
     var  prev_seller=document.getElementById("preview_seller");
    
    
@@ -47,10 +51,17 @@ const handleDes = (el) => {
     prev_mat.innerHTML=`${el.materialU}`;
     prev_cont.innerHTML=`${el.contact}`;
     prev_cont.href=`tel:${el.contact}`;
+    
     prev_image.src=`${el.image}`;
+    
 
     prev_product.innerHTML=`${el.product}`;
+    
+    
     prev_price.innerHTML=`${el.price}`;
+    
+    prev_avail.innerHTML=`Availability :${el.availability}`;
+    prev_cat.innerHTML=`Category : ${el.category}`;
     prev_seller.innerHTML="Posted by: "+`${el.seller_name}`
     prev_color.innerHTML="Available Color: "+`${el.color}`
    }
@@ -106,7 +117,7 @@ useEffect(()=>{
                                 <Inputq />
                             </form>
                         </div>
-                        <div className="shop__sidebar__accordion">
+                        <div className="shop__sidebar__accordion" id="searching">
                             <div className="accordion" id="accordionExample">
                                 
                                 <div className="card">
@@ -257,7 +268,7 @@ useEffect(()=>{
                                 </div>
                                 <div className="product__item__text">
                                     <h6 className="ppp">{el.product}</h6>
-                                    <a  className="add-cart" onClick={()=>placeOrder(el)}>+ Add To Cart</a>
+                                    <a  className="add-cart" onClick={()=>placeOrder(el)}>+ Place Order</a>
                                     <div className="rating">
                                         <i className="fa fa-star-o"></i>
                                         <i className="fa fa-star-o"></i>

@@ -63,6 +63,7 @@ function appendBlg(data){
         <td>${data[i].id}</td>
         <td>${data[i].title}</td>
         <td>${data[i].image}</td>
+        <td>${data[i].link}</td>
         <td>${data[i].date}</td>
         `
 
@@ -332,7 +333,8 @@ function postCtg(){
 function postBlg(){
     var b_title=document.getElementById("b_title").value;
     var b_img=document.getElementById("b_img").value;
-  var d=new Date();
+    var b_link=document.getElementById("b_link").value;
+    var d=new Date();
   var time=d.toLocaleDateString();
   var id = Date.now().toString(36) + Math.random().toString(36).substr(2);
     var prompty=prompt("Enter Code");
@@ -344,6 +346,7 @@ function postBlg(){
             "id":id,
             "title":b_title,
             "image":b_img,
+            "link":b_link,
             "date":time
         }),
         headers:{
@@ -489,12 +492,14 @@ export default function Devfetch(){
    <br/>
         <input placeholder="blog_title" id="b_title" style={{padding:"4px 20px"}}/>
    <input placeholder="image" id="b_img" style={{padding:"4px 20px"}}/>
+   <input placeholder="link" id="b_link" style={{padding:"4px 20px"}}/>
  
             <table className="table" id="table4">
                 <tr>
                    <th>Id</th>
                     <th>Title</th>
                     <th>Image</th>
+                    <th>Link</th>
                     <th>Date</th>
                 </tr>
        

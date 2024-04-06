@@ -10,20 +10,22 @@ export default function Catarea(){
 							<div className="single-deal">
 								<div className="overlay"></div>
 								<img className="img-fluid w-100" src={require("../img/category/c1.jpg")} alt=""/>
-									<div className="deal-details">
-										<h6 className="deal-title">Sneaker for Sports</h6>
-									</div>
-								
+							<a href="#/footwear">
+							<div className="deal-details">
+								<h6 className="deal-title">Sneaker for Sports</h6>
+							</div>
+							</a>	
 							</div>
 						</div>
 						<div className="col-lg-4 col-md-4">
 							<div className="single-deal">
 								<div className="overlay"></div>
 								<img className="img-fluid w-100" src={require("../img/category/c2.jpg")} alt=""/>
-									<div className="deal-details">
-										<h6 className="deal-title">Sneaker for Sports</h6>
-									</div>
-								
+							<a href="#/footwear">
+							<div className="deal-details">
+								<h6 className="deal-title">Sneaker for Sports</h6>
+							</div>
+							</a>	
 							</div>
 						</div>
 						<div className="col-lg-4 col-md-4">
@@ -40,10 +42,11 @@ export default function Catarea(){
 							<div className="single-deal">
 								<div className="overlay"></div>
 								<img className="img-fluid w-100" src={require("../img/category/c4.jpg")} alt=""/>
-									<div className="deal-details">
-										<h6 className="deal-title">Sneaker for Sports</h6>
-									</div>
-								
+							<a href="#/footwear">
+							<div className="deal-details">
+								<h6 className="deal-title">Sneaker for Sports</h6>
+							</div>
+							</a>	
 							</div>
 						</div>
 					</div>
@@ -52,10 +55,11 @@ export default function Catarea(){
 					<div className="single-deal">
 						<div className="overlay"></div>
 						<img className="img-fluid w-100" src={require("../img/category/c5.jpg")} alt=""/>
+							<a href="#/footwear">
 							<div className="deal-details">
 								<h6 className="deal-title">Sneaker for Sports</h6>
 							</div>
-						
+							</a>
 					</div>
 				</div>
 			</div>
