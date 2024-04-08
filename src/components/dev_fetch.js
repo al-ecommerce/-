@@ -96,6 +96,7 @@ function appendAcc(data){
         <td>${data[i].id}</td>
         <td>${data[i].username}</td>
         <td className="td_email" style="color;blue" onclick="document.location.href='mailto:${data[i].email}'">${data[i].email}</td>
+        <td>${data[i].phone}</td>
         <td>${data[i].notice}</td>
         `
 
@@ -446,6 +447,7 @@ export default function Devfetch(){
                    <th>Id</th>
                     <th>Username</th>
                     <th>Email</th>
+                    <th>Phone</th>
                     <th>Notice</th>
                 </tr>
        

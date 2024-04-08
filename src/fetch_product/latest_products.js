@@ -137,7 +137,7 @@ useEffect(()=>{
                 <div className="row">
                     <div className="col-lg-12">
                         <ul className="filter__controls">
-                            <li className="active">Latest Products</li>
+                            <li className="active">Featured Collection</li>
                         </ul>
                     </div>
                 </div>

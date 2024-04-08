@@ -52,11 +52,14 @@ useEffect(()=>{
 ))}
 </div>
 
-      <Link to="/sign_login">
+
+<li className="nav-heading">Useful Links</li>
+
+      <Link to="/retail">
       <li className="nav-item">
         <a className="nav-link collapsed">
           <i className="bi bi-dash-circle"></i>
-          <span>Sell</span>
+          <span>Become a Retailer</span>
         </a>
       </li>
       </Link>

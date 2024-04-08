@@ -3,6 +3,29 @@ import { Link } from "react-router-dom";
 export default function Catg(){
     return(
         <>
+        <div className="wide-banners outer-bottom-xs">
+          <div className="row">
+            <div className="col-md-4 col-sm-4">
+              <div className="wide-banner cnt-strip">
+                <div className="image"> <img className="img-responsive" src={require("../img/banner/home-banner1.jpg")} alt="" /> </div>
+              </div>
+            </div>
+            
+            <div className="col-md-4 col-sm-4">
+              <div className="wide-banner cnt-strip">
+                <div className="image"> <img className="img-responsive" src={require("../img/banner/home-banner3.jpg")} alt="" /> </div>
+              </div>
+            </div>
+            
+            <div className="col-md-4 col-sm-4">
+              <div className="wide-banner cnt-strip">
+                <div className="image"> <img className="img-responsive" src={require("../img/banner/home-banner2.jpg")} alt="" /> </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
         <section className="categories spad">
             <div className="container">
                 <div className="row">

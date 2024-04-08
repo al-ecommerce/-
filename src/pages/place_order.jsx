@@ -13,6 +13,7 @@ function PushChk(){
     var chk_ord=document.getElementById("chk_ord").value;
     var chk_email=document.getElementById("chk_email").value;
     var chk_prod=document.getElementById("chk_prod").value;
+    var chk_payment=document.getElementById("chk_payment").value;
     // const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const d=new Date();
 // let monthy = month[d.getMonth()];
@@ -36,6 +37,7 @@ let time=d.toLocaleTimeString([],{ hour:'2-digit', minute:'2-digit'});
             "name":chk_nm,
             "country":chk_ctr,
             "order_notes":chk_ord,
+            "payment_method":chk_payment,
             "date":date+" "+time
         }),
 
@@ -114,6 +116,16 @@ export default function PlaceO(){
                                 <p>Order notes<span>*</span></p>
                                 <input type="text"
                                 placeholder="Notes about your order, e.g. special notes for delivery." id="chk_ord"/>
+                            </div>
+
+                            <div className="checkout__input">
+                                <p>Payment Method<span>*</span></p>
+                                <select id="chk_payment">
+                                    <option value="MOMO">MOMO</option>
+                                    <option value="Physical Cash">Physical Cash</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="other way">Other</option>
+                                </select>
                             </div>
                         </div>
                         <div className="col-lg-4 col-md-6">

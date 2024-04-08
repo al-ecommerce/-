@@ -45,7 +45,7 @@ useEffect(()=>{
         </header>
          <div id="overlay">
                 <ul style={{marginTop:"80px",fontWeight:"600"}}>
-            <li onClick={Cls} style={{color:"white",listStyle:"none",cursor:"pointer",fontSize:"20px",position:"absolute",right:"30px"}}>&times;</li>
+            <li onClick={Cls} style={{color:"white",listStyle:"none",cursor:"pointer",fontSize:"30px",position:"absolute",right:"30px"}}>&times;</li>
              <Link to="/">
              <li style={color}>Home</li>
              </Link>
@@ -60,6 +60,11 @@ useEffect(()=>{
             ))}
       </div>
   
+      <li style={color}><small style={{color:"#899bbd"}}>Useful Links</small></li>
+      <Link to="/retail">
+             <li style={color}>Become a Retailer</li>
+             </Link>
+
       <Link to="/">
              <li style={color}>FAQ</li>
              </Link>

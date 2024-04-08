@@ -34,9 +34,13 @@ const handleDes = (el) => {
     var  prev_product=document.getElementById("preview_product");
         
     var  prev_price=document.getElementById("preview_price");
-    var  prev_avail=document.getElementById("preview_avail");
+      var  prev_avail=document.getElementById("preview_avail");
+    var  prev_date=document.getElementById("preview_date");
     var  prev_cat=document.getElementById("preview_cat");
+        
         var  prev_color=document.getElementById("preview_color");
+        var  prev_size=document.getElementById("preview_size");
+    
     
     var  prev_seller=document.getElementById("preview_seller");
    
@@ -56,16 +60,19 @@ const handleDes = (el) => {
     
 
     prev_product.innerHTML=`${el.product}`;
-    document.getElementById("allproduct").value=path;
+    
     
     
     
     prev_price.innerHTML=`${el.price}`;
     
+    prev_date.innerHTML=`Date Posted:${el.date}`;
     prev_avail.innerHTML=`Availability :${el.availability}`;
     prev_cat.innerHTML=`Category : ${el.category}`;
     prev_seller.innerHTML="Posted by: "+`${el.seller_name}`
+    
     prev_color.innerHTML="Available Color: "+`${el.color}`
+    prev_size.innerHTML="Available Size: "+`${el.size}`
   }
 
   const placeOrder = (el) => {
@@ -270,7 +277,7 @@ useEffect(()=>{
                                 </div>
                                 <div className="product__item__text">
                                     <h6 className="ppp">{el.product}</h6>
-                                    <a  className="add-cart" onClick={()=>placeOrder(el)}>+ Place Order</a>
+                                    <a  className="add-cart" onClick={()=>placeOrder(el)}>+ Add To Cart</a>
                                     <div className="rating">
                                         <i className="fa fa-star-o"></i>
                                         <i className="fa fa-star-o"></i>

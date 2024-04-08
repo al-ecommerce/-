@@ -16,7 +16,7 @@ function AutoP() {
     <Header />
     <div id="main">
 <Update />
-   <Breadcrumb title="Auto and Part" />
+   <Breadcrumb title="Auto Parts" />
 <Auto />
 <Sidebar />
 

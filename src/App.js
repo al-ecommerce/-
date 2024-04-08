@@ -23,6 +23,8 @@ import AutoP from "./categories/auto";
 import Footwear from "./categories/footwear";
 import Jewellery from "./categories/jewellery";
 import FP from "./components/forgot_password";
+import Upload from "./pages/upload";
+import Retailer from "./pages/retailer";
 // import Sell from "./pages/sell";
 
 
@@ -55,6 +57,8 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/dev" element={<Dev />} />
         <Route path="/ins_guide" element={<InsGuide />} />
+        <Route path="/upload_photos" element={<Upload />} />
+        <Route path="/retail" element={<Retailer />} />
       </Route>
     </Routes>
     </HashRouter>

@@ -28,6 +28,12 @@ function checkEmail(data){
             
        
         }
+        else{
+            document.getElementById("fetch_id").value="Invalid email";
+            setTimeout(()=>{
+                document.getElementById("fetch_id").value=""    
+            },3000)
+        }
     }
 
 }
@@ -58,7 +64,7 @@ function ChngPs(){
     .catch(err=> console.log(err))
     }
     else{
-        document.getElementById("err_msg").value="Invalid.Password must be at least 8 characters and must match."
+        document.getElementById("err_msg").value="Invalid. Password must be at least 8 characters and must match."
     }
 }
 

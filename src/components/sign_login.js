@@ -22,17 +22,19 @@ function PostSign(){
     var email= document.getElementById("email").value;
     var username=document.getElementById("username").value;
     var passkey=document.getElementById("passkey").value;
+    var phone=document.getElementById("phone").value;
  var d=new Date();
  var time=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
  var id = Date.now().toString(36) + Math.random().toString(36).substr(2);
 
-if(passkey.length >=8){
+if(passkey.length >=8 && phone.length >=10){
      fetch(path, {
         method:"POST",
         body:JSON.stringify({
             "id":id,
             "username":username,
             "email":email,
+            "phone":phone,
             "passkey":passkey,
             "notice":"",
             "date":time
@@ -62,6 +64,15 @@ alert("Signup Successful. Login")
      
     })
      .catch(err => console.log(err))
+}
+
+else if(phone.length < 10){
+    setTimeout(()=>{
+        document.getElementById("signupread").value=null;
+    },3000)
+
+        document.getElementById("signupread").value="not a valid number"
+        document.getElementById("signupread").style.color="red"
 }
 
 else{
@@ -121,7 +132,11 @@ else{
             
             }
             else{
+                setTimeout(()=>{
+                    document.getElementById("err_msg").value=""
+                },3000)
                 document.getElementById("err_msg").value="email does not exist";
+                document.getElementById("err_msg").style.color="red"
             }
             
         }
@@ -295,12 +310,17 @@ export default function SignLog(){
                 console.log(result.text);
                 console.log("message sent!")
                 
-                document.getElementById("err_msg").value="Success. Check your mail and continue.";
-                document.location.href="#/sign_login"
+                document.getElementById("err_msg").value="Success. Check your mail and c`ontinue.";
+                document.getElementById("err_msg").style.color="green";
+                setTimeout(()=>{
+                    document.getElementById("err_msg").value="";
+                   window.location.reload();
+                },3000)
             }, (error) => {
                 console.log(error.text);
                 console.log("error sending message, try again!");
-                document.getElementById("err_msg").value="Error. Try again"
+                document.getElementById("err_msg").value="Error. Try again";
+                document.getElementById("err_msg").style.color="red";
             });
         };
 
@@ -310,7 +330,7 @@ export default function SignLog(){
         <section onLoad={()=>{document.getElementById("emaill").value=localStorage.getItem("emaill");document.getElementById("check").checked=localStorage.getItem("checking");document.getElementById("logp").value=localStorage.getItem("passk")}} className="containerS" id="signuplogin">
             <div className="formpage login" id="login">
                 <Link to="/">
-            <a style={{fontSize:"20px",cursor:"pointer"}}>&times;</a>
+            <a style={{fontSize:"30px",cursor:"pointer"}}>&times;</a>
             </Link>
                 <div className="form-content">
                     <header>Login</header>
@@ -365,7 +385,7 @@ export default function SignLog(){
 
             <div id="signup" className="formpage signup" style={{display:"none"}}>
             <Link to="/">
-            <a style={{fontSize:"20px",cursor:"pointer"}}>&times;</a>
+            <a style={{fontSize:"30px",cursor:"pointer"}}>&times;</a>
             </Link>
                 <div className="form-content">
                     <header>Signup</header>
@@ -379,6 +399,9 @@ export default function SignLog(){
                         <div className="field input-field">
                             <input type="email" placeholder="email" id="email"  onKeyDown={Refer} onBlur={Refer} required/>
                         </div>
+                        <div className="field input-field">
+                            <input type="number" placeholder="valid phone number"  id="phone" className="input" required/>
+                        </div>
 
                         <div className="field input-field">
                             <input type="password" placeholder="Create password at least 8 characters" id="passkey" className="password" />
@@ -386,7 +409,7 @@ export default function SignLog(){
 
                         <div className="field button-field">
                             
-                            <button id="signB">Signup</button>
+                            <button id="signB">Create an Account</button>
                             
                         </div>
                     </form>
@@ -410,7 +433,7 @@ export default function SignLog(){
 
             <div id="forgot" className="formpage" style={{display:"none"}}>
             <Link to="/">
-            <a style={{fontSize:"20px",cursor:"pointer"}}>&times;</a>
+            <a style={{fontSize:"30px",cursor:"pointer"}}>&times;</a>
             </Link>
                 <div className="form-content">
                     <header>Forgot Password</header>

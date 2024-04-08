@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import SizeG from "./size_guide";
 
 export default function Details(){
     const [product, setProduct]=useState([]);
@@ -36,32 +37,54 @@ useEffect(()=>{
 						<h3 id="preview_product"></h3>
 						<h2 id="preview_price"></h2>
                         <p id="preview_color"></p>
+                        <p id="preview_size"></p>
                           
                           <h5 id="preview_seller"></h5>
 						<ul className="list">
 							<li id="preview_cat"></li>
 							<li><a id="preview_avail"></a></li>
+							<li><a id="preview_date"></a></li>
 						</ul>
 						
 						
 					</div>
 				</div>
 			</div>
+            <div class="prFeatures">
+                        <div class="row">
+                            <div class="col-12 col-sm-6 col-md-6 col-lg-3 feature">
+                                <img src={require("../img/credit-card.png")} alt="Safe Payment" title="Safe Payment" />
+                                <div class="details"><h3>Safe Payment</h3>Pay with the world's most payment methods.</div>
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-6 col-lg-3 feature">
+                                <img src={require("../img/shield.png")} alt="Confidence" title="Confidence" />
+                                <div class="details"><h3>Confidence</h3>Protection covers your purchase and personal data.</div>
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-6 col-lg-3 feature">
+                                <img src={require("../img/worldwide.png")} alt="Worldwide Delivery" title="Worldwide Delivery" />
+                                <div class="details"><h3>Worldwide Delivery</h3>FREE &amp; fast shipping to over 200+ countries &amp; regions.</div>
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-6 col-lg-3 feature">
+                            <img src={require("../img/phone-call.png")} alt="Hotline" title="Hotline" />
+                                <div class="details"><h3>Hotline</h3>Talk to help line for your question on 4141 456 789, 4125 666 888</div>
+                            </div>
+                        </div>
+                    </div>
             <div className="row">
                     <div className="col-lg-12">
                         <div className="product__details__tab">
                             <ul className="nav nav-tabs" role="tablist">
                                 <li className="nav-item">
                                     <a className="nav-link active" data-toggle="tab" href="#tabs-5"
-                                    role="tab">Description</a>
+                                    role="tab"  onClick={()=>{document.getElementById("tab1").style.display="block";document.getElementById("tab2").style.display="none"}}>Product Details</a>
                                 </li>
                                
                                 <li className="nav-item">
-                                    <a className="nav-link"  role="tab">Additional
-                                    information</a>
+                                    <a className="nav-link"  role="tab" onClick={()=>{document.getElementById("tab1").style.display="none";document.getElementById("tab2").style.display="block"}}>Size
+                                    Chart</a>
                                 </li>
                             </ul>
-                            <div className="tab-content">
+                            <div className="tab-content" id="tab1">
                                 <div className="tab-pane active" id="tabs-5" role="tabpanel">
                                     <div className="product__details__tab__content">
                                        
@@ -81,6 +104,10 @@ useEffect(()=>{
                                 </div>
                                 
                             </div>
+
+                            <div className="tab-content" id="tab2" style={{display:"none"}}>
+                            <SizeG />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -98,7 +125,7 @@ useEffect(()=>{
                 </div>
             </div>
             <div className="row">
-            {product.slice(2,6).map((el)=>(
+            {product.slice(0,6).map((el)=>(
                         <div className="col-lg-4 col-md-6 col-sm-6 key_prd" key={el.id}>
                             <div className="product__item">
                                 <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
@@ -111,7 +138,7 @@ useEffect(()=>{
                                 </div>
                                 <div className="product__item__text">
                                     <h6 className="ppp">{el.product}</h6>
-                                    <a className="add-cart" onClick={()=>window.location.reload()}>+ Place Order</a>
+                                    <a className="add-cart" onClick={()=>window.location.reload()}>+ Add To Cart</a>
                                     <div className="rating">
                                         <i className="fa fa-star-o"></i>
                                         <i className="fa fa-star-o"></i>

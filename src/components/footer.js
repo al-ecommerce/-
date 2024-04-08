@@ -55,7 +55,7 @@ export default function Footer(){
         </div>
         <div className="container">
             <div className="copyright">
-                &copy; Copyright <strong><span>AL</span></strong>. All Rights Reserved
+                &copy; Copyright <strong><span><a href="https://amzi-kwasi.github.io/al-app">AL</a></span></strong>. All Rights Reserved
             </div>
         </div>
     </footer>

@@ -62,6 +62,24 @@ function myPost(){
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
+
+    
+    fetch("https://faint-dandelion-lilac.glitch.me/footwear")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
+    
+    fetch("https://faint-dandelion-lilac.glitch.me/jewellery")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
+    
+    fetch("https://faint-dandelion-lilac.glitch.me/auto")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
 }
 
 function fetchDetails(data){
@@ -113,6 +131,7 @@ tr.innerHTML+=`
 <td>${data[i].quantity}</td>
 <td>${data[i].country}</td>
 <td>${data[i].address}</td>
+<td>${data[i].payment_method}</td>
 <td>${data[i].date}</td>
 
 `
@@ -136,6 +155,7 @@ function PostGo(){
     var descrip=document.getElementById("descrip").value;
     var material=document.getElementById("material").value;
     var avail=document.getElementById("avail").value;
+    var gender=document.getElementById("gender").value;
     var image=document.getElementById("img").value;
     // const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const d=new Date();
@@ -169,6 +189,7 @@ function PostGo(){
             "description":descrip,
             "materialU":material,
             "category":cat,
+            "gender":gender,
             "status":"posted"
         }),
 
@@ -249,6 +270,21 @@ function fetchID(){
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
+
+    fetch("https://faint-dandelion-lilac.glitch.me/footwear")
+    .then(res=> res.json())
+    .then(data=> updateDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("https://faint-dandelion-lilac.glitch.me/auto")
+    .then(res=> res.json())
+    .then(data=> updateDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("https://faint-dandelion-lilac.glitch.me/jewellery")
+    .then(res=> res.json())
+    .then(data=> updateDetails(data))
+    .catch(err => console.log(err))
 }
 
 
@@ -267,6 +303,7 @@ function updateDetails(data){
         document.getElementById("nameupd").value=data[i].seller_name;
         document.getElementById("sizeupd").value=data[i].size;
         document.getElementById("contactupd").value=data[i].contact;
+        document.getElementById("availupd").value=data[i].availability;
         document.getElementById("descripupd").value=data[i].description;
         document.getElementById("materialupd").value=data[i].materialU;
     document.getElementById("imgupd").value=data[i].image;
@@ -327,6 +364,25 @@ function deleteID(){
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
+
+    
+    fetch("https://faint-dandelion-lilac.glitch.me/auto")
+    .then(res=> res.json())
+    .then(data=> deleteDetails(data))
+    .catch(err => console.log(err))
+
+
+    
+    fetch("https://faint-dandelion-lilac.glitch.me/jewellery")
+    .then(res=> res.json())
+    .then(data=> deleteDetails(data))
+    .catch(err => console.log(err))
+
+    
+    fetch("https://faint-dandelion-lilac.glitch.me/footwear")
+    .then(res=> res.json())
+    .then(data=> deleteDetails(data))
+    .catch(err => console.log(err))
 }
 
 
@@ -384,6 +440,8 @@ function UpdateGo(){
     var nameupd=document.getElementById("nameupd").value;
     var sizeupd=document.getElementById("sizeupd").value;
     var contactupd=document.getElementById("contactupd").value;
+    var availupd=document.getElementById("availupd").value;
+    var genderupd=document.getElementById("genderupd").value;
     var descripupd=document.getElementById("descripupd").value;
     var materialupd=document.getElementById("materialupd").value;
 var imgupd=document.getElementById("imgupd").value;
@@ -402,6 +460,8 @@ fetch(`https://faint-dandelion-lilac.glitch.me/${catupd}/${prodid}`, {
         "seller_name":nameupd,
         "size":sizeupd,
         "contact":contactupd,
+        "availability":availupd,
+        "gender":genderupd,
         "description":descripupd,
         "materialU":materialupd
     }),
@@ -421,6 +481,7 @@ document.getElementById("countryupd").value="";
 document.getElementById("nameupd").value="";
 document.getElementById("sizeupd").value="";
 document.getElementById("contactupd").value="";
+document.getElementById("availupd").value="";
 document.getElementById("descripupd").value="";
 document.getElementById("materialupd").value="";
 document.getElementById("imgupd").value="";
@@ -471,6 +532,7 @@ useEffect(()=>{
                             <div className="checkout__order">
                                 <h4 className="order__title" >Order Details</h4>
                                 <section style={{overflowX:"auto"}} className="checkout__total__products">
+                                <h6>Customer details</h6>
                                 <table className="table"  id="ordd">
                                     <tr>
                                     <th>Email</th>
@@ -480,6 +542,7 @@ useEffect(()=>{
                                     <th>Quantity</th>
                                     <th>Country</th>
                                     <th>Address</th>
+                                    <th>Pay_method</th>
                                     <th>Date_P</th>
                                     </tr>
 
@@ -781,7 +844,7 @@ useEffect(()=>{
                             </div>
 
                             <div className="checkout__input">
-                                <p>Image Url<span>*</span></p>
+                                <p>Image Url<span>*</span>to add your own photos, read <a href="#/upload_photos">upload local photos</a> for more.</p>
                                 <input id="img" type="text"/>
                             </div>
                             <div className="checkout__input">
@@ -806,6 +869,16 @@ useEffect(()=>{
                                         <select id="avail">
                                            <option value="In stock">In Stock</option>
                                            <option value="Out of stock">Out of Stock</option> 
+                                            </select>
+                                    </div>
+                                </div>
+                                <div className="col-lg-6">
+                                    <div className="checkout__input">
+                                        <p>Gender<span>*</span></p>
+                                        <select id="gender">
+                                           <option value="both">Both</option>
+                                           <option value="male">Male</option>
+                                           <option value="female">Female</option> 
                                             </select>
                                     </div>
                                 </div>
@@ -913,6 +986,20 @@ useEffect(()=>{
                                     <div className="checkout__input">
                                         <p>Contact<span>*</span></p>
                                         <input id="contactupd" type="number" />
+                                    </div>
+                                </div>
+
+                                <div className="col-lg-6">
+                                    <div className="checkout__input">
+                                        <p>Availability<span>*</span></p>
+                                        <input id="availupd" type="text" />
+                                    </div>
+                                </div>
+
+                                <div className="col-lg-6">
+                                    <div className="checkout__input">
+                                        <p>Gender<span>*</span></p>
+                                        <input id="genderupd" type="text" />
                                     </div>
                                 </div>
                                 <div className="col-lg-6">
