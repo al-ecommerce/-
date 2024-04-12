@@ -9,10 +9,16 @@ function Sidebar(){
   
 const [category,setCategory]=useState([]);
 
+const [loading,setLoading]=useState(false);
+
+
 useEffect(()=>{
     fetch("https://faint-dandelion-lilac.glitch.me/categories")
     .then(res => res.json())
-    .then(data => setCategory(data))
+    .then(data => {
+      setCategory(data)
+     setLoading(true)
+    })
     .catch(err => console.log(err))
 }, [])
 
@@ -35,11 +41,13 @@ useEffect(()=>{
         <a className="nav-link">
           <i className="bi bi-grid"></i>
           <span>Shop</span>
+          
         </a>
       </li>
 
       <div id="ctg" style={{display:"none"}}>
       <li className="nav-heading">Categories</li>
+      <li style={{color:"white"}}>{loading ? <a></a> : <a>Loading<i className="fa fa-spinner fa-spin"></i></a>}</li>
 {category.map(group =>(
   <Link to={group.link}>
       <li className="nav-item">

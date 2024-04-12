@@ -9,6 +9,8 @@ import Footer from "../components/footer";
 import Update from "../components/update";
 import Catarea from "../components/catarea";
 import Catg from "../components/catg";
+import Catshow from "../components/catshow";
+import ScrollToTop from "react-scroll-to-top";
 
 
 
@@ -43,8 +45,7 @@ var the_main=document.getElementById("the_main");
 		<div id="loadery" className="loadery">
 			<center>
 				<div className="text">
-			<a>AL<span>ECOM</span></a>
-			<p>The best sales app</p>
+			<img src={require("../img/bl.gif")} alt=""/>
 			</div>
 			</center>
 		</div>
@@ -94,15 +95,17 @@ var the_main=document.getElementById("the_main");
 		</div>
 	</section>
 <br/><br/><br/>
-	
+	<Catshow />
+<br/><br/><br/>
 <Catarea />
 <Latest />
+<br/><br/><br/>
 <Catg />
 <Sidebar />
 
 
 </div>
-
+<ScrollToTop />
 <Footer />
 </div>
     </section>

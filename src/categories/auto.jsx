@@ -4,6 +4,7 @@ import Footer from "../components/footer";
 import Breadcrumb from "../components/breadcrumb";
 import Update from "../components/update";
 import Auto from "../fetch_product/auto";
+import ScrollToTop from "react-scroll-to-top";
 
 
 
@@ -22,7 +23,7 @@ function AutoP() {
 
 
 </div>
-
+<ScrollToTop />
 <Footer />
     </section>
    

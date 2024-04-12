@@ -5,6 +5,7 @@ import "../bootstrap.css";
 import Sidebar from "../components/sidebar";
 import Footer from "../components/footer";
 import Update from "../components/update";
+import ScrollToTop from "react-scroll-to-top";
 
 const oper={
     color:"#3bbode",
@@ -1081,7 +1082,7 @@ useEffect(()=>{
         </div>
     </section>
 </div>
-
+<ScrollToTop />
 <Footer />
     </section>
    

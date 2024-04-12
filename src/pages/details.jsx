@@ -75,7 +75,7 @@ useEffect(()=>{
                         <div className="product__details__tab">
                             <ul className="nav nav-tabs" role="tablist">
                                 <li className="nav-item">
-                                    <a className="nav-link active" data-toggle="tab" href="#tabs-5"
+                                    <a className="nav-link active"
                                     role="tab"  onClick={()=>{document.getElementById("tab1").style.display="block";document.getElementById("tab2").style.display="none"}}>Product Details</a>
                                 </li>
                                
@@ -121,7 +121,7 @@ useEffect(()=>{
         <div className="container">
             <div className="row">
                 <div className="col-lg-12">
-                    <h3 className="product-title">Related Product</h3>
+                    <h3 className="product-title">You May Also Like</h3>
                 </div>
             </div>
             <div className="row">

@@ -5,6 +5,7 @@ import Footer from "../components/footer";
 import HomeAppl from "../fetch_product/home_furn";
 import Breadcrumb from "../components/breadcrumb";
 import Update from "../components/update";
+import ScrollToTop from "react-scroll-to-top";
 
 
 
@@ -21,7 +22,7 @@ function HomeA() {
 <HomeAppl />
 <Sidebar />
 </div>
-
+<ScrollToTop />
 <Footer />
     </section>
    

@@ -5,6 +5,7 @@ import Footer from "../components/footer";
 import Fash from "../fetch_product/fash";
 import Breadcrumb from "../components/breadcrumb";
 import Update from "../components/update";
+import ScrollToTop from "react-scroll-to-top";
 
 
 function Fashion() {
@@ -21,7 +22,7 @@ function Fashion() {
 <Sidebar />
 
 </div>
-
+<ScrollToTop />
 <Footer />
     </section>
    

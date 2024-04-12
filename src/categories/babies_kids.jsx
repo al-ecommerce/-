@@ -5,6 +5,7 @@ import Footer from "../components/footer";
 import BabiesK from "../fetch_product/b&k";
 import Breadcrumb from "../components/breadcrumb";
 import Update from "../components/update";
+import ScrollToTop from "react-scroll-to-top";
 
 
 
@@ -22,7 +23,7 @@ function BK() {
 <Sidebar />
 
 </div>
-
+<ScrollToTop />
 <Footer />
     </section>
    

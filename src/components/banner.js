@@ -42,7 +42,7 @@ export default function Banner(){
            <center>
             <br/>
             <br/>
-            <p>Find anything now</p>
+            <p>Place Order and Get the order in a snap</p>
             <br/>
             <br/>
             <input type="text" id="search_prd" onKeyUp={Input} placeholder="Find ..." className="banner_input" />

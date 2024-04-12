@@ -25,6 +25,67 @@ export default function Catg(){
           </div>
         </div>
 
+<br/>
+<br/>
+<br/>
+<br/><br/>
+<br/>
+
+
+        <section className="category-area">
+            <center><h2>COMING SOON</h2></center>
+            <br/>
+<br/>
+		<div className="container">
+			<div className="row justify-content-center">
+				<div className="col-lg-8 col-md-12">
+					<div className="row">
+						<div className="col-lg-8 col-md-8">
+							<div className="single-deal">
+								<div className="overlay"></div>
+								<img className="img-fluid w-100" src={require("../img/banner/banner-7.jpg")} alt=""/>
+								
+							</div>
+						</div>
+						<div className="col-lg-4 col-md-4">
+							<div className="single-deal">
+								<div className="overlay"></div>
+								<img className="img-fluid w-100" src={require("../img/banner/banner-4.jpg")} alt=""/>
+								
+							</div>
+						</div>
+						<div className="col-lg-4 col-md-4">
+							<div className="single-deal">
+								<div className="overlay"></div>
+								<img className="img-fluid w-100" src={require("../img/banner/banner-5.jpg")} alt=""/>
+									
+								
+							</div>
+						</div>
+						<div className="col-lg-8 col-md-8">
+							<div className="single-deal">
+								<div className="overlay"></div>
+								<img className="img-fluid w-100" src={require("../img/banner/home-banner4.jpg")} alt=""/>
+								
+							</div>
+						</div>
+					</div>
+				</div>
+				<div className="col-lg-4 col-md-6">
+					<div className="single-deal">
+						<div className="overlay"></div>
+						<img className="img-fluid w-100" src={require("../img/banner/banner-9.jpg")} alt=""/>
+							
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	
+
+    <br/>
+<br/>
+ 
 
         <section className="categories spad">
             <div className="container">

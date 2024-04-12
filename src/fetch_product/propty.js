@@ -105,6 +105,7 @@ const handleDes = (el) => {
   }
     
 const [product, setProduct]=useState([]);
+const [loading,setLoading]=useState(false)
 
 
 var path="https://faint-dandelion-lilac.glitch.me/property";
@@ -112,7 +113,10 @@ var path="https://faint-dandelion-lilac.glitch.me/property";
 const fetching= ()=>{
     fetch(path)
     .then(res => res.json())
-    .then(data =>setProduct(data))
+    .then(data =>{
+        setProduct(data)
+        setLoading(true)
+    })
     .catch(err => console.log(err))
     
 }
@@ -278,6 +282,7 @@ useEffect(()=>{
                         </div>
                     </div>
                     <div className="row">
+                <center>{loading ? <a></a> : <a>Loading<i className="fa fa-spinner fa-spin"></i></a>}</center>
                     {product.map((el)=>(
                         <div className="col-lg-4 col-md-6 col-sm-6 key_prd" key={el.id}>
                             <div className="product__item">

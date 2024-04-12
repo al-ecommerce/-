@@ -4,6 +4,7 @@ import "../bootstrap.css";
 import Sidebar from "../components/sidebar";
 import Devfetch from "../components/dev_fetch";
 import Update from "../components/update";
+import ScrollToTop from "react-scroll-to-top";
 
 function fetchE(){
   fetch("https://faint-dandelion-lilac.glitch.me/passcode")
@@ -69,7 +70,7 @@ function Dev() {
 <Devfetch />
 </div>
 </div>
-
+<ScrollToTop />
     </section>
    
   )

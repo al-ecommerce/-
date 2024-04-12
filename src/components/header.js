@@ -23,11 +23,15 @@ export default function Header(){
 
 
 const [category,setCategory]=useState([]);
+const [loading, setLoading]=useState(false)
 
 useEffect(()=>{
     fetch("https://faint-dandelion-lilac.glitch.me/categories")
     .then(res => res.json())
-    .then(data => setCategory(data))
+    .then(data => {
+        setCategory(data)
+        setLoading(false)
+    })
     .catch(err => console.log(err))
 }, [])
 
@@ -53,6 +57,7 @@ useEffect(()=>{
              <li style={color} onClick={()=>{document.getElementById("mini_cat").style.display="block"}}>Shop</li>
              <div style={{display:"none"}} id="mini_cat">
              <li style={color}><small style={{color:"#899bbd"}}>Categories</small></li>
+             <li style={{color:"white"}}>{loading ? <a></a> : <a>Loading<i className="fa fa-spinner fa-spin"></i></a>}</li>
              {category.map(group =>(
                 <Link to={group.link}>
              <li style={color}>{group.category}</li>

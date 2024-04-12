@@ -5,6 +5,7 @@ import Footer from "../components/footer";
 import H_B from "../fetch_product/h&b";
 import Breadcrumb from "../components/breadcrumb";
 import Update from "../components/update";
+import ScrollToTop from "react-scroll-to-top";
 
 
 
@@ -22,7 +23,7 @@ function HB() {
 <Sidebar />
 
 </div>
-
+<ScrollToTop />
 <Footer />
     </section>
    

@@ -5,6 +5,7 @@ import Footer from "../components/footer";
 import Elect from "../fetch_product/elect";
 import Breadcrumb from "../components/breadcrumb";
 import Update from "../components/update";
+import ScrollToTop from "react-scroll-to-top";
 
 
 function Electronic() {
@@ -22,7 +23,7 @@ function Electronic() {
 <Sidebar />
 
 </div>
-
+<ScrollToTop />
 <Footer />
     </section>
    

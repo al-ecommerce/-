@@ -4,6 +4,7 @@ import Sidebar from "../components/sidebar";
 import Footer from "../components/footer";
 import Agricl from "../fetch_product/agric";
 import Breadcrumb from "../components/breadcrumb";
+import ScrollToTop from "react-scroll-to-top";
 
 
 
@@ -20,7 +21,7 @@ function Agric() {
 <Sidebar />
 
 </div>
-
+<ScrollToTop />
 <Footer />
     </section>
    

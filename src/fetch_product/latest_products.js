@@ -10,6 +10,7 @@ function Latest(){
 
     
 const [product, setProduct]=useState([]);
+const [loading,setLoading]=useState(false)
 const [vehicle, setVehicle]=useState([]);
 
 const [fashion, setFashion]=useState([]);
@@ -39,7 +40,10 @@ var pathjw="https://faint-dandelion-lilac.glitch.me/jewellery"
 const fetching= ()=>{
     fetch(path)
     .then(res => res.json())
-    .then(data =>setProduct(data))
+    .then(data =>{
+        setProduct(data)
+        setLoading(true)
+    })
     .catch(err => console.log(err))
     
 }
@@ -138,11 +142,12 @@ useEffect(()=>{
                     <div className="col-lg-12">
                         <ul className="filter__controls">
                             <li className="active">Featured Collection</li>
-                        </ul>
+                             </ul>
                     </div>
                 </div>
                 <div className="row product__filter">
-                    
+                <center>{loading ? <a></a> : <a>Loading<i className="fa fa-spinner fa-spin"></i></a>}</center>
+                       
                     {product.slice(0, 2).map((el)=>(
                         
                         <div className="col-lg-3 col-md-6 col-sm-6 mix new-arrivals animate__animated animate__fadeInUp" key={el.id}>

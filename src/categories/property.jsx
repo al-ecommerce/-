@@ -5,6 +5,7 @@ import Footer from "../components/footer";
 import Propty from "../fetch_product/propty";
 import Breadcrumb from "../components/breadcrumb";
 import Update from "../components/update";
+import ScrollToTop from "react-scroll-to-top";
 
 
 
@@ -22,7 +23,7 @@ function Property() {
 <Propty />
 <Sidebar />
 </div>
-
+<ScrollToTop />
 <Footer />
     </section>
    

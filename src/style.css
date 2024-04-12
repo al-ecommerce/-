@@ -483,7 +483,11 @@ display: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  background:black;
+  background:url(./img/blog/blog-4.jpg);
+  background-position: 100%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  backdrop-filter: 50%;
   column-gap: 30px;
 }
 
@@ -2514,10 +2518,10 @@ tr:nth-child(even) {
 
 
 .loadery{
-  background-color: black;
+  background-color: #000;
   width: 100%;
   height: 100vh;
-  color: white;
+  color: black;
   overflow: none;
   font-weight: 400;
   font-size: 30px;
@@ -2525,10 +2529,14 @@ tr:nth-child(even) {
 }
 
 .loadery .text{
-padding-top: 280px;
+padding-top: 274px;
 }
 
-.loadery p{
+.loadimg{
+  width: auto;
+  height: auto;
+}
+/* .loadery p{
   font-size: 20px;
   font-weight: 400;
   padding-top: 5px;
@@ -2575,7 +2583,7 @@ animation-direction: alternate;
     opacity: 1;
   }
 }
-
+ */
 
 
 .product_image_area {
@@ -3143,10 +3151,6 @@ animation-direction: alternate;
   font-size: 14px;
 }
 
-
-section {
-  padding: 80px 0;
-}
 
 .section-bg {
   background-color: #fafafb;

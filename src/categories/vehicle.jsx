@@ -5,6 +5,7 @@ import Footer from "../components/footer";
 import Vehicle from "../fetch_product/vehicle";
 import Breadcrumb from "../components/breadcrumb";
 import Update from "../components/update";
+import ScrollToTop from "react-scroll-to-top";
 
 
 
@@ -23,7 +24,7 @@ function VehicleC() {
 
 
 </div>
-
+<ScrollToTop />
 <Footer />
     </section>
    
