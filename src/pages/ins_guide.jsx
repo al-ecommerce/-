@@ -20,9 +20,9 @@ export default function InsGuide(){
             <ul>
                 <li>Open <a href="https://al-ecommerce.github.io/-/">https://al-ecommerce.github.io/-/</a> on any browser. If you are already on the alecom website then don't bother to open the link.</li>
                 <li>On the top right corner of the browser you will see an icon <i className="fa fa-ellipsis-v"></i>. Click on that icon.</li>
-                <li>A modal box will display the controls of the browser. For example, when you open alecom webpage on chrome and click the <i className="fa fa-ellipsis-v"></i> icon, a modal box displaying "new tab","new window", "new incognito window" etc.</li>
+                <li>A modal box will display the controls of the browser. For example, when you open alecom webpage on chrome, click the <i className="fa fa-ellipsis-v"></i> icon at the top right of the page, a modal box displaying "new tab","new window", "new incognito window" etc will show.</li>
                 <li>On the modal box, scroll and find "Install App" in the list.</li>
-                <li>Click on install app. This will take some moment to install the app on your device.</li>
+                <li>Click on "Install app". This will take some moment to install the app on your device.</li>
             </ul>
         </div>
 

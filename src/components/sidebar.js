@@ -107,6 +107,33 @@ useEffect(()=>{
         </a>
       </li>
       </Link>
+
+      <Link to="/">
+      <li className="nav-item">
+        <a className="nav-link collapsed">
+          <i className="bi bi-dash-circle"></i>
+          <span>My Store</span>
+        </a>
+      </li>
+      </Link>
+
+      <Link to="/">
+      <li className="nav-item">
+        <a className="nav-link collapsed">
+          <i className="bi bi-dash-circle"></i>
+          <span>Admin Dashboard</span>
+        </a>
+      </li>
+      </Link>
+
+      <Link to="/">
+      <li className="nav-item">
+        <a className="nav-link collapsed">
+          <i className="bi bi-dash-circle"></i>
+          <span>AlEcom Partners</span>
+        </a>
+      </li>
+      </Link>
       
       <li className="nav-item">
         <a className="nav-link collapsed">

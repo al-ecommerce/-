@@ -2529,7 +2529,15 @@ tr:nth-child(even) {
 }
 
 .loadery .text{
-padding-top: 274px;
+padding-top: 264px;
+}
+
+#preview_image:hover{
+transform: scale(1.5);
+}
+
+a, span, i, li {
+  text-decoration: none !important;
 }
 
 .loadimg{

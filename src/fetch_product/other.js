@@ -20,7 +20,7 @@ function proD(){
     document.getElementById("chkout").style.display="none"
 }
 
-function Elect(){
+function Others(){
 
     const details=document.getElementById("details");
       const prds=document.getElementById("prds");
@@ -41,7 +41,7 @@ const handleDes = (el) => {
     var  prev_email=document.getElementById("preview_email");
         
         var  prev_color=document.getElementById("preview_color");
-        var  prev_size=document.getElementById("preview_size");
+var  prev_size=document.getElementById("preview_size");
     
     
     var  prev_seller=document.getElementById("preview_seller");
@@ -75,7 +75,7 @@ const handleDes = (el) => {
     
     prev_color.innerHTML="Available Color: "+`${el.color}`
     prev_size.innerHTML="Available Size: "+`${el.size}`
-    }
+   }
 
   const placeOrder = (el) => {
     var chk_prod=document.getElementById("chk_prod");
@@ -95,7 +95,8 @@ const handleDes = (el) => {
 const [product, setProduct]=useState([]);
 const [loading, setLoading]=useState(false)
 
-var path="https://faint-dandelion-lilac.glitch.me/electronic";
+
+var path="https://faint-dandelion-lilac.glitch.me/other";
 
 const fetching= ()=>{
     fetch(path)
@@ -329,4 +330,4 @@ useEffect(()=>{
     )
 };
 
-export default Elect;
+export default Others;

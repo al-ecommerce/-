@@ -31,7 +31,7 @@ useEffect(()=>{
                 <Link to={cat.link}>
                     <div className="cat-item d-flex align-items-center mb-4">
                         <div className="overflow-hidden" style={{width: "100px", height: "100px"}}>
-                            <img className="img-fluid" src={require("../img/worldwide.png")} alt="" />
+                            <img className="img-fluid" src={require("../img/shield.png")} alt="" />
                         </div>
                         <div className="flex-fill pl-3">
                             <h6>{cat.category}</h6>

@@ -194,7 +194,7 @@ localStorage.setItem("checking", check.checked)
                 document.getElementById("loginread").value=null;
             },3000)
 
-                document.getElementById("loginread").value="invalid username or password"
+                document.getElementById("loginread").value="invalid email or password"
                 document.getElementById("loginread").style.color="red"
             
             }
@@ -329,9 +329,9 @@ export default function SignLog(){
         <div>
         <section onLoad={()=>{document.getElementById("emaill").value=localStorage.getItem("emaill");document.getElementById("check").checked=localStorage.getItem("checking");document.getElementById("logp").value=localStorage.getItem("passk")}} className="containerS" id="signuplogin">
             <div className="formpage login" id="login">
-                <Link to="/">
-            <a style={{fontSize:"30px",cursor:"pointer"}}>&times;</a>
-            </Link>
+                
+            <a onClick={()=>{window.history.back()}} style={{fontSize:"30px",cursor:"pointer"}}>&times;</a>
+            
                 <div className="form-content">
                     <header>Login</header>
                     <form className="form" onSubmit={LogInto}>
@@ -384,9 +384,9 @@ export default function SignLog(){
 
 
             <div id="signup" className="formpage signup" style={{display:"none"}}>
-            <Link to="/">
-            <a style={{fontSize:"30px",cursor:"pointer"}}>&times;</a>
-            </Link>
+            
+            <a onClick={()=>{window.history.back()}} style={{fontSize:"30px",cursor:"pointer"}}>&times;</a>
+            
                 <div className="form-content">
                     <header>Signup</header>
                     <form  className="form" onSubmit={PostSign}>
@@ -432,9 +432,9 @@ export default function SignLog(){
             </div>
 
             <div id="forgot" className="formpage" style={{display:"none"}}>
-            <Link to="/">
-            <a style={{fontSize:"30px",cursor:"pointer"}}>&times;</a>
-            </Link>
+            
+            <a onClick={()=>{window.history.back()}} style={{fontSize:"30px",cursor:"pointer"}}>&times;</a>
+            
                 <div className="form-content">
                     <header>Forgot Password</header>
                     <form ref={form} className="form">

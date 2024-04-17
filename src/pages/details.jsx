@@ -4,6 +4,12 @@ import SizeG from "./size_guide";
 export default function Details(){
     const [product, setProduct]=useState([]);
 
+    const [hb, setHb]=useState([]);
+    const [ele, setEl]=useState([]);
+    const [ft, setFt]=useState([]);
+    var pathhb="https://faint-dandelion-lilac.glitch.me/health_beauty"
+    var pathe="https://faint-dandelion-lilac.glitch.me/electronic"
+    var pathfw="https://faint-dandelion-lilac.glitch.me/footwear"
 
 
 const fetching= ()=>{
@@ -16,8 +22,33 @@ const fetching= ()=>{
 }
 
 
+const Footwear= ()=>{
+    fetch(pathfw)
+    .then(res => res.json())
+    .then(data =>setFt(data))
+    .catch(err => console.log(err))
+}
+
+const Electronic= ()=>{
+    fetch(pathe)
+    .then(res => res.json())
+    .then(data =>setEl(data))
+    .catch(err => console.log(err))
+}
+
+const HB= ()=>{
+    fetch(pathhb)
+    .then(res => res.json())
+    .then(data =>setHb(data))
+    .catch(err => console.log(err))
+}
+
+
 useEffect(()=>{
-        fetching()
+        fetching();
+        HB();
+        Electronic();
+        Footwear();
 },[])
 
     return(
@@ -37,13 +68,14 @@ useEffect(()=>{
 						<h3 id="preview_product"></h3>
 						<h2 id="preview_price"></h2>
                         <p id="preview_color"></p>
-                        <p id="preview_size"></p>
+                        <em id="preview_size"></em>
                           
                           <h5 id="preview_seller"></h5>
 						<ul className="list">
 							<li id="preview_cat"></li>
 							<li><a id="preview_avail"></a></li>
 							<li><a id="preview_date"></a></li>
+							<li><a id="preview_email"></a></li>
 						</ul>
 						
 						
@@ -125,7 +157,7 @@ useEffect(()=>{
                 </div>
             </div>
             <div className="row">
-            {product.slice(0,6).map((el)=>(
+            {product.slice(0,2).map((el)=>(
                         <div className="col-lg-4 col-md-6 col-sm-6 key_prd" key={el.id}>
                             <div className="product__item">
                                 <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
@@ -138,7 +170,7 @@ useEffect(()=>{
                                 </div>
                                 <div className="product__item__text">
                                     <h6 className="ppp">{el.product}</h6>
-                                    <a className="add-cart" onClick={()=>window.location.reload()}>+ Add To Cart</a>
+                                    <a className="add-cart" href="#/home_appl">+ Place Order</a>
                                     <div className="rating">
                                         <i className="fa fa-star-o"></i>
                                         <i className="fa fa-star-o"></i>
@@ -162,6 +194,127 @@ useEffect(()=>{
                             </div>
                         </div>
                     ))}
+ 
+ 
+ 
+ {ele.slice(0,2).map((el)=>(
+                        <div className="col-lg-4 col-md-6 col-sm-6 key_prd" key={el.id}>
+                            <div className="product__item">
+                                <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
+                                    <ul className="product__hover">
+                                        <li><a  onClick={()=>window.location.reload()}><i className="fa fa-id-card-o"></i></a></li>
+                                        <li><a><i className="fa fa-reorder"></i><span>Compare</span></a>
+                                        </li>
+                                        <li><a><i className="fa fa-file-code-o"></i></a></li>
+                                    </ul>
+                                </div>
+                                <div className="product__item__text">
+                                    <h6 className="ppp">{el.product}</h6>
+                                    <a className="add-cart" href="#/home_appl">+ Place Order</a>
+                                    <div className="rating">
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
+                                    </div>
+                                    <h5>{el.price}</h5>
+                                    <div className="product__color__select">
+                                        <label for="pc-40">
+                                            <input type="radio" id="pc-40"/>
+                                        </label>
+                                        <label className="active black" for="pc-41">
+                                            <input type="radio" id="pc-41"/>
+                                        </label>
+                                        <label className="grey" for="pc-42">
+                                            <input type="radio" id="pc-42"/>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+ 
+
+
+ {ft.slice(0,2).map((el)=>(
+                        <div className="col-lg-4 col-md-6 col-sm-6 key_prd" key={el.id}>
+                            <div className="product__item">
+                                <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
+                                    <ul className="product__hover">
+                                        <li><a  onClick={()=>window.location.reload()}><i className="fa fa-id-card-o"></i></a></li>
+                                        <li><a><i className="fa fa-reorder"></i><span>Compare</span></a>
+                                        </li>
+                                        <li><a><i className="fa fa-file-code-o"></i></a></li>
+                                    </ul>
+                                </div>
+                                <div className="product__item__text">
+                                    <h6 className="ppp">{el.product}</h6>
+                                    <a className="add-cart" href="#/home_appl">+ Place Order</a>
+                                    <div className="rating">
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
+                                    </div>
+                                    <h5>{el.price}</h5>
+                                    <div className="product__color__select">
+                                        <label for="pc-40">
+                                            <input type="radio" id="pc-40"/>
+                                        </label>
+                                        <label className="active black" for="pc-41">
+                                            <input type="radio" id="pc-41"/>
+                                        </label>
+                                        <label className="grey" for="pc-42">
+                                            <input type="radio" id="pc-42"/>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+ 
+
+ {hb.slice(0,2).map((el)=>(
+                        <div className="col-lg-4 col-md-6 col-sm-6 key_prd" key={el.id}>
+                            <div className="product__item">
+                                <div className="product__item__pic set-bg" style={{background: `url(${el.image})` , backgroundRepeat:"no-repeat",backgroundSize:"cover"}}>
+                                    <ul className="product__hover">
+                                        <li><a  onClick={()=>window.location.reload()}><i className="fa fa-id-card-o"></i></a></li>
+                                        <li><a><i className="fa fa-reorder"></i><span>Compare</span></a>
+                                        </li>
+                                        <li><a><i className="fa fa-file-code-o"></i></a></li>
+                                    </ul>
+                                </div>
+                                <div className="product__item__text">
+                                    <h6 className="ppp">{el.product}</h6>
+                                    <a className="add-cart" href="#/home_appl">+ Place Order</a>
+                                    <div className="rating">
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
+                                        <i className="fa fa-star-o"></i>
+                                    </div>
+                                    <h5>{el.price}</h5>
+                                    <div className="product__color__select">
+                                        <label for="pc-40">
+                                            <input type="radio" id="pc-40"/>
+                                        </label>
+                                        <label className="active black" for="pc-41">
+                                            <input type="radio" id="pc-41"/>
+                                        </label>
+                                        <label className="grey" for="pc-42">
+                                            <input type="radio" id="pc-42"/>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+ 
+ 
                     </div>
                     
             </div>

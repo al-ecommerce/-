@@ -318,7 +318,7 @@ function postCtg(){
             "id":id
         }),
         headers:{
-            "Content-type":"applicaton/json"
+            "Content-type":"application/json"
         }
     })
     .then(res=> res.json())
@@ -351,7 +351,7 @@ function postBlg(){
             "date":time
         }),
         headers:{
-            "Content-type":"applicaton/json"
+            "Content-type":"application/json"
         }
     })
     .then(res=> res.json())
@@ -371,7 +371,7 @@ function delCtg(){
     fetch(`https://faint-dandelion-lilac.glitch.me/categories/${p_id}`,{
         method:"DELETE",
         headers:{
-            "Content-type":"applicaton/json"
+            "Content-type":"application/json"
         }
     })
     .then(res=> res.json())
@@ -395,7 +395,7 @@ function delBlg(){
     fetch(`https://faint-dandelion-lilac.glitch.me/blog/${b_id}`,{
         method:"DELETE",
         headers:{
-            "Content-type":"applicaton/json"
+            "Content-type":"application/json"
         }
     })
     .then(res=> res.json())

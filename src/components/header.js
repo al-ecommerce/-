@@ -30,7 +30,7 @@ useEffect(()=>{
     .then(res => res.json())
     .then(data => {
         setCategory(data)
-        setLoading(false)
+        setLoading(true)
     })
     .catch(err => console.log(err))
 }, [])
@@ -83,7 +83,18 @@ useEffect(()=>{
              <Link to="/ins_guide">
              <li style={color}>Installation Guide</li>
              </Link>
+
+             <Link to="/">
+             <li style={color}>My Store</li>
+             </Link>
            
+             <Link to="/ins_guide">
+             <li style={color}>Admin Dashboard</li>
+             </Link>
+
+             <Link to="/ins_guide">
+             <li style={color}>AlEcom Partners</li>
+             </Link>
             </ul>
                 </div>
         </>

@@ -25,6 +25,7 @@ import Jewellery from "./categories/jewellery";
 import FP from "./components/forgot_password";
 import Upload from "./pages/upload";
 import Retailer from "./pages/retailer";
+import Other from "./categories/other";
 // import Sell from "./pages/sell";
 
 
@@ -48,6 +49,7 @@ function App() {
        <Route path="/checkout" element={<PlaceO />} />
        <Route path="/details" element={<Details />} />
         <Route path="/vehicle" element={<VehicleC />} />
+        <Route path="/other" element={<Other />} />
         <Route path="/autoparts" element={<AutoP />} />
         <Route path="/footwear" element={<Footwear />} />
         <Route path="/jewellery" element={<Jewellery />} />

@@ -8,9 +8,18 @@ import Update from "../components/update";
 import ScrollToTop from "react-scroll-to-top";
 
 const oper={
-    color:"#3bbode",
-    textDecoration:"underline",
-    cursor:"pointer"
+    fontFamily:"sans-serif",
+    textTransform: "uppercase",
+    fontWeight: "500",
+    fontSize: "16px",
+    letterSpacing: "1px",
+    display: "inline-block",
+    background:"#3bb0de",
+    padding: "8px 28px",
+    borderRadius: "4px",
+    transition: "0.5s",
+    border: "2px solid #fff",
+    color: "#fff"
 }
 
 function myPost(){
@@ -81,6 +90,12 @@ function myPost(){
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
+
+    fetch("https://faint-dandelion-lilac.glitch.me/other")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
 }
 
 function fetchDetails(data){
@@ -108,7 +123,9 @@ det.appendChild(tr)
 
 
 function myOrder(){
-    document.getElementById("checkingord").style.display="block"
+    document.getElementById("checkingord").style.display="block";
+    
+    document.getElementById("checkingord").scrollIntoView();
    
     fetch("https://faint-dandelion-lilac.glitch.me/orders")
     .then(res=> res.json())
@@ -118,7 +135,6 @@ function myOrder(){
 
 function fetchOrder(data){
     var email=document.getElementById("loginemail").value;
-   
     for(var i=0; i< data.length; i++){
     if(email === data[i].email_to){
 var ordd=document.getElementById("ordd");
@@ -200,12 +216,13 @@ function PostGo(){
     })
     .then(res => res.json())
     .then(data => {
-        console.log(data)
+        
     alert(`Success! Product pushed to Category: ${cat}`);
+        console.log(data);
+
     document.getElementById("prod").value="";
     document.getElementById("price").value="";
     document.getElementById("color").value="";
-    document.getElementById("country").value="";
     document.getElementById("name").value="";
     document.getElementById("size").value="";
     document.getElementById("contact").value="";
@@ -286,6 +303,14 @@ function fetchID(){
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
+
+
+    fetch("https://faint-dandelion-lilac.glitch.me/other")
+    .then(res=> res.json())
+    .then(data=> updateDetails(data))
+    .catch(err => console.log(err))
+
+   
 }
 
 
@@ -384,6 +409,15 @@ function deleteID(){
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
+
+
+     fetch("https://faint-dandelion-lilac.glitch.me/other")
+    .then(res=> res.json())
+    .then(data=> deleteDetails(data))
+    .catch(err => console.log(err))
+
+
+    
 }
 
 
@@ -544,7 +578,7 @@ useEffect(()=>{
                                     <th>Country</th>
                                     <th>Address</th>
                                     <th>Pay_method</th>
-                                    <th>Date_P</th>
+                                    <th>Ordered Date</th>
                                     </tr>
 
 
@@ -584,7 +618,8 @@ useEffect(()=>{
                             </div>
                             <div className="checkout__input">
                                 <p>Country<span>*</span></p>
-                                <select id="country" name="Country">
+                                <select id="country">
+                <option value="Ghana">Ghana</option>
                 <option value="Afghanistan">Afghanistan</option>
                 <option value="Åland Islands">Åland Islands</option>
                 <option value="Albania">Albania</option>
@@ -1073,11 +1108,20 @@ useEffect(()=>{
 
 
 
-<ul>
-    <li><a style={oper} onClick={()=>{document.getElementById("upd").style.display="none";document.getElementById("pst").style.display="";document.getElementById("del").style.display="none"}}>POST a Product</a></li>
-    <li><a style={oper} onClick={()=>{document.getElementById("pst").style.display="none";document.getElementById("upd").style.display="";document.getElementById("del").style.display="none"}}>Update a Product</a></li>
-    <li><a style={oper} onClick={()=>{document.getElementById("pst").style.display="none";document.getElementById("del").style.display="";document.getElementById("upd").style.display="none"}}>Delete a Product</a></li>
-   </ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<h4>Product Operations</h4>
+
+    <button style={oper} onClick={()=>{document.getElementById("upd").style.display="none";document.getElementById("pst").style.display="";document.getElementById("del").style.display="none"}}>POST a Product</button>
+   <br/><br/>
+    <button style={oper} onClick={()=>{document.getElementById("pst").style.display="none";document.getElementById("upd").style.display="";document.getElementById("del").style.display="none"}}>Update a Product</button>
+    <br/><br/>
+    <button style={oper} onClick={()=>{document.getElementById("pst").style.display="none";document.getElementById("del").style.display="";document.getElementById("upd").style.display="none"}}>Delete a Product</button>
+   
             </div>
         </div>
     </section>
