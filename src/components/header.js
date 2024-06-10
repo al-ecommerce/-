@@ -26,7 +26,7 @@ const [category,setCategory]=useState([]);
 const [loading, setLoading]=useState(false)
 
 useEffect(()=>{
-    fetch("https://faint-dandelion-lilac.glitch.me/categories")
+    fetch("https://tarry-hail-koala.glitch.me/categories")
     .then(res => res.json())
     .then(data => {
         setCategory(data)
@@ -43,7 +43,7 @@ useEffect(()=>{
                      </Link>
 
  <Link to="/sign_login">
-       <a className="sell"><i className="fa fa-shopping-cart"></i>&emsp;Sign In</a>
+       <a className="sell"><i className="fa fa-user"></i>&emsp;Account</a>
        </Link>
        <a className="mobile-nav" onClick={Overlay}>&#9776;</a>
         </header>

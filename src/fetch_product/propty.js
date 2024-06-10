@@ -11,7 +11,7 @@ import Inputq from "../components/inputquery";
 
 function Fishout(){
     
-var path="https://faint-dandelion-lilac.glitch.me/property";
+var path="https://tarry-hail-koala.glitch.me/property";
 
     fetch(path)
     .then(res => res.json())
@@ -112,7 +112,7 @@ const [product, setProduct]=useState([]);
 const [loading,setLoading]=useState(false)
 
 
-var path="https://faint-dandelion-lilac.glitch.me/property";
+var path="https://tarry-hail-koala.glitch.me/property";
 
 const fetching= ()=>{
     fetch(path)

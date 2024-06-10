@@ -1,12 +1,16 @@
 import { Link } from "react-router-dom";
 
-var path="https://faint-dandelion-lilac.glitch.me/account";
 
 var readonly={
     padding:"2px 3px",
     width:"100%",
     border:"none"
 }
+var not="ccou";const rl="tarry-hail-koala"
+const j="glitch";var l="me";
+const sup=".glitch.me"
+
+var path="https://tarry-hail-koala.glitch.me/account"
 
 function fetchEmail(){
     fetch(path)
@@ -37,14 +41,14 @@ function checkEmail(data){
     }
 
 }
-
 function ChngPs(){
     const fid=document.getElementById("fid").value;
     const create_ps=document.getElementById("create_ps").value;
+    var mab="/account";
     const confirm_ps=document.getElementById("confirm_ps").value;
 
     if(confirm_ps == create_ps && create_ps.length >= 8){
-    fetch(`https://faint-dandelion-lilac.glitch.me/account/${fid}`,{
+    fetch(`https://${rl}${sup}${mab}/${fid}`,{
         method:"PATCH",
         body:JSON.stringify({
             "passkey":create_ps
@@ -67,7 +71,6 @@ function ChngPs(){
         document.getElementById("err_msg").value="Invalid. Password must be at least 8 characters and must match."
     }
 }
-
 export default function FP(){
 return(
         <>

@@ -24,18 +24,18 @@ const [ft, setFt]=useState([]);
 const [jl, setJl]=useState([]);
 
 
-var path="https://faint-dandelion-lilac.glitch.me/products";
-var pathv="https://faint-dandelion-lilac.glitch.me/vehicle";
+var path="https://tarry-hail-koala.glitch.me/products";
+var pathv="https://tarry-hail-koala.glitch.me/vehicle";
 
-var pathf="https://faint-dandelion-lilac.glitch.me/fashion"
-var patha="https://faint-dandelion-lilac.glitch.me/art_craft"
-var pathbk="https://faint-dandelion-lilac.glitch.me/babies_kids"
-var pathhb="https://faint-dandelion-lilac.glitch.me/health_beauty"
-var pathp="https://faint-dandelion-lilac.glitch.me/property"
-var pathe="https://faint-dandelion-lilac.glitch.me/electronic"
-var pathag="https://faint-dandelion-lilac.glitch.me/agric"
-var pathfw="https://faint-dandelion-lilac.glitch.me/footwear"
-var pathjw="https://faint-dandelion-lilac.glitch.me/jewellery"
+var pathf="https://tarry-hail-koala.glitch.me/fashion"
+var patha="https://tarry-hail-koala.glitch.me/art_craft"
+var pathbk="https://tarry-hail-koala.glitch.me/babies_kids"
+var pathhb="https://tarry-hail-koala.glitch.me/health_beauty"
+var pathp="https://tarry-hail-koala.glitch.me/property"
+var pathe="https://tarry-hail-koala.glitch.me/electronic"
+var pathag="https://tarry-hail-koala.glitch.me/agric"
+var pathfw="https://tarry-hail-koala.glitch.me/footwear"
+var pathjw="https://tarry-hail-koala.glitch.me/jewellery"
 
 const fetching= ()=>{
     fetch(path)

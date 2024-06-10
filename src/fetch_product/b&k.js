@@ -95,7 +95,7 @@ const handleDes = (el) => {
 const [product, setProduct]=useState([]);
 const [loading, setLoading]=useState(false)
 
-var path="https://faint-dandelion-lilac.glitch.me/babies_kids";
+var path="https://tarry-hail-koala.glitch.me/babies_kids";
 
 const fetching= ()=>{
     fetch(path)

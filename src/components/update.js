@@ -6,7 +6,7 @@ export default function Update(){
     const [update,setUpdate]=useState([]);
 
     useEffect(()=>{
-        fetch("https://faint-dandelion-lilac.glitch.me/update")
+        fetch("https://tarry-hail-koala.glitch.me/update")
         .then(res=> res.json())
         .then(data=> setUpdate(data))
         .catch(err => console.log(err))

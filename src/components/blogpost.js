@@ -4,7 +4,7 @@ export default function BlogPost(){
 const [blog,setBlog]=useState([]);
 
 useEffect(()=>{
-    fetch("https://faint-dandelion-lilac.glitch.me/blog")
+    fetch("https://tarry-hail-koala.glitch.me/blog")
 .then(res => res.json())
 .then(data => setBlog(data))
 .catch(err => console.log(err));

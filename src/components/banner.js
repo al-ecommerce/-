@@ -1,11 +1,11 @@
 function Input(){
-    fetch("https://faint-dandelion-lilac.glitch.me/categories")
+    fetch("https://tarry-hail-koala.glitch.me/categories")
     .then(res=> res.json())
     .then(data => surfInput(data))
     .catch(err => console.log(err))
     
 
-    fetch("https://faint-dandelion-lilac.glitch.me/products")
+    fetch("https://tarry-hail-koala.glitch.me/products")
     .then(res=> res.json())
     .then(data => surfInput(data))
     .catch(err => console.log(err))

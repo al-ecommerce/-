@@ -4,8 +4,6 @@ import { Link } from "react-router-dom";
 import Sell from "../pages/sell";
 import { useEffect, useRef, useState } from "react";
 import emailjs from '@emailjs/browser';
-
-
 var readonly={
     padding:"2px 3px",
     width:"100%",
@@ -13,7 +11,7 @@ var readonly={
 }
 
 
-var path="https://faint-dandelion-lilac.glitch.me/account";
+var path=`${process.env.REACT_APP_API_URL}/account`;
 
 function PostSign(){
 
@@ -94,8 +92,7 @@ else{
         .then(res => res.json())
         .then(data=> checkData(data))
         .catch(err => console.log(err))
-    }
-
+    } 
     function checkData(data){
 
         for(var i=0; i< data.length; i++){
@@ -202,57 +199,6 @@ localStorage.setItem("checking", check.checked)
     }
 
 
-// function PatchPs(){
-//     var accoid=document.getElementById("account_id").value;
-//     var create_ps=document.getElementById("create_ps").value;
-//     var compare_ps=document.getElementById("compare_ps").value;
-
-//     if(compare_ps == create_ps && create_ps.length >=8){
-//         fetch(`https://faint-dandelion-lilac.glitch.me/account/${accoid}`,{
-//             method:"PATCH",
-//             body: JSON.stringify({
-//                 "passkey":create_ps
-//             }),
-//             headers:{
-//                 "Content-type":"application/json"
-//             }
-//         })
-//         .then(res => res.json())
-//         .then(data=> {
-//             console.log(data)
-        
-// alert("Password recreated successfully")
-//     document.getElementById("logp").value=create_ps
-  
-    
-//     document.getElementById("forgot").style.display="none";
-//     document.getElementById("signup").style.display="none"
-//     document.getElementById("login").style.display="block"
-//         })
-//         .catch(err => console.log(err))
-//     }
-
-//     else if(compare_ps !== create_ps){
-//         document.getElementById("err_msg").value="Password does not match";
-//         document.getElementById("err_msg").style.color="red";
-//         setTimeout(()=>{
-//             document.getElementById("err_msg").value=null;
-//         },3000)
-
-        
-//     }
-//     else if(create_ps.length < 8){
-//         document.getElementById("err_msg").value="Password must be at least 8 characters";
-//         document.getElementById("err_msg").style.color="red";
-//         setTimeout(()=>{
-//             document.getElementById("err_msg").value=null;
-//         },3000)
-
-        
-//     }
-// }
-
-
     function checkacPs(){
     
         document.getElementById("forgot").style.display="block";
@@ -263,7 +209,6 @@ localStorage.setItem("checking", check.checked)
      .then(data => apppendPs(data))
      .catch(err => console.log(err))
     }
-
     function apppendPs(data){
         for(var i=0; i < data.length; i++){
             var log_email=document.getElementById("emaill").value;
@@ -323,7 +268,7 @@ export default function SignLog(){
                 document.getElementById("err_msg").style.color="red";
             });
         };
-
+        
 
     return(
         <div>

@@ -25,7 +25,7 @@
     "deploy": "gh-pages -b main -d build",
     "start": "react-scripts start",
     "json:server": "json-server --watch db.json --port 3001",
-    "build": "react-scripts build",
+    "build": "set \"GENERATE_SOURCEMAP=false\" && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

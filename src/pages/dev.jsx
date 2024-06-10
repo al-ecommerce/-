@@ -7,7 +7,7 @@ import Update from "../components/update";
 import ScrollToTop from "react-scroll-to-top";
 
 function fetchE(){
-  fetch("https://faint-dandelion-lilac.glitch.me/passcode")
+  fetch(`${process.env.REACT_APP_API_URL}/passcode`)
   .then(res => res.json())
   .then(data => passkey(data))
 }

@@ -9,7 +9,7 @@ const [category,setCategory]=useState([]);
 const [loading,setLoading]=useState(false);
 
 useEffect(()=>{
-    fetch("https://faint-dandelion-lilac.glitch.me/categories")
+    fetch("https://tarry-hail-koala.glitch.me/categories")
     .then(res => res.json())
     .then(data => {
         setCategory(data)

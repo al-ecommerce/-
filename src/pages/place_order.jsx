@@ -1,8 +1,9 @@
+import NotificationPermission from "../components/notificationpermit";
 
 
 
 function PushChk(){
-    var path="https://faint-dandelion-lilac.glitch.me/orders";
+    var path="https://tarry-hail-koala.glitch.me/orders";
 
     var chk_eml=document.getElementById("chk_eml").value;
     var chk_q=document.getElementById("chk_q").value;
@@ -48,9 +49,19 @@ let time=d.toLocaleTimeString([],{ hour:'2-digit', minute:'2-digit'});
     .then(res => res.json())
     .then(data => {
         console.log(data)
-       alert("Order is placed. You would be contacted soon")
     })
     .catch(err => console.log(err))
+
+
+        if(Notification.permission === 'granted'){
+            new Notification('ALECOMMERCE', {
+                body:'Your Order is placed successfully. You would be contacted soon'
+            })
+        }
+        else{
+            console.error('Notification not granted')
+        }
+    
 }
 
 
@@ -391,6 +402,8 @@ export default function PlaceO(){
             </div>
         </div>
     </section>
+
+    <NotificationPermission />
         </>
     )
 }

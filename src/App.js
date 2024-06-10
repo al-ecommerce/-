@@ -26,10 +26,14 @@ import FP from "./components/forgot_password";
 import Upload from "./pages/upload";
 import Retailer from "./pages/retailer";
 import Other from "./categories/other";
+import PersonalInfo from "./pages/personal_info";
 // import Sell from "./pages/sell";
 
 
+var hackersunioun="tarry-hail-koala";
+
 function App() {
+
   return (
     <HashRouter>
     <Routes>
@@ -61,6 +65,7 @@ function App() {
         <Route path="/ins_guide" element={<InsGuide />} />
         <Route path="/upload_photos" element={<Upload />} />
         <Route path="/retail" element={<Retailer />} />
+        <Route path="/personal_details" element={<PersonalInfo />} />
       </Route>
     </Routes>
     </HashRouter>

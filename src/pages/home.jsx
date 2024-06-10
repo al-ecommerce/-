@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+// import { useEffect, useState } from "react"
 import Header from "../components/header";
 import Banner from "../components/banner";
 import "../style.css";
@@ -16,7 +16,7 @@ import ScrollToTop from "react-scroll-to-top";
 
 function Home() {
 
-//   var path="https://faint-dandelion-lilac.glitch.me/terms"
+//   var path="https://tarry-hail-koala.glitch.me/terms"
 // const [data, setData]=useState([])
 
 
@@ -35,6 +35,26 @@ setTimeout(()=>{
 	
 var loadery=document.getElementById("loadery");
 var the_main=document.getElementById("the_main");
+const picarray=["banner/hom.jpg","banner/belle-banner1.jpg","banner/home3-banner.jpg","banner/home5-banner1.jpg","banner/top-menu-banner.jpg"];
+const prood=["dryer.jpg","hanger.jpg","crystal-light.jpg","nike.jpg","rubber-sealer.jpg","ladies-sneakers.jpg","sewing-kit.jpg"]
+
+
+var randomize=Math.floor(Math.random()* picarray.length);
+
+var random=Math.floor(Math.random()* prood.length);
+var randomy=Math.floor(Math.random()* 6);
+
+document.getElementById("single_deal1").src=`${require('../img/products/' + prood[random])}`;
+document.getElementById("single_deal2").src=`${require('../img/products/' + prood[randomy])}`;
+
+
+document.getElementById("single_deal1").style.maxHeight="350px"
+
+document.getElementById("banner").style.background= `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${require('../img/'+ picarray[randomize])})`;
+document.getElementById("banner").style.backgroundPosition= "center";
+document.getElementById("banner").style.backgroundRepeat= "no-repeat";
+document.getElementById("banner").style.backgroundSize= "cover";
+document.getElementById("banner").style.objectFit= "contain";
 
 	loadery.style.display="none";
 	the_main.style.display="block";

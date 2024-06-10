@@ -98,7 +98,7 @@ const [product, setProduct]=useState([]);
 const [loading, setLoading]=useState(false)
 
 
-var path="https://faint-dandelion-lilac.glitch.me/agric";
+var path="https://tarry-hail-koala.glitch.me/agric";
 
 const fetching= ()=>{
     fetch(path)

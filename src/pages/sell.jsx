@@ -6,6 +6,7 @@ import Sidebar from "../components/sidebar";
 import Footer from "../components/footer";
 import Update from "../components/update";
 import ScrollToTop from "react-scroll-to-top";
+import { Link } from "react-router-dom";
 
 const oper={
     fontFamily:"sans-serif",
@@ -23,75 +24,75 @@ const oper={
 }
 
 function myPost(){
-    fetch("https://faint-dandelion-lilac.glitch.me/vehicle")
+    fetch("https://tarry-hail-koala.glitch.me/vehicle")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://faint-dandelion-lilac.glitch.me/property")
+    fetch("https://tarry-hail-koala.glitch.me/property")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://faint-dandelion-lilac.glitch.me/fashion")
+    fetch("https://tarry-hail-koala.glitch.me/fashion")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
-    fetch("https://faint-dandelion-lilac.glitch.me/agric")
-    .then(res=> res.json())
-    .then(data=> fetchDetails(data))
-    .catch(err => console.log(err))
-
-
-    fetch("https://faint-dandelion-lilac.glitch.me/products")
-    .then(res=> res.json())
-    .then(data=> fetchDetails(data))
-    .catch(err => console.log(err))
-
-    fetch("https://faint-dandelion-lilac.glitch.me/art_craft")
+    fetch("https://tarry-hail-koala.glitch.me/agric")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://faint-dandelion-lilac.glitch.me/babies_kids")
+    fetch("https://tarry-hail-koala.glitch.me/products")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
-    fetch("https://faint-dandelion-lilac.glitch.me/electronic")
+    fetch("https://tarry-hail-koala.glitch.me/art_craft")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://faint-dandelion-lilac.glitch.me/health_beauty")
+    fetch("https://tarry-hail-koala.glitch.me/babies_kids")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
-    
-    fetch("https://faint-dandelion-lilac.glitch.me/footwear")
+    fetch("https://tarry-hail-koala.glitch.me/electronic")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
+
+    fetch("https://tarry-hail-koala.glitch.me/health_beauty")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
     
-    fetch("https://faint-dandelion-lilac.glitch.me/jewellery")
+    fetch("https://tarry-hail-koala.glitch.me/footwear")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
     
-    fetch("https://faint-dandelion-lilac.glitch.me/auto")
+    fetch("https://tarry-hail-koala.glitch.me/jewellery")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
 
-    fetch("https://faint-dandelion-lilac.glitch.me/other")
+    
+    fetch("https://tarry-hail-koala.glitch.me/auto")
+    .then(res=> res.json())
+    .then(data=> fetchDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("https://tarry-hail-koala.glitch.me/other")
     .then(res=> res.json())
     .then(data=> fetchDetails(data))
     .catch(err => console.log(err))
@@ -127,7 +128,7 @@ function myOrder(){
     
     document.getElementById("checkingord").scrollIntoView();
    
-    fetch("https://faint-dandelion-lilac.glitch.me/orders")
+    fetch("https://tarry-hail-koala.glitch.me/orders")
     .then(res=> res.json())
     .then(data=> fetchOrder(data))
     .catch(err => console.log(err))
@@ -188,7 +189,7 @@ function PostGo(){
         image="https://miro.medium.com/v2/resize:fit:1400/1*okbBhXU2x0f_eFyUVyc-gA.gif";
     }
 
-    fetch(`https://faint-dandelion-lilac.glitch.me/${cat}`, {
+    fetch(`https://tarry-hail-koala.glitch.me/${cat}`, {
         method:"POST",
         body:JSON.stringify({
             "id":id,
@@ -239,73 +240,73 @@ function PostGo(){
 
 
 function fetchID(){
-    fetch("https://faint-dandelion-lilac.glitch.me/vehicle")
+    fetch("https://tarry-hail-koala.glitch.me/vehicle")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://faint-dandelion-lilac.glitch.me/property")
+    fetch("https://tarry-hail-koala.glitch.me/property")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://faint-dandelion-lilac.glitch.me/fashion")
+    fetch("https://tarry-hail-koala.glitch.me/fashion")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
-    fetch("https://faint-dandelion-lilac.glitch.me/agric")
-    .then(res=> res.json())
-    .then(data=> updateDetails(data))
-    .catch(err => console.log(err))
-
-
-    fetch("https://faint-dandelion-lilac.glitch.me/products")
-    .then(res=> res.json())
-    .then(data=> updateDetails(data))
-    .catch(err => console.log(err))
-
-    fetch("https://faint-dandelion-lilac.glitch.me/art_craft")
+    fetch("https://tarry-hail-koala.glitch.me/agric")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://faint-dandelion-lilac.glitch.me/babies_kids")
+    fetch("https://tarry-hail-koala.glitch.me/products")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
-    fetch("https://faint-dandelion-lilac.glitch.me/electronic")
-    .then(res=> res.json())
-    .then(data=> updateDetails(data))
-    .catch(err => console.log(err))
-
-
-    fetch("https://faint-dandelion-lilac.glitch.me/health_beauty")
-    .then(res=> res.json())
-    .then(data=> updateDetails(data))
-    .catch(err => console.log(err))
-
-    fetch("https://faint-dandelion-lilac.glitch.me/footwear")
-    .then(res=> res.json())
-    .then(data=> updateDetails(data))
-    .catch(err => console.log(err))
-
-    fetch("https://faint-dandelion-lilac.glitch.me/auto")
-    .then(res=> res.json())
-    .then(data=> updateDetails(data))
-    .catch(err => console.log(err))
-
-    fetch("https://faint-dandelion-lilac.glitch.me/jewellery")
+    fetch("https://tarry-hail-koala.glitch.me/art_craft")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://faint-dandelion-lilac.glitch.me/other")
+    fetch("https://tarry-hail-koala.glitch.me/babies_kids")
+    .then(res=> res.json())
+    .then(data=> updateDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("https://tarry-hail-koala.glitch.me/electronic")
+    .then(res=> res.json())
+    .then(data=> updateDetails(data))
+    .catch(err => console.log(err))
+
+
+    fetch("https://tarry-hail-koala.glitch.me/health_beauty")
+    .then(res=> res.json())
+    .then(data=> updateDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("https://tarry-hail-koala.glitch.me/footwear")
+    .then(res=> res.json())
+    .then(data=> updateDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("https://tarry-hail-koala.glitch.me/auto")
+    .then(res=> res.json())
+    .then(data=> updateDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("https://tarry-hail-koala.glitch.me/jewellery")
+    .then(res=> res.json())
+    .then(data=> updateDetails(data))
+    .catch(err => console.log(err))
+
+
+    fetch("https://tarry-hail-koala.glitch.me/other")
     .then(res=> res.json())
     .then(data=> updateDetails(data))
     .catch(err => console.log(err))
@@ -341,77 +342,77 @@ function updateDetails(data){
 
 
 function deleteID(){
-    fetch("https://faint-dandelion-lilac.glitch.me/vehicle")
+    fetch("https://tarry-hail-koala.glitch.me/vehicle")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://faint-dandelion-lilac.glitch.me/property")
+    fetch("https://tarry-hail-koala.glitch.me/property")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://faint-dandelion-lilac.glitch.me/fashion")
+    fetch("https://tarry-hail-koala.glitch.me/fashion")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
-    fetch("https://faint-dandelion-lilac.glitch.me/agric")
-    .then(res=> res.json())
-    .then(data=> deleteDetails(data))
-    .catch(err => console.log(err))
-
-
-    fetch("https://faint-dandelion-lilac.glitch.me/products")
-    .then(res=> res.json())
-    .then(data=> deleteDetails(data))
-    .catch(err => console.log(err))
-
-    fetch("https://faint-dandelion-lilac.glitch.me/art_craft")
+    fetch("https://tarry-hail-koala.glitch.me/agric")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
 
-    fetch("https://faint-dandelion-lilac.glitch.me/babies_kids")
+    fetch("https://tarry-hail-koala.glitch.me/products")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
-    fetch("https://faint-dandelion-lilac.glitch.me/electronic")
-    .then(res=> res.json())
-    .then(data=> deleteDetails(data))
-    .catch(err => console.log(err))
-
-
-    fetch("https://faint-dandelion-lilac.glitch.me/health_beauty")
-    .then(res=> res.json())
-    .then(data=> deleteDetails(data))
-    .catch(err => console.log(err))
-
-    
-    fetch("https://faint-dandelion-lilac.glitch.me/auto")
+    fetch("https://tarry-hail-koala.glitch.me/art_craft")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
 
-    
-    fetch("https://faint-dandelion-lilac.glitch.me/jewellery")
+    fetch("https://tarry-hail-koala.glitch.me/babies_kids")
+    .then(res=> res.json())
+    .then(data=> deleteDetails(data))
+    .catch(err => console.log(err))
+
+    fetch("https://tarry-hail-koala.glitch.me/electronic")
+    .then(res=> res.json())
+    .then(data=> deleteDetails(data))
+    .catch(err => console.log(err))
+
+
+    fetch("https://tarry-hail-koala.glitch.me/health_beauty")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
     
-    fetch("https://faint-dandelion-lilac.glitch.me/footwear")
+    fetch("https://tarry-hail-koala.glitch.me/auto")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
 
 
-     fetch("https://faint-dandelion-lilac.glitch.me/other")
+    
+    fetch("https://tarry-hail-koala.glitch.me/jewellery")
+    .then(res=> res.json())
+    .then(data=> deleteDetails(data))
+    .catch(err => console.log(err))
+
+    
+    fetch("https://tarry-hail-koala.glitch.me/footwear")
+    .then(res=> res.json())
+    .then(data=> deleteDetails(data))
+    .catch(err => console.log(err))
+
+
+     fetch("https://tarry-hail-koala.glitch.me/other")
     .then(res=> res.json())
     .then(data=> deleteDetails(data))
     .catch(err => console.log(err))
@@ -445,7 +446,7 @@ var prodid=document.getElementById("delid").value;
 
 
 
-fetch(`https://faint-dandelion-lilac.glitch.me/${catdel}/${prodid}`, {
+fetch(`https://tarry-hail-koala.glitch.me/${catdel}/${prodid}`, {
     method:"DELETE",
     headers:{
         "Content-type":"application/json"
@@ -484,7 +485,7 @@ var prodid=document.getElementById("prodid").value;
 
 
 
-fetch(`https://faint-dandelion-lilac.glitch.me/${catupd}/${prodid}`, {
+fetch(`https://tarry-hail-koala.glitch.me/${catupd}/${prodid}`, {
     method:"PATCH",
     body:JSON.stringify({
         "product":produpd,
@@ -536,7 +537,7 @@ const [cat, setCat]=useState([]);
 
 
 useEffect(()=>{
-    fetch("https://faint-dandelion-lilac.glitch.me/categories")
+    fetch("https://tarry-hail-koala.glitch.me/categories")
     .then(res => res.json())
     .then(data => setCat(data))
     .catch(err => console.log(err))
@@ -563,6 +564,9 @@ useEffect(()=>{
 </div>
 <br/>
 <br/>
+<Link to="/personal_details">
+<button style={oper} >My Personal Details</button>
+  </Link>
 <div id="checkingord" style={{display:"none"}}>
                             <div className="checkout__order">
                                 <h4 className="order__title" >Order Details</h4>

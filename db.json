@@ -201,12 +201,33 @@
       "id": "e711"
     }
   ],
+  "laccount": [
+    {
+      "id": "tec12345",
+      "name": "AL",
+      "email": "kwasyamzi@gmail.com",
+      "passcode": "12345678",
+      "status":"teacher",
+      "notice": ""
+    }
+  ],
+  "raccount": [
+    {
+      "id": "prt12345",
+      "name": "AL",
+      "email": "kwasyamzi@gmail.com",
+      "passcode": "12345678",
+      "status":"parent",
+      "notice": ""
+    }
+  ],
   "account": [
     {
-      "id": "2af6",
-      "username": "AL",
+      "id": "stu12345",
+      "name": "AL",
       "email": "kwasyamzi@gmail.com",
-      "passkey": "1AK2ak3Y",
+      "passcode": "12345678",
+      "status":"student",
       "notice": ""
     }
   ]

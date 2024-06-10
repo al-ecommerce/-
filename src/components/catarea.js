@@ -9,7 +9,7 @@ export default function Catarea(){
 						<div className="col-lg-8 col-md-8">
 							<div className="single-deal">
 								<div className="overlay"></div>
-								<img className="img-fluid w-100" src={require("../img/category/c1.jpg")} alt=""/>
+								<img className="img-fluid w-100" id="single_deal1" alt=""/>
 								
 							</div>
 						</div>
@@ -23,9 +23,9 @@ export default function Catarea(){
 						<div className="col-lg-4 col-md-4">
 							<div className="single-deal">
 								<div className="overlay"></div>
-								<img className="img-fluid w-100" src={require("../img/category/c3.jpg")} alt=""/>
+								<img className="img-fluid w-100" id="single_deal2" alt=""/>
 									<div className="deal-details">
-										<h6 className="deal-title">Product for Couple</h6>
+										<h6 className="deal-title">Product for sale</h6>
 									</div>
 								
 							</div>

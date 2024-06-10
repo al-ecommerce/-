@@ -28,11 +28,7 @@
     width: 100%;
     margin-top: 50px;
     position: relative;
-    background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)), url(./img/slide-3.jpg);
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    object-fit: contain;
+   
     color: white;
     height: auto;
 }
@@ -2529,7 +2525,7 @@ tr:nth-child(even) {
 }
 
 .loadery .text{
-padding-top: 264px;
+padding-top: 260px;
 }
 
 #preview_image:hover{
@@ -3203,3 +3199,131 @@ animation-direction: alternate;
     width: 50%;
   }
 }
+
+
+.profile .profile-card img {
+  max-width: 120px;
+  height: 120px !important;
+}
+
+.profile .profile-card h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2c384e;
+  margin: 10px 0 0 0;
+}
+
+.profile .profile-card h3 {
+  font-size: 18px;
+}
+
+.profile .profile-card .social-links a {
+  font-size: 20px;
+  display: inline-block;
+  color: rgba(1, 41, 112, 0.5);
+  line-height: 0;
+  margin-right: 10px;
+  transition: 0.3s;
+}
+
+.profile .profile-card .social-links a:hover {
+  color: #012970;
+}
+
+.profile .profile-overview .row {
+  margin-bottom: 20px;
+  font-size: 15px;
+}
+
+.profile .profile-overview .card-title {
+  color: #012970;
+}
+
+.profile .profile-overview .label {
+  font-weight: 600;
+  color: rgba(1, 41, 112, 0.6);
+}
+
+.profile .profile-edit label {
+  font-weight: 600;
+  color: rgba(1, 41, 112, 0.6);
+}
+
+.profile .profile-edit img {
+  max-width: 120px;
+}
+
+
+.nav-item {
+  margin-bottom: 5px;
+}
+
+button{
+  text-decoration: none;
+}
+
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 600;
+  transition: 0.3;
+  color: black !important;
+  padding: 10px 15px;
+  border-radius: 4px;
+}
+
+ .nav-link i {
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+ 
+
+ .nav-link.collapsed i {
+  color: #899bbd;
+}
+
+
+
+
+/* Card */
+.cardy {
+  margin-bottom: 30px;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1);
+}
+
+.card-header,
+.card-footer {
+  border-color: #ebeef4;
+  background-color: #fff;
+  color: #798eb3;
+  padding: 15px;
+}
+
+.card-title {
+  padding: 20px 0 15px 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: #012970;
+  font-family: "Poppins", sans-serif;
+}
+
+.card-title span {
+  color: #899bbd;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.card-body {
+  padding: 0 20px 20px 20px;
+}
+
+.card-img-overlay {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+

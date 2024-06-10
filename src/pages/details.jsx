@@ -7,14 +7,14 @@ export default function Details(){
     const [hb, setHb]=useState([]);
     const [ele, setEl]=useState([]);
     const [ft, setFt]=useState([]);
-    var pathhb="https://faint-dandelion-lilac.glitch.me/health_beauty"
-    var pathe="https://faint-dandelion-lilac.glitch.me/electronic"
-    var pathfw="https://faint-dandelion-lilac.glitch.me/footwear"
+    var pathhb="https://tarry-hail-koala.glitch.me/health_beauty"
+    var pathe="https://tarry-hail-koala.glitch.me/electronic"
+    var pathfw="https://tarry-hail-koala.glitch.me/footwear"
 
 
 const fetching= ()=>{
 
-    fetch("https://faint-dandelion-lilac.glitch.me/products")
+    fetch("https://tarry-hail-koala.glitch.me/products")
     .then(res => res.json())
     .then(data =>setProduct(data))
     .catch(err => console.log(err))

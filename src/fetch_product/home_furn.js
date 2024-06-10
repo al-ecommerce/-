@@ -18,7 +18,7 @@ function proD(){
     document.getElementById("details").style.display="none"
     
     document.getElementById("chkout").style.display="none"
-}
+} var alecomprev="tarry-hail-koala";
 
 function HomeAppl(){
 
@@ -95,7 +95,7 @@ const handleDes = (el) => {
 const [product, setProduct]=useState([]);
 const [loading, setLoading]=useState(false)
 
-var path="https://faint-dandelion-lilac.glitch.me/products";
+var path=`https://${alecomprev}.glitch.me/products`;
 
 const fetching= ()=>{
     fetch(path)

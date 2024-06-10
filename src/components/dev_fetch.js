@@ -9,9 +9,9 @@ const get= {
     padding:"10px 12px"
 }
 
-var cat_path="https://faint-dandelion-lilac.glitch.me/categories"
-var acc_path="https://faint-dandelion-lilac.glitch.me/account"
-var upd_path="https://faint-dandelion-lilac.glitch.me/update"
+var cat_path="https://tarry-hail-koala.glitch.me/categories"
+var acc_path=process.env.REACT_APP_API_URL;
+var upd_path="https://tarry-hail-koala.glitch.me/update"
 
 
 function ctg(){
@@ -49,7 +49,7 @@ function blg(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch("https://faint-dandelion-lilac.glitch.me/blog")
+    fetch("https://tarry-hail-koala.glitch.me/blog")
     .then(res => res.json())
     .then(data => appendBlg(data))
     .catch(err=> console.log(err))
@@ -145,7 +145,7 @@ function Getall(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch(`https://faint-dandelion-lilac.glitch.me/${endpoint}`)
+    fetch(`https://tarry-hail-koala.glitch.me/${endpoint}`)
         .then(res => res.json())
         .then(data=> appendGetall(data))
         .catch(err=> console.log(err))
@@ -183,7 +183,7 @@ function Deleteall(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch(`https://faint-dandelion-lilac.glitch.me/${endpoint}`,{
+    fetch(`https://tarry-hail-koala.glitch.me/${endpoint}`,{
         method:"DELETE",
         headers:{
             "Content-type":"application/json"
@@ -226,7 +226,7 @@ function deleteAcc(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch(`https://faint-dandelion-lilac.glitch.me/account/${ac_id}`,{
+    fetch(`https://tarry-hail-koala.glitch.me/account/${ac_id}`,{
         method:"DELETE",
         headers:{
             "Content-type":"application/json"
@@ -248,7 +248,7 @@ function PatchAcc(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch(`https://faint-dandelion-lilac.glitch.me/account/${ac_id}`,{
+    fetch(`https://tarry-hail-koala.glitch.me/account/${ac_id}`,{
         method:"PATCH",
         body:JSON.stringify({
             "notice":notice
@@ -277,7 +277,7 @@ function updU(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch(`https://faint-dandelion-lilac.glitch.me/update/${upd_id}`,{
+    fetch(`https://tarry-hail-koala.glitch.me/update/${upd_id}`,{
         method:"PATCH",
         body:JSON.stringify({
             "text":upd_text,
@@ -309,7 +309,7 @@ function postCtg(){
         const valp=document.getElementById("valp").value;
         const linkp=document.getElementById("linkp").value;
         
-        fetch("https://faint-dandelion-lilac.glitch.me/categories",{
+        fetch("https://tarry-hail-koala.glitch.me/categories",{
         method:"POST",
         body:JSON.stringify({
             "category":catp,
@@ -341,7 +341,7 @@ function postBlg(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    fetch("https://faint-dandelion-lilac.glitch.me/blog",{
+    fetch("https://tarry-hail-koala.glitch.me/blog",{
         method:"POST",
         body:JSON.stringify({
             "id":id,
@@ -368,7 +368,7 @@ function delCtg(){
 
     if(prompty == "200618"){
     var p_id=document.getElementById("p_id").value;
-    fetch(`https://faint-dandelion-lilac.glitch.me/categories/${p_id}`,{
+    fetch(`https://tarry-hail-koala.glitch.me/categories/${p_id}`,{
         method:"DELETE",
         headers:{
             "Content-type":"application/json"
@@ -392,7 +392,7 @@ function delBlg(){
 
     if(prompty == "200618"){
     var b_id=document.getElementById("b_id").value;
-    fetch(`https://faint-dandelion-lilac.glitch.me/blog/${b_id}`,{
+    fetch(`https://tarry-hail-koala.glitch.me/blog/${b_id}`,{
         method:"DELETE",
         headers:{
             "Content-type":"application/json"
@@ -414,7 +414,7 @@ function Database(){
     var prompty=prompt("Enter Code");
 
     if(prompty == "200618"){
-    document.getElementById("dt").href="https://faint-dandelion-lilac.glitch.me/";
+    document.getElementById("dt").href="https://tarry-hail-koala.glitch.me/";
     }
 }
 export default function Devfetch(){
