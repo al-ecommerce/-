@@ -1,7 +1,7 @@
 import emailjs from "emailjs-com";
 
-const SERVICE_ID = "YOUR_EMAILJS_SERVICE_ID";
-const PUBLIC_KEY = "YOUR_EMAILJS_PUBLIC_KEY";
+const SERVICE_ID = "service_30gqve5";
+const PUBLIC_KEY = "template_2l9r3sl";
 
 const TEMPLATES = {
   welcome: "template_welcome",
