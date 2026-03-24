@@ -9,6 +9,8 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.6.8",
+    "emailjs-com": "^3.2.0",
+    "firebase": "^12.11.0",
     "gh-pages": "^6.1.1",
     "json-server": "^1.0.0-alpha.23",
     "nodemailer": "^6.9.13",
