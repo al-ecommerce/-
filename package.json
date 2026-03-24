@@ -1,7 +1,7 @@
 {
   "name": "proj",
   "version": "0.1.0",
-  "homepage": "https://al-ecommerce.github.io/-/",
+  "homepage": ".",
   "private": true,
   "dependencies": {
     "@emailjs/browser": "^4.3.3",
@@ -26,7 +26,7 @@
     "deploy": "gh-pages -b main -d build",
     "start": "react-scripts start",
     "json:server": "json-server --watch db.json --port 3001",
-    "build": "set \"GENERATE_SOURCEMAP=false\" && CI=false react-scripts build",
+    "build": "GENERATE_SOURCEMAP=false CI=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
