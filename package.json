@@ -1,7 +1,6 @@
 {
   "name": "proj",
   "version": "0.1.0",
-  "homepage": ".",
   "private": true,
   "dependencies": {
     "@emailjs/browser": "^4.3.3",
@@ -22,13 +21,10 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "predeploy": "npm run build",
+        "predeploy": "npm run build",
     "deploy": "gh-pages -b main -d build",
     "start": "react-scripts start",
-    "json:server": "json-server --watch db.json --port 3001",
-    "build": "GENERATE_SOURCEMAP=false CI=false react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "build": "CI=false GENERATE_SOURCEMAP=false react-scripts build",
   },
   "eslintConfig": {
     "extends": [
