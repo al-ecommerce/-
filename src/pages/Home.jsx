@@ -1,20 +1,74 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getProducts, getServices, getRequests, getApprovedAds } from "../firebase/db";
 import { ListingCard, RequestCard } from "../components/ListingCard";
 import { Spinner, Button, Badge } from "../components/UI";
 
-const CATEGORIES = ["Electronics", "Fashion", "Food", "Auto", "Property", "Services", "Education", "Health", "Other"];
+const CATEGORIES = [
+  { label: "Electronics", icon: "💻" },
+  { label: "Fashion",     icon: "👔" },
+  { label: "Food",        icon: "🍽️" },
+  { label: "Auto",        icon: "🚗" },
+  { label: "Property",    icon: "🏠" },
+  { label: "Services",    icon: "🛠" },
+  { label: "Education",   icon: "📚" },
+  { label: "Health",      icon: "❤️" },
+  { label: "Other",       icon: "📦" },
+];
+
+// Rotating hero banner slides
+const HERO_SLIDES = [
+  {
+    headline: "Ghana's Most Trusted Marketplace",
+    sub: "Buy products, hire services, and post requests — all protected by escrow.",
+    bg: "linear-gradient(135deg, #0A0F1E 0%, #1a2744 60%, #0d2060 100%)",
+    accent: "#4F8EFF",
+  },
+  {
+    headline: "Sell to Thousands of Buyers",
+    sub: "List your products and services for free. Admin-verified. Escrow-secured payments.",
+    bg: "linear-gradient(135deg, #0f1f12 0%, #1a3a1f 60%, #0f2a1a 100%)",
+    accent: "#34D399",
+  },
+  {
+    headline: "Secure Payments. Every Time.",
+    sub: "Funds held in escrow until delivery confirmed. No risk. No scams. Full buyer protection.",
+    bg: "linear-gradient(135deg, #1a0f2e 0%, #2d1a4a 60%, #1f1060 100%)",
+    accent: "#A78BFA",
+  },
+];
+
+// Marquee trust items
+const TRUST_ITEMS = [
+  "🔒 Escrow-Protected Payments",
+  "✓ Verified Sellers",
+  "📦 Buyer Protection Guarantee",
+  "⚡ Instant Wallet Transfers",
+  "🛡️ Anti-Fraud System",
+  "📋 Dispute Resolution",
+  "💬 Direct Seller Chat",
+  "⭐ Verified Reviews",
+];
 
 export default function Home() {
   const { currentUser, userDoc } = useAuth();
   const navigate = useNavigate();
-  const [products, setProducts] = useState([]);
-  const [services, setServices] = useState([]);
-  const [requests, setRequests] = useState([]);
-  const [ads, setAds] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts]   = useState([]);
+  const [services, setServices]   = useState([]);
+  const [requests, setRequests]   = useState([]);
+  const [ads, setAds]             = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [slideIndex, setSlideIndex] = useState(0);
+  const slideTimer = useRef(null);
+
+  // Auto-advance hero slides
+  useEffect(() => {
+    slideTimer.current = setInterval(() => {
+      setSlideIndex(i => (i + 1) % HERO_SLIDES.length);
+    }, 5000);
+    return () => clearInterval(slideTimer.current);
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -23,112 +77,289 @@ export default function Home() {
           getProducts({ limit: 8 }),
           getServices({ limit: 4 }),
           getRequests(),
-          getApprovedAds()
+          getApprovedAds(),
         ]);
-        setProducts(p); setServices(s);
-        setRequests(r.slice(0, 4)); setAds(a);
+        setProducts(p);
+        setServices(s);
+        setRequests(r.slice(0, 3));
+        setAds(a);
       } catch (e) { console.error(e); }
       setLoading(false);
     };
     load();
   }, []);
 
-  if (loading) return <Spinner center />;
+  const slide = HERO_SLIDES[slideIndex];
 
   return (
     <div className="page-wrapper">
-      {/* Hero */}
+
+      {/* ── HERO BANNER ─────────────────────────────────────── */}
       <section style={{
-        background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, #0D1B4B 100%)",
-        padding: "60px 0 80px",
+        background: slide.bg,
+        minHeight: 480,
         position: "relative",
-        overflow: "hidden"
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
+        transition: "background 0.8s ease",
       }}>
+        {/* Decorative circles */}
+        <div style={{
+          position: "absolute", top: -80, right: -80,
+          width: 400, height: 400, borderRadius: "50%",
+          background: `radial-gradient(circle, ${slide.accent}22 0%, transparent 70%)`,
+          animation: "heroPulse 6s ease-in-out infinite",
+        }} />
+        <div style={{
+          position: "absolute", bottom: -60, left: -60,
+          width: 300, height: 300, borderRadius: "50%",
+          background: `radial-gradient(circle, ${slide.accent}18 0%, transparent 70%)`,
+          animation: "heroPulse 8s ease-in-out infinite reverse",
+        }} />
+
+        {/* Grid pattern overlay */}
         <div style={{
           position: "absolute", inset: 0,
-          backgroundImage: "radial-gradient(circle at 20% 50%, rgba(79,124,255,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(79,124,255,0.1) 0%, transparent 40%)"
+          backgroundImage: `linear-gradient(${slide.accent}08 1px, transparent 1px), linear-gradient(90deg, ${slide.accent}08 1px, transparent 1px)`,
+          backgroundSize: "40px 40px",
         }} />
-        <div className="container" style={{ position: "relative" }}>
-          <div style={{ textAlign: "center", maxWidth: 640, margin: "0 auto" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(79,124,255,0.15)", border: "1px solid rgba(79,124,255,0.3)", borderRadius: 20, padding: "6px 14px", marginBottom: 20 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4F7CFF" }} />
-              <span style={{ fontSize: 13, color: "#93B4FF", fontWeight: 600 }}>Ghana's #1 Marketplace</span>
+
+        <div className="container" style={{ position: "relative", padding: "60px 16px" }}>
+          <div style={{ maxWidth: 660, margin: "0 auto", textAlign: "center" }}>
+
+            {/* ASVAN Logo mark */}
+            <div className="hero-float" style={{
+              display: "inline-flex", alignItems: "center", gap: 12,
+              marginBottom: 28,
+            }}>
+              <div style={{
+                width: 52, height: 52,
+                background: `linear-gradient(135deg, ${slide.accent}, ${slide.accent}99)`,
+                borderRadius: 14,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: "var(--font-display)", fontWeight: 700,
+                color: "#fff", fontSize: 22,
+                boxShadow: `0 8px 24px ${slide.accent}44`,
+              }}>A</div>
+              <span style={{
+                fontFamily: "var(--font-display)", fontWeight: 700,
+                fontSize: 28, color: "#fff", letterSpacing: "-0.5px",
+              }}>ASVAN</span>
             </div>
-            <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(32px, 6vw, 52px)", fontWeight: 800, color: "#fff", lineHeight: 1.15, marginBottom: 16 }}>
-              Buy, Sell & Get Services<br />
-              <span style={{ color: "#4F7CFF" }}>All In One Place</span>
+
+            {/* Slide badge */}
+            <div className="hero-float-2" style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              background: `${slide.accent}22`,
+              border: `1px solid ${slide.accent}44`,
+              borderRadius: 20, padding: "5px 14px", marginBottom: 20,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: slide.accent, display: "inline-block" }} />
+              <span style={{ fontSize: 12, color: slide.accent, fontWeight: 600, letterSpacing: "0.5px", textTransform: "uppercase" }}>
+                Ghana's #1 Marketplace
+              </span>
+            </div>
+
+            {/* Headline */}
+            <h1 key={slideIndex} className="hero-float-2" style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(28px, 5.5vw, 50px)",
+              fontWeight: 700,
+              color: "#FFFFFF",
+              lineHeight: 1.2,
+              marginBottom: 16,
+              letterSpacing: "-0.5px",
+            }}>
+              {slide.headline}
             </h1>
-            <p style={{ color: "#94A3B8", fontSize: 17, marginBottom: 32, lineHeight: 1.7 }}>
-              ASVAN connects buyers with verified sellers and service providers. Secure escrow, verified sellers, and buyer protection built in.
+
+            <p className="hero-float-3" style={{
+              fontSize: 16, color: "rgba(255,255,255,0.72)",
+              lineHeight: 1.75, marginBottom: 36, maxWidth: 520, margin: "0 auto 36px",
+              fontFamily: "var(--font-body)", fontWeight: 400,
+            }}>
+              {slide.sub}
             </p>
-            <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-              {!currentUser
-                ? <>
-                    <Button variant="primary" size="lg" onClick={() => navigate("/register")}>Get Started Free</Button>
-                    <Button variant="outline" size="lg" onClick={() => navigate("/products")} style={{ color: "#fff", borderColor: "rgba(255,255,255,0.3)" }}>Browse Listings</Button>
-                  </>
-                : <>
-                    <Button variant="primary" size="lg" onClick={() => navigate("/products")}>Browse Products</Button>
-                    {!userDoc?.isSeller && (
-                      <Button variant="outline" size="lg" onClick={() => navigate("/seller-dashboard")} style={{ color: "#fff", borderColor: "rgba(255,255,255,0.3)" }}>Become a Seller</Button>
-                    )}
-                  </>
-              }
+
+            {/* CTAs */}
+            <div className="hero-float-3" style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+              {!currentUser ? (
+                <>
+                  <button onClick={() => navigate("/register")} style={{
+                    padding: "13px 28px", borderRadius: "var(--radius-sm)",
+                    background: slide.accent, color: "#fff", border: "none",
+                    fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 15,
+                    cursor: "pointer", boxShadow: `0 4px 18px ${slide.accent}44`,
+                    transition: "all 0.2s",
+                  }}>
+                    Get Started — It's Free
+                  </button>
+                  <button onClick={() => navigate("/products")} style={{
+                    padding: "13px 28px", borderRadius: "var(--radius-sm)",
+                    background: "transparent", color: "#fff",
+                    border: "1.5px solid rgba(255,255,255,0.35)",
+                    fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 15,
+                    cursor: "pointer", transition: "all 0.2s",
+                  }}>
+                    Browse Listings
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button onClick={() => navigate("/products")} style={{
+                    padding: "13px 28px", borderRadius: "var(--radius-sm)",
+                    background: slide.accent, color: "#fff", border: "none",
+                    fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 15,
+                    cursor: "pointer",
+                  }}>
+                    Browse Products
+                  </button>
+                  {!userDoc?.isSeller && (
+                    <button onClick={() => navigate("/seller-dashboard")} style={{
+                      padding: "13px 28px", borderRadius: "var(--radius-sm)",
+                      background: "transparent", color: "#fff",
+                      border: "1.5px solid rgba(255,255,255,0.35)",
+                      fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 15,
+                      cursor: "pointer",
+                    }}>
+                      Start Selling
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Stats row */}
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 16, marginTop: 52, maxWidth: 440, marginLeft: "auto", marginRight: "auto",
+            }}>
+              {[
+                ["1,000+", "Products Listed"],
+                ["500+",   "Active Services"],
+                ["99%",    "Satisfaction Rate"],
+              ].map(([val, lbl]) => (
+                <div key={lbl} style={{ textAlign: "center" }}>
+                  <div style={{
+                    fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 700,
+                    color: "#fff", letterSpacing: "-0.5px",
+                  }}>{val}</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 2, fontWeight: 500 }}>{lbl}</div>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Stats */}
-          <div style={{
-            display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24,
-            maxWidth: 480, margin: "48px auto 0"
-          }}>
-            {[["1000+", "Products"], ["500+", "Services"], ["99%", "Satisfaction"]].map(([v, l]) => (
-              <div key={l} style={{ textAlign: "center" }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 800, color: "#fff" }}>{v}</div>
-                <div style={{ fontSize: 13, color: "#64748B" }}>{l}</div>
-              </div>
+          {/* Slide dots */}
+          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 32 }}>
+            {HERO_SLIDES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => { setSlideIndex(i); clearInterval(slideTimer.current); }}
+                style={{
+                  width: i === slideIndex ? 24 : 8, height: 8,
+                  borderRadius: 4, border: "none", cursor: "pointer",
+                  background: i === slideIndex ? slide.accent : "rgba(255,255,255,0.3)",
+                  transition: "all 0.35s ease",
+                }}
+              />
             ))}
           </div>
         </div>
       </section>
 
-      {/* Categories */}
-      <section style={{ padding: "32px 0 8px" }}>
+      {/* ── TRUST MARQUEE ───────────────────────────────────── */}
+      <div style={{
+        background: "var(--primary)", borderBottom: "1px solid rgba(255,255,255,0.06)",
+        padding: "12px 0", overflow: "hidden",
+      }}>
+        <div className="banner-track">
+          {[...TRUST_ITEMS, ...TRUST_ITEMS].map((item, i) => (
+            <span key={i} style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              padding: "0 28px",
+              fontSize: 13, color: "rgba(255,255,255,0.75)",
+              fontFamily: "var(--font-body)", fontWeight: 500, whiteSpace: "nowrap",
+            }}>
+              {item}
+              <span style={{ color: "rgba(255,255,255,0.2)", marginLeft: 14 }}>|</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── CATEGORIES ──────────────────────────────────────── */}
+      <section style={{ padding: "36px 0 8px", background: "var(--surface)" }}>
         <div className="container">
+          <h2 style={{
+            fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700,
+            marginBottom: 20, color: "var(--text)", letterSpacing: "-0.2px",
+          }}>
+            Shop by Category
+          </h2>
           <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 8 }}>
             {CATEGORIES.map(cat => (
               <button
-                key={cat}
-                onClick={() => navigate(`/products?category=${cat}`)}
+                key={cat.label}
+                onClick={() => navigate(`/products?category=${cat.label}`)}
                 style={{
-                  flexShrink: 0, padding: "8px 16px", borderRadius: 20, border: "1.5px solid var(--border)",
-                  background: "var(--surface)", fontSize: 13, fontWeight: 600, cursor: "pointer",
-                  color: "var(--text)", transition: "all 0.2s", fontFamily: "var(--font-body)"
+                  flexShrink: 0,
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                  padding: "14px 18px", borderRadius: "var(--radius)",
+                  border: "1.5px solid var(--border)",
+                  background: "var(--surface-2)", cursor: "pointer",
+                  transition: "all 0.2s", minWidth: 80,
+                  fontFamily: "var(--font-body)",
                 }}
-                onMouseEnter={e => { e.target.style.background = "var(--accent-glow)"; e.target.style.borderColor = "var(--accent)"; e.target.style.color = "var(--accent)"; }}
-                onMouseLeave={e => { e.target.style.background = "var(--surface)"; e.target.style.borderColor = "var(--border)"; e.target.style.color = "var(--text)"; }}
-              >{cat}</button>
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = "var(--accent)";
+                  e.currentTarget.style.background = "var(--accent-glow)";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = "var(--border)";
+                  e.currentTarget.style.background = "var(--surface-2)";
+                }}
+              >
+                <span style={{ fontSize: 24 }}>{cat.icon}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>{cat.label}</span>
+              </button>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Ads Banner */}
+      {/* ── SPONSORED AD BANNER ─────────────────────────────── */}
       {ads.length > 0 && (
         <div className="container" style={{ paddingTop: 24 }}>
           <div style={{
-            background: "linear-gradient(135deg, #1e3a8a, #1d4ed8)",
-            borderRadius: "var(--radius-xl)", padding: "20px 24px",
-            display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12
+            background: "linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)",
+            borderRadius: "var(--radius-lg)", padding: "20px 24px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            flexWrap: "wrap", gap: 12,
           }}>
             <div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginBottom: 4 }}>SPONSORED</div>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff", fontSize: 17 }}>{ads[0].title}</div>
-              <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 14 }}>{ads[0].description}</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginBottom: 4, fontWeight: 600, letterSpacing: "1px", textTransform: "uppercase" }}>
+                Sponsored
+              </div>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff", fontSize: 17, letterSpacing: "-0.2px" }}>
+                {ads[0].title}
+              </div>
+              <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 13, marginTop: 2 }}>
+                {ads[0].description}
+              </div>
             </div>
             {ads[0].ctaLink && (
-              <a href={ads[0].ctaLink} target="_blank" rel="noopener noreferrer"
-                style={{ padding: "10px 20px", background: "#fff", color: "#1d4ed8", borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: "none" }}>
+              <a
+                href={ads[0].ctaLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  padding: "10px 20px", background: "#fff", color: "#1d4ed8",
+                  borderRadius: "var(--radius-sm)", fontWeight: 700,
+                  fontSize: 14, textDecoration: "none", whiteSpace: "nowrap",
+                }}
+              >
                 {ads[0].ctaText || "Learn More"}
               </a>
             )}
@@ -137,69 +368,235 @@ export default function Home() {
       )}
 
       <div className="container">
-        {/* Products Section */}
-        <section className="section">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-            <h2 className="section-title" style={{ margin: 0 }}>Featured Products</h2>
-            <Link to="/products" style={{ fontSize: 14, fontWeight: 600, color: "var(--accent)" }}>View all →</Link>
-          </div>
-          {products.length > 0
-            ? <div className="grid grid-4" style={{ gap: 16 }}>
-                {products.map(p => <ListingCard key={p.id} item={p} type="product" />)}
-              </div>
-            : <div style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>No products yet. <Link to="/seller-dashboard">Be the first to list!</Link></div>
-          }
-        </section>
 
-        {/* Services Section */}
-        <section className="section" style={{ borderTop: "1px solid var(--border)", paddingTop: 32 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-            <h2 className="section-title" style={{ margin: 0 }}>Top Services</h2>
-            <Link to="/services" style={{ fontSize: 14, fontWeight: 600, color: "var(--accent)" }}>View all →</Link>
-          </div>
-          {services.length > 0
-            ? <div className="grid grid-4" style={{ gap: 16 }}>
-                {services.map(s => <ListingCard key={s.id} item={s} type="service" />)}
-              </div>
-            : <div style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>No services yet.</div>
-          }
-        </section>
-
-        {/* Requests Section */}
-        <section className="section" style={{ borderTop: "1px solid var(--border)", paddingTop: 32 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-            <h2 className="section-title" style={{ margin: 0 }}>Open Requests</h2>
-            <Link to="/requests" style={{ fontSize: 14, fontWeight: 600, color: "var(--accent)" }}>View all →</Link>
-          </div>
-          {requests.length > 0
-            ? <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {requests.map(r => <RequestCard key={r.id} item={r} />)}
-              </div>
-            : <div style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>No open requests.</div>
-          }
-        </section>
-
-        {/* CTA */}
-        <section style={{ padding: "40px 0 20px" }}>
+        {/* ── PRODUCTS ──────────────────────────────────────── */}
+        <section style={{ padding: "40px 0 0" }}>
           <div style={{
-            background: "linear-gradient(135deg, var(--accent) 0%, #6B48FF 100%)",
-            borderRadius: "var(--radius-xl)", padding: "40px 32px", textAlign: "center"
+            display: "flex", justifyContent: "space-between",
+            alignItems: "baseline", marginBottom: 24,
           }}>
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 800, color: "#fff", marginBottom: 12 }}>
-              Ready to Start Selling?
-            </h2>
-            <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 16, marginBottom: 24 }}>
-              Join thousands of verified sellers on ASVAN and grow your business.
+            <div>
+              <h2 style={{
+                fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700,
+                margin: 0, letterSpacing: "-0.3px",
+              }}>Featured Products</h2>
+              <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4, fontWeight: 400 }}>
+                Curated listings from verified sellers
+              </p>
+            </div>
+            <Link to="/products" style={{
+              fontSize: 13, fontWeight: 600, color: "var(--accent)",
+              textDecoration: "none", whiteSpace: "nowrap",
+            }}>
+              View all →
+            </Link>
+          </div>
+
+          {loading ? (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }}>
+              {[1,2,3,4].map(i => (
+                <div key={i} style={{ borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid var(--border)" }}>
+                  <div className="skeleton" style={{ height: 180 }} />
+                  <div style={{ padding: 14 }}>
+                    <div className="skeleton" style={{ height: 14, width: "70%", marginBottom: 8 }} />
+                    <div className="skeleton" style={{ height: 12, width: "90%", marginBottom: 12 }} />
+                    <div className="skeleton" style={{ height: 18, width: "40%" }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : products.length > 0 ? (
+            <div className="grid grid-4" style={{ gap: 16 }}>
+              {products.map(p => <ListingCard key={p.id} item={p} type="product" />)}
+            </div>
+          ) : (
+            <div style={{
+              textAlign: "center", padding: "48px 20px",
+              background: "var(--surface-2)", borderRadius: "var(--radius-lg)",
+              border: "1px dashed var(--border)",
+            }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>📦</div>
+              <p style={{ color: "var(--text-muted)", fontSize: 14 }}>
+                No products listed yet.{" "}
+                <Link to="/seller-dashboard" style={{ color: "var(--accent)", fontWeight: 600 }}>
+                  Be the first to list!
+                </Link>
+              </p>
+            </div>
+          )}
+        </section>
+
+        {/* ── HOW IT WORKS ──────────────────────────────────── */}
+        <section style={{ padding: "48px 0 0" }}>
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <h2 style={{
+              fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700,
+              letterSpacing: "-0.3px", marginBottom: 8,
+            }}>How ASVAN Works</h2>
+            <p style={{ color: "var(--text-muted)", fontSize: 14, maxWidth: 480, margin: "0 auto" }}>
+              Transparent, secure, and simple — from browsing to delivery.
             </p>
-            <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-              {!currentUser
-                ? <Button variant="secondary" size="lg" onClick={() => navigate("/register")} style={{ background: "#fff", color: "var(--accent)" }}>Create Account</Button>
-                : <Button variant="secondary" size="lg" onClick={() => navigate("/seller-dashboard")} style={{ background: "#fff", color: "var(--accent)" }}>Go to Seller Dashboard</Button>
-              }
-              <Button variant="outline" size="lg" onClick={() => navigate("/manual")} style={{ color: "#fff", borderColor: "rgba(255,255,255,0.4)" }}>How It Works</Button>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 20 }}>
+            {[
+              { step: "01", icon: "🔍", title: "Browse Listings", desc: "Explore thousands of products, services, and open requests." },
+              { step: "02", icon: "💬", title: "Contact Seller",  desc: "Chat directly. Ask questions before you commit to a purchase." },
+              { step: "03", icon: "🔒", title: "Pay via Escrow",  desc: "Your payment is held securely until delivery is confirmed." },
+              { step: "04", icon: "✅", title: "Confirm & Review", desc: "Confirm receipt and release payment. Leave a review for trust." },
+            ].map(s => (
+              <div key={s.step} style={{
+                background: "var(--surface)", border: "1px solid var(--border)",
+                borderRadius: "var(--radius-lg)", padding: "24px 20px",
+                position: "relative", overflow: "hidden",
+              }}>
+                <div style={{
+                  position: "absolute", top: 12, right: 16,
+                  fontFamily: "var(--font-display)", fontSize: 36, fontWeight: 800,
+                  color: "var(--border)", lineHeight: 1, userSelect: "none",
+                }}>{s.step}</div>
+                <div style={{ fontSize: 30, marginBottom: 12 }}>{s.icon}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 15, marginBottom: 8, letterSpacing: "-0.2px" }}>
+                  {s.title}
+                </div>
+                <p style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6, margin: 0 }}>
+                  {s.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── SERVICES ──────────────────────────────────────── */}
+        <section style={{ padding: "48px 0 0" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 24 }}>
+            <div>
+              <h2 style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, margin: 0, letterSpacing: "-0.3px" }}>
+                Professional Services
+              </h2>
+              <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>Hire skilled professionals across Ghana</p>
+            </div>
+            <Link to="/services" style={{ fontSize: 13, fontWeight: 600, color: "var(--accent)", textDecoration: "none" }}>View all →</Link>
+          </div>
+          {!loading && services.length > 0 ? (
+            <div className="grid grid-4" style={{ gap: 16 }}>
+              {services.map(s => <ListingCard key={s.id} item={s} type="service" />)}
+            </div>
+          ) : !loading ? (
+            <div style={{ textAlign: "center", padding: "32px 20px", color: "var(--text-muted)", fontSize: 14 }}>
+              No services available yet.
+            </div>
+          ) : null}
+        </section>
+
+        {/* ── OPEN REQUESTS ─────────────────────────────────── */}
+        <section style={{ padding: "48px 0 0" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 24 }}>
+            <div>
+              <h2 style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, margin: 0, letterSpacing: "-0.3px" }}>
+                Open Requests
+              </h2>
+              <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>Buyers looking for sellers — make an offer</p>
+            </div>
+            <Link to="/requests" style={{ fontSize: 13, fontWeight: 600, color: "var(--accent)", textDecoration: "none" }}>View all →</Link>
+          </div>
+          {!loading && requests.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {requests.map(r => <RequestCard key={r.id} item={r} />)}
+            </div>
+          ) : !loading ? (
+            <div style={{ textAlign: "center", padding: "32px 20px", color: "var(--text-muted)", fontSize: 14 }}>No open requests right now.</div>
+          ) : null}
+        </section>
+
+        {/* ── WHY ASVAN ─────────────────────────────────────── */}
+        <section style={{ padding: "48px 0 0" }}>
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <h2 style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, letterSpacing: "-0.3px", marginBottom: 8 }}>
+              Why Businesses Choose ASVAN
+            </h2>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
+            {[
+              { icon: "🔒", title: "Escrow Protection",    desc: "Every payment is held securely until the buyer confirms successful delivery. Zero risk." },
+              { icon: "✓",  title: "Verified Sellers",     desc: "All sellers are reviewed. Verified badge holders have passed our identity check." },
+              { icon: "📱", title: "Mobile-First Design",  desc: "Manage your store, respond to buyers, and track orders on any device, anytime." },
+              { icon: "💸", title: "Fast Wallet Payouts",  desc: "Once delivery is confirmed, your earnings land in your wallet instantly." },
+              { icon: "🚩", title: "Fraud Protection",     desc: "Our anti-fraud system flags suspicious activity and protects both parties." },
+              { icon: "📣", title: "Boost Your Listings",  desc: "Feature your listings and run ads to reach more buyers across the platform." },
+            ].map(f => (
+              <div key={f.title} className="card" style={{ padding: 20 }}>
+                <div style={{
+                  width: 40, height: 40, borderRadius: "var(--radius-sm)",
+                  background: "var(--accent-glow)", display: "flex",
+                  alignItems: "center", justifyContent: "center",
+                  fontSize: 20, marginBottom: 14,
+                }}>{f.icon}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 15, marginBottom: 6, letterSpacing: "-0.2px" }}>
+                  {f.title}
+                </div>
+                <p style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.65, margin: 0 }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── BOTTOM CTA ────────────────────────────────────── */}
+        <section style={{ padding: "48px 0 24px" }}>
+          <div style={{
+            background: "linear-gradient(135deg, var(--primary) 0%, #1a2560 100%)",
+            borderRadius: "var(--radius-xl)", padding: "48px 36px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            gap: 24, flexWrap: "wrap", position: "relative", overflow: "hidden",
+          }}>
+            <div style={{
+              position: "absolute", right: -40, top: -40,
+              width: 220, height: 220, borderRadius: "50%",
+              background: "rgba(79,142,255,0.12)",
+            }} />
+            <div style={{ maxWidth: 480 }}>
+              <h2 style={{
+                fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 700,
+                color: "#fff", marginBottom: 10, letterSpacing: "-0.3px",
+              }}>
+                Ready to Start Selling on ASVAN?
+              </h2>
+              <p style={{ color: "rgba(255,255,255,0.68)", fontSize: 15, lineHeight: 1.7, margin: 0 }}>
+                Join verified sellers across Ghana. List your products and services today — escrow payments, real buyers, zero risk.
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              {!currentUser ? (
+                <button onClick={() => navigate("/register")} style={{
+                  padding: "13px 28px", borderRadius: "var(--radius-sm)",
+                  background: "#fff", color: "var(--primary)", border: "none",
+                  fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 15,
+                  cursor: "pointer", whiteSpace: "nowrap",
+                }}>
+                  Create Free Account
+                </button>
+              ) : (
+                <button onClick={() => navigate("/seller-dashboard")} style={{
+                  padding: "13px 28px", borderRadius: "var(--radius-sm)",
+                  background: "#fff", color: "var(--primary)", border: "none",
+                  fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 15,
+                  cursor: "pointer", whiteSpace: "nowrap",
+                }}>
+                  Go to Seller Dashboard
+                </button>
+              )}
+              <button onClick={() => navigate("/manual")} style={{
+                padding: "13px 28px", borderRadius: "var(--radius-sm)",
+                background: "transparent", color: "#fff",
+                border: "1.5px solid rgba(255,255,255,0.3)",
+                fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 15,
+                cursor: "pointer", whiteSpace: "nowrap",
+              }}>
+                How It Works
+              </button>
             </div>
           </div>
         </section>
+
       </div>
     </div>
   );
