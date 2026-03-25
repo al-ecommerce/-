@@ -17,6 +17,7 @@ import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
 import Notifications from "./pages/Notifications";
 import SellerDashboard from "./pages/SellerDashboard";
+import MyListings from "./pages/MyListings";
 import Manual from "./pages/Manual";
 import { AdsPage, FeaturedPage } from "./pages/Ads";
 import Subscriptions from "./pages/Subscriptions";
@@ -78,6 +79,7 @@ function AppContent() {
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
         <Route path="/seller-dashboard" element={<ProtectedRoute><SellerDashboard /></ProtectedRoute>} />
+        <Route path="/my-listings" element={<ProtectedRoute><MyListings /></ProtectedRoute>} />
         <Route path="/ads" element={<ProtectedRoute><AdsPage /></ProtectedRoute>} />
         <Route path="/featured" element={<ProtectedRoute><FeaturedPage /></ProtectedRoute>} />
         <Route path="/subscriptions" element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
