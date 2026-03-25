@@ -84,6 +84,13 @@ export default function Profile() {
                 <FormInput label="Phone Number" value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} placeholder="+233..." />
               </div>
               <FormInput label="Location" value={form.location} onChange={e => setForm(p => ({ ...p, location: e.target.value }))} placeholder="e.g. Accra, Ghana" />
+              <FormInput
+                label="Photo URL"
+                value={form.photoURL || ""}
+                onChange={e => setForm(p => ({ ...p, photoURL: e.target.value }))}
+                placeholder="https://i.imgur.com/yourphoto.jpg"
+                hint="Paste any public image link for your profile photo"
+              />
               <FormTextarea label="Bio" value={form.bio} onChange={e => setForm(p => ({ ...p, bio: e.target.value }))} placeholder="Tell people about yourself..." rows={3} />
               <Button variant="primary" loading={loading} onClick={handleSave}>Save Changes</Button>
             </div>

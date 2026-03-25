@@ -390,7 +390,10 @@ export default function SellerDashboard() {
 }
 
 const ListingFormModal = ({ isOpen, onClose, type, categories, editItem, uid, userDoc, onSaved }) => {
-  const defaultForm = { title: "", description: "", price: "", category: categories[0], condition: "New", stock: "", location: "", imageURL: "", deliveryTime: "", tags: "" };
+  const defaultForm = {
+    title: "", description: "", price: "", category: categories[0],
+    condition: "New", stock: "", location: "", imageURL: "", deliveryTime: "", tags: ""
+  };
   const [form, setForm] = useState(defaultForm);
   const [loading, setLoading] = useState(false);
 
@@ -456,7 +459,22 @@ const ListingFormModal = ({ isOpen, onClose, type, categories, editItem, uid, us
         <FormInput label="Delivery Time" placeholder="e.g. 3-5 days" {...f("deliveryTime")} />
       )}
       <FormInput label="Location" placeholder="e.g. Accra, Kumasi..." {...f("location")} />
-      <FormInput label="Image URL" placeholder="https://..." {...f("imageURL")} />
+      <FormInput
+        label="Image URL"
+        placeholder="https://i.imgur.com/example.jpg"
+        hint="Paste any public image link — Imgur, Google Drive (direct), WhatsApp CDN, etc."
+        {...f("imageURL")}
+      />
+      {form.imageURL ? (
+        <div style={{ marginTop: 8 }}>
+          <img
+            src={form.imageURL}
+            alt="Preview"
+            onError={e => { e.target.style.display = "none"; }}
+            style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)" }}
+          />
+        </div>
+      ) : null}
     </Modal>
   );
 };

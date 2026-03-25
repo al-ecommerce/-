@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getProducts } from "../firebase/db";
 import { useAuth } from "../context/AuthContext";
 import { ListingCard } from "../components/ListingCard";
-import { Spinner, Button, PageHeader, SearchBar, FormSelect, EmptyState } from "../components/UI";
+import { Spinner, Button, PageHeader, SearchBar, EmptyState, Alert } from "../components/UI";
 
 const CATEGORIES = ["All", "Electronics", "Fashion", "Food", "Auto", "Property", "Services", "Education", "Health", "Other"];
 const SORTS = [
@@ -20,25 +20,28 @@ export default function Products() {
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState(params.get("category") || "All");
   const [sort, setSort] = useState("newest");
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      try {
-        const filters = {};
-        if (category !== "All") filters.category = category;
-        const data = await getProducts(filters);
-        setProducts(data);
-      } catch (e) { console.error(e); }
-      setLoading(false);
-    };
-    load();
-  }, [category]);
+  const loadProducts = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await getProducts({});   // fetch all approved, filter client-side
+      setProducts(data);
+    } catch (e) {
+      console.error("Products load error:", e);
+      setError("Could not load products. Please check your internet connection and try again.");
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => { loadProducts(); }, []);
 
   const filtered = products
+    .filter(p => category === "All" || p.category === category)
     .filter(p => !search || p.title?.toLowerCase().includes(search.toLowerCase()) || p.description?.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (sort === "price_asc") return (a.price || 0) - (b.price || 0);
@@ -51,21 +54,22 @@ export default function Products() {
       <div className="container" style={{ paddingTop: 28 }}>
         <PageHeader
           title="Products"
-          subtitle={`${filtered.length} listings available`}
+          subtitle={loading ? "Loading..." : `${filtered.length} listing${filtered.length !== 1 ? "s" : ""} available`}
           action={isSeller && (
             <Button variant="primary" onClick={() => navigate("/seller-dashboard?tab=products")}>+ Add Product</Button>
           )}
         />
 
+        {error && (
+          <Alert type="danger">
+            {error} <button onClick={loadProducts} style={{ marginLeft: 8, background: "none", border: "none", color: "var(--danger)", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>Retry</button>
+          </Alert>
+        )}
+
         {/* Filters */}
-        <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
           <div style={{ flex: "1 1 240px" }}>
             <SearchBar value={search} onChange={setSearch} placeholder="Search products..." />
-          </div>
-          <div style={{ flex: "0 0 160px" }}>
-            <select className="form-select" value={category} onChange={e => setCategory(e.target.value)}>
-              {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-            </select>
           </div>
           <div style={{ flex: "0 0 180px" }}>
             <select className="form-select" value={sort} onChange={e => setSort(e.target.value)}>
@@ -96,7 +100,15 @@ export default function Products() {
             ? <div className="grid grid-4" style={{ gap: 16 }}>
                 {filtered.map(p => <ListingCard key={p.id} item={p} type="product" />)}
               </div>
-            : <EmptyState icon="📦" title="No products found" description="Try adjusting your search or filters" />
+            : <EmptyState
+                icon="📦"
+                title={search || category !== "All" ? "No products match your filters" : "No products yet"}
+                description={search || category !== "All" ? "Try a different search or category" : "Be the first to list a product on ASVAN"}
+                action={search || category !== "All"
+                  ? <Button variant="secondary" onClick={() => { setSearch(""); setCategory("All"); }}>Clear Filters</Button>
+                  : isSeller && <Button variant="primary" onClick={() => navigate("/seller-dashboard?tab=products")}>Add First Product</Button>
+                }
+              />
         }
       </div>
     </div>
