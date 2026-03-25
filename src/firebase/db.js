@@ -50,14 +50,32 @@ export const createProduct = async (data) => {
 };
 
 export const getProducts = async (filters = {}) => {
-  let q = collection(db, "products");
-  const constraints = [where("status", "==", "approved")];
-  if (filters.category) constraints.push(where("category", "==", filters.category));
-  if (filters.sellerId) constraints.push(where("sellerId", "==", filters.sellerId));
-  constraints.push(orderBy("createdAt", "desc"));
-  if (filters.limit) constraints.push(limit(filters.limit));
-  const snap = await getDocs(query(q, ...constraints));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  try {
+    // Fetch all approved products first, then filter client-side.
+    // This avoids Firestore composite index errors which silently return 0 results.
+    const constraints = [where("status", "==", "approved")];
+    if (filters.sellerId) constraints.push(where("sellerId", "==", filters.sellerId));
+    constraints.push(orderBy("createdAt", "desc"));
+    if (filters.limit) constraints.push(limit(filters.limit));
+    const snap = await getDocs(query(collection(db, "products"), ...constraints));
+    let results = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Client-side category filter avoids the need for a composite index
+    if (filters.category) results = results.filter(p => p.category === filters.category);
+    return results;
+  } catch (e) {
+    console.error("getProducts error:", e.message);
+    // If index error, fall back to fetching without orderBy
+    if (e.code === "failed-precondition" || e.message?.includes("index")) {
+      const snap = await getDocs(query(collection(db, "products"), where("status", "==", "approved")));
+      let results = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (filters.sellerId) results = results.filter(p => p.sellerId === filters.sellerId);
+      if (filters.category) results = results.filter(p => p.category === filters.category);
+      results.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+      if (filters.limit) results = results.slice(0, filters.limit);
+      return results;
+    }
+    return [];
+  }
 };
 
 export const getProductById = async (id) => {
@@ -83,12 +101,28 @@ export const createService = async (data) =>
   });
 
 export const getServices = async (filters = {}) => {
-  const constraints = [where("status", "==", "approved"), orderBy("createdAt", "desc")];
-  if (filters.category) constraints.push(where("category", "==", filters.category));
-  if (filters.sellerId) constraints.push(where("sellerId", "==", filters.sellerId));
-  if (filters.limit) constraints.push(limit(filters.limit));
-  const snap = await getDocs(query(collection(db, "services"), ...constraints));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  try {
+    const constraints = [where("status", "==", "approved")];
+    if (filters.sellerId) constraints.push(where("sellerId", "==", filters.sellerId));
+    constraints.push(orderBy("createdAt", "desc"));
+    if (filters.limit) constraints.push(limit(filters.limit));
+    const snap = await getDocs(query(collection(db, "services"), ...constraints));
+    let results = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (filters.category) results = results.filter(s => s.category === filters.category);
+    return results;
+  } catch (e) {
+    console.error("getServices error:", e.message);
+    if (e.code === "failed-precondition" || e.message?.includes("index")) {
+      const snap = await getDocs(query(collection(db, "services"), where("status", "==", "approved")));
+      let results = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (filters.sellerId) results = results.filter(s => s.sellerId === filters.sellerId);
+      if (filters.category) results = results.filter(s => s.category === filters.category);
+      results.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+      if (filters.limit) results = results.slice(0, filters.limit);
+      return results;
+    }
+    return [];
+  }
 };
 
 export const getServiceById = async (id) => {
