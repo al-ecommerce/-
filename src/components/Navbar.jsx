@@ -142,6 +142,7 @@ export const Navbar = () => {
                     <NavMenuItem icon="💰" label="Wallet" path="/wallet" />
                     <NavMenuItem icon="💬" label="Chat" path="/chat" />
                     {userDoc?.isSeller && <NavMenuItem icon="🏪" label="Seller Dashboard" path="/seller-dashboard" />}
+                    {userDoc?.isSeller && <NavMenuItem icon="📋" label="My Listings" path="/my-listings" />}
                     {userDoc?.isSeller && <NavMenuItem icon="⭐" label="Feature a Listing" path="/featured" />}
                     {userDoc?.isSeller && <NavMenuItem icon="📢" label="My Ads" path="/ads" />}
                     {userDoc?.isSeller && <NavMenuItem icon="🎁" label="Subscription" path="/subscriptions" />}
