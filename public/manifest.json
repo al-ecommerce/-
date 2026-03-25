@@ -1,19 +1,19 @@
 {
   "short_name": "AlEcom",
-  "name": "The market place",
+  "name": "The Market Place",
   "icons": [
     {
-      "src": "faviconi.jpg",
+      "src": "logo.png",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
-      "src": "favicon.jpg",
+      "src": "logo.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "favicon.jpg",
+      "src": "logo.png",
       "type": "image/png",
       "sizes": "512x512"
     }
