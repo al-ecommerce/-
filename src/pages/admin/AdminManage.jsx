@@ -181,10 +181,26 @@ export function AdminProducts() {
   }, []);
 
   const handleStatusChange = async (id, status) => {
-    await updateProduct(id, { status });
-    await logAdminAction(adminDoc.uid, `product_${status}`, { productId: id });
-    setProducts(prev => prev.map(p => p.id === id ? { ...p, status } : p));
-    toast.success(`Product ${status}`);
+    try {
+      await updateProduct(id, { status });
+      await logAdminAction(adminDoc.uid, `product_${status}`, { productId: id });
+      // Notify the seller
+      const product = products.find(p => p.id === id);
+      if (product?.sellerId) {
+        await createNotification(product.sellerId, {
+          title: status === "approved" ? "✅ Product Approved!" : "Product Status Updated",
+          body: status === "approved"
+            ? `Your product "${product.title}" is now live and visible to buyers.`
+            : `Your product "${product.title}" has been ${status}.`,
+          type: "system",
+          link: `/products/${id}`
+        });
+      }
+      setProducts(prev => prev.map(p => p.id === id ? { ...p, status } : p));
+      toast.success(`Product ${status}`);
+    } catch (e) {
+      toast.error("Action failed: " + e.message);
+    }
   };
 
   const handleDelete = async (id) => {
