@@ -1,0 +1,191 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ──────────────────────────────────────
+    function isAuth() {
+      return request.auth != null;
+    }
+    function isOwner(uid) {
+      return request.auth.uid == uid;
+    }
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function isAdmin() {
+      return isAuth() && (getUserData().role == 'admin' || getUserData().role == 'superadmin');
+    }
+    function isSeller() {
+      return isAuth() && getUserData().isSeller == true;
+    }
+    function isVerifiedSeller() {
+      return isAuth() && getUserData().isSellerVerified == true;
+    }
+    function isNotSuspended() {
+      return isAuth() && getUserData().isSuspended != true && getUserData().isBanned != true;
+    }
+
+    // ── Users ─────────────────────────────────────────────────
+    match /users/{uid} {
+      allow read: if isAuth();
+      allow create: if isAuth() && isOwner(uid);
+      allow update: if (isAuth() && isOwner(uid) && !('role' in request.resource.data.diff(resource.data).affectedKeys())) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Products ──────────────────────────────────────────────
+    match /products/{id} {
+      allow read: if true;
+      allow create: if isSeller() && isNotSuspended() && request.resource.data.sellerId == request.auth.uid;
+      allow update: if (isAuth() && resource.data.sellerId == request.auth.uid && isNotSuspended()) || isAdmin();
+      allow delete: if (isAuth() && resource.data.sellerId == request.auth.uid) || isAdmin();
+    }
+
+    // ── Services ──────────────────────────────────────────────
+    match /services/{id} {
+      allow read: if true;
+      allow create: if isSeller() && isNotSuspended() && request.resource.data.sellerId == request.auth.uid;
+      allow update: if (isAuth() && resource.data.sellerId == request.auth.uid) || isAdmin();
+      allow delete: if (isAuth() && resource.data.sellerId == request.auth.uid) || isAdmin();
+    }
+
+    // ── Requests ──────────────────────────────────────────────
+    match /requests/{id} {
+      allow read: if true;
+      allow create: if isAuth() && isNotSuspended() && request.resource.data.buyerId == request.auth.uid;
+      allow update: if (isAuth() && resource.data.buyerId == request.auth.uid) || isAdmin();
+      allow delete: if (isAuth() && resource.data.buyerId == request.auth.uid) || isAdmin();
+    }
+
+    // ── Offers ────────────────────────────────────────────────
+    match /offers/{id} {
+      allow read: if isAuth();
+      allow create: if isSeller() && isNotSuspended() && request.resource.data.sellerId == request.auth.uid;
+      allow update: if (isAuth() && (resource.data.sellerId == request.auth.uid || resource.data.buyerId == request.auth.uid)) || isAdmin();
+    }
+
+    // ── Orders ────────────────────────────────────────────────
+    match /orders/{id} {
+      allow read: if isAuth() && (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid || isAdmin());
+      allow create: if isAuth() && isNotSuspended() && request.resource.data.buyerId == request.auth.uid;
+      // Buyers can only update status to 'completed' or 'cancelled'; sellers/admins more broadly
+      allow update: if isAdmin() || (isAuth() && (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid));
+      allow delete: if isAdmin();
+    }
+
+    // ── Messages ──────────────────────────────────────────────
+    match /messages/{chatId} {
+      allow read, write: if isAuth() && (chatId.matches('.*' + request.auth.uid + '.*') || isAdmin());
+
+      match /chats/{msgId} {
+        allow read: if isAuth();
+        allow create: if isAuth() && request.resource.data.senderId == request.auth.uid;
+        allow update, delete: if isAdmin();
+      }
+    }
+
+    // ── Reviews ───────────────────────────────────────────────
+    match /reviews/{id} {
+      allow read: if true;
+      allow create: if isAuth() && isNotSuspended() && request.resource.data.reviewerId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Notifications ─────────────────────────────────────────
+    match /notifications/{id} {
+      allow read: if isAuth() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow create: if isAuth();
+      allow update: if isAuth() && resource.data.uid == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    // ── Reports ───────────────────────────────────────────────
+    match /reports/{id} {
+      allow read: if isAdmin() || (isAuth() && resource.data.reporterId == request.auth.uid);
+      allow create: if isAuth() && isNotSuspended();
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Admin Logs ────────────────────────────────────────────
+    match /adminLogs/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Seller Verification ───────────────────────────────────
+    match /sellerVerification/{uid} {
+      allow read: if isAuth() && (isOwner(uid) || isAdmin());
+      allow create: if isAuth() && isOwner(uid) && isSeller();
+      allow update: if isAdmin();
+    }
+
+    // ── Wallets ───────────────────────────────────────────────
+    match /wallets/{uid} {
+      // Users can read their own wallet; admins can read all
+      allow read: if isAuth() && (isOwner(uid) || isAdmin());
+      // NO direct writes from frontend — only via server-side batch ops
+      allow write: if isAdmin();
+    }
+
+    // ── Transactions ──────────────────────────────────────────
+    match /transactions/{id} {
+      allow read: if isAuth() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow create: if isAuth(); // created by wallet functions
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Escrow ────────────────────────────────────────────────
+    match /escrow/{id} {
+      allow read: if isAuth() && (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid || isAdmin());
+      allow create: if isAuth();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Subscriptions ─────────────────────────────────────────
+    match /subscriptions/{id} {
+      allow read: if isAuth() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow create: if isAuth();
+      allow update: if isAdmin();
+    }
+
+    // ── Featured Listings ─────────────────────────────────────
+    match /featuredListings/{id} {
+      allow read: if true;
+      allow create: if isSeller() && isNotSuspended();
+      allow update: if (isAuth() && resource.data.sellerId == request.auth.uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Ads ───────────────────────────────────────────────────
+    match /ads/{id} {
+      allow read: if true;
+      allow create: if isAuth() && isNotSuspended();
+      allow update: if (isAuth() && resource.data.advertiserId == request.auth.uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Withdrawals ───────────────────────────────────────────
+    match /withdrawals/{id} {
+      allow read: if isAuth() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow create: if isAuth() && isNotSuspended() && request.resource.data.uid == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Platform Fees / Settings ──────────────────────────────
+    match /platformFees/{id} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
+    }
+  }
+}
+
+    // ── MoMo Payments ─────────────────────────────────────────
+    match /momoPayments/{id} {
+      // Users can read and create their own submissions
+      allow read: if isAuth() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow create: if isAuth() && isNotSuspended() && request.resource.data.uid == request.auth.uid;
+      // Only admin can update (verify/reject)
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
