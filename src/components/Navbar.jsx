@@ -138,6 +138,7 @@ export const Navbar = () => {
                     boxShadow: "var(--shadow-lg)", zIndex: 200
                   }} onClick={() => setMenuOpen(false)}>
                     <NavMenuItem icon="👤" label="Profile" path="/profile" />
+                    <NavMenuItem icon="📱" label="Top Up Wallet" path="/momo-payment" />
                     <NavMenuItem icon="💼" label="Orders" path="/orders" />
                     <NavMenuItem icon="💰" label="Wallet" path="/wallet" />
                     <NavMenuItem icon="💬" label="Chat" path="/chat" />
