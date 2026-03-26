@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { getAllUsers, getAllProducts, getAllOrders, getAllTransactions, getAllReports, getAdminLogs, getAllWithdrawals, getAllEscrow } from "../../firebase/db";
+import { getAllUsers, getAllProducts, getAllOrders, getAllTransactions, getAllReports, getAdminLogs, getAllWithdrawals, getAllEscrow, getAllMomoPayments } from "../../firebase/db";
 import { Spinner, StatCard, PageHeader, Badge, StatusBadge } from "../../components/UI";
 import { onSnapshot, collection, query, orderBy, limit } from "firebase/firestore";
 import { db } from "../../firebase/config";
@@ -15,6 +15,7 @@ const ADMIN_NAV = [
   { path: "/admin/orders", label: "Orders", icon: "📋" },
   { path: "/admin/requests", label: "Requests", icon: "📝" },
   { path: "/admin/payments", label: "Payments", icon: "💰" },
+  { path: "/admin/momo", label: "MoMo Verify", icon: "📱" },
   { path: "/admin/escrow", label: "Escrow", icon: "🔒" },
   { path: "/admin/withdrawals", label: "Withdrawals", icon: "💸" },
   { path: "/admin/ads", label: "Ads", icon: "📢" },
@@ -118,7 +119,7 @@ export const AdminLayout = ({ children }) => {
 };
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ users: 0, products: 0, orders: 0, revenue: 0, reports: 0, withdrawals: 0 });
+  const [stats, setStats] = useState({ users: 0, products: 0, orders: 0, revenue: 0, reports: 0, withdrawals: 0, momo: 0 });
   const [recentOrders, setRecentOrders] = useState([]);
   const [recentUsers, setRecentUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -129,6 +130,13 @@ export default function AdminDashboard() {
         const [users, products, orders, transactions, reports, withdrawals] = await Promise.all([
           getAllUsers(), getAllProducts(), getAllOrders(), getAllTransactions(), getAllReports(), getAllWithdrawals()
         ]);
+        // Load momo payments separately (new collection)
+        let momoCount = 0;
+        try {
+          const momoPayments = await getAllMomoPayments();
+          momoCount = momoPayments.filter(p => p.status === "pending").length;
+        } catch (e) { }
+
         const revenue = transactions.filter(t => t.type === "credit" && t.note?.includes("order")).reduce((a, t) => a + (t.amount || 0), 0);
         setStats({
           users: users.length,
@@ -136,7 +144,8 @@ export default function AdminDashboard() {
           orders: orders.length,
           revenue,
           reports: reports.filter(r => r.status === "pending").length,
-          withdrawals: withdrawals.filter(w => w.status === "pending").length
+          withdrawals: withdrawals.filter(w => w.status === "pending").length,
+          momo: momoCount,
         });
         setRecentOrders(orders.slice(0, 5));
         setRecentUsers(users.slice(0, 5));
@@ -153,7 +162,7 @@ export default function AdminDashboard() {
       <PageHeader title="Admin Dashboard" subtitle="Platform overview and management" />
 
       {/* Alerts */}
-      {(stats.reports > 0 || stats.withdrawals > 0) && (
+      {(stats.reports > 0 || stats.withdrawals > 0 || stats.momo > 0) && (
         <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
           {stats.reports > 0 && (
             <div className="alert alert-warning" style={{ flex: 1 }}>
@@ -165,6 +174,12 @@ export default function AdminDashboard() {
             <div className="alert alert-info" style={{ flex: 1 }}>
               <span>💸</span>
               <span>{stats.withdrawals} withdrawal{stats.withdrawals > 1 ? "s" : ""} pending approval. <Link to="/admin/withdrawals" style={{ fontWeight: 700 }}>Approve →</Link></span>
+            </div>
+          )}
+          {stats.momo > 0 && (
+            <div className="alert alert-warning" style={{ flex: 1 }}>
+              <span>📱</span>
+              <span>{stats.momo} MoMo payment{stats.momo > 1 ? "s" : ""} waiting verification. <Link to="/admin/momo" style={{ fontWeight: 700 }}>Verify now →</Link></span>
             </div>
           )}
         </div>
