@@ -148,13 +148,30 @@ export const createRequest = async (data) =>
   });
 
 export const getRequests = async () => {
-  const snap = await getDocs(query(collection(db, "requests"), where("status", "==", "open"), orderBy("createdAt", "desc")));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  try {
+    // Use only where() without orderBy() to avoid composite index requirement
+    const snap = await getDocs(query(collection(db, "requests"), where("status", "==", "open")));
+    const results = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Sort client-side
+    return results.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+  } catch (e) {
+    console.error("getRequests error:", e.message);
+    // Absolute fallback — fetch all and filter client-side
+    try {
+      const snap = await getDocs(collection(db, "requests"));
+      return snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(r => r.status === "open")
+        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    } catch (e2) { return []; }
+  }
 };
 
 export const getAllRequestsAdmin = async () => {
-  const snap = await getDocs(query(collection(db, "requests"), orderBy("createdAt", "desc")));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(collection(db, "requests"));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 };
 
 export const getRequestById = async (id) => {
@@ -265,12 +282,34 @@ export const createNotification = async (uid, data) =>
     ...data, uid, read: false, createdAt: serverTimestamp()
   });
 
-export const listenToNotifications = (uid, cb) =>
-  onSnapshot(query(collection(db, "notifications"), where("uid", "==", uid), orderBy("createdAt", "desc"), limit(30)),
-    snap => cb(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
+export const listenToNotifications = (uid, cb) => {
+  // Use only where("uid") without orderBy to avoid needing a composite index.
+  // Sort client-side instead.
+  return onSnapshot(
+    query(collection(db, "notifications"), where("uid", "==", uid), limit(50)),
+    snap => {
+      const notifs = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+        .slice(0, 30);
+      cb(notifs);
+    },
+    err => {
+      console.error("listenToNotifications error:", err.message);
+      cb([]);
+    }
+  );
+};
 
 export const markNotificationRead = async (id) =>
   updateDoc(doc(db, "notifications", id), { read: true });
+
+export const markAllNotificationsRead = async (uid) => {
+  const snap = await getDocs(query(collection(db, "notifications"), where("uid", "==", uid), where("read", "==", false)));
+  const batch = writeBatch(db);
+  snap.docs.forEach(d => batch.update(d.ref, { read: true }));
+  await batch.commit();
+};
 
 // ─── REPORTS ─────────────────────────────────────────────
 export const createReport = async (data) =>
@@ -462,3 +501,29 @@ export const listenToPlatformSettings = (cb) =>
       sellerVerificationFee: 50, featuredListingFee: 20,
       basicSubscriptionPrice: 10, premiumSubscriptionPrice: 30
     }));
+
+// ─── MOMO PAYMENTS ───────────────────────────────────────
+// Users submit proof of MoMo payment. Admin verifies and credits wallet.
+export const submitMomoPayment = async (data) =>
+  addDoc(collection(db, "momoPayments"), {
+    ...data,
+    status: "pending",      // pending | verified | rejected
+    createdAt: serverTimestamp()
+  });
+
+export const getUserMomoPayments = async (uid) => {
+  const snap = await getDocs(query(collection(db, "momoPayments"), where("uid", "==", uid)));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+};
+
+export const getAllMomoPayments = async () => {
+  const snap = await getDocs(collection(db, "momoPayments"));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+};
+
+export const updateMomoPayment = async (id, data) =>
+  updateDoc(doc(db, "momoPayments", id), { ...data, updatedAt: serverTimestamp() });
