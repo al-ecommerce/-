@@ -67,8 +67,11 @@ export default function Wallet() {
         </div>
 
         {/* Actions */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 28 }}>
-          <Button variant="primary" full size="lg" onClick={() => setShowWithdraw(true)}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 28 }}>
+          <Button variant="primary" full size="lg" onClick={() => navigate("/momo-payment")}>
+            📱 Top Up via MoMo
+          </Button>
+          <Button variant="secondary" full size="lg" onClick={() => setShowWithdraw(true)}>
             💸 Withdraw Funds
           </Button>
           <Button variant="secondary" full size="lg" onClick={() => navigate("/escrow")}>

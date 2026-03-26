@@ -6,8 +6,9 @@ import {
   listenToOffersForRequest, createOffer, updateOffer,
   createNotification, getUserDoc
 } from "../firebase/db";
+import { sendRequestPostedEmail, sendOfferReceivedEmail } from "../services/emailService";
 import { RequestCard } from "../components/ListingCard";
-import { Spinner, Button, Badge, Alert, Modal, PageHeader, EmptyState, PriceTag, FormInput, FormTextarea, FormSelect, StatusBadge, toast } from "../components/UI";
+import { Spinner, Button, Badge, Alert, Modal, PageHeader, EmptyState, PriceTag, FormInput, FormTextarea, StatusBadge, toast } from "../components/UI";
 
 const CATEGORIES = ["Products", "Services", "Repair", "Transport", "Food", "Design", "Other"];
 
@@ -15,34 +16,46 @@ export function RequestsPage() {
   const { currentUser, userDoc } = useAuth();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [showCreate, setShowCreate] = useState(false);
 
-  useEffect(() => {
-    const load = async () => {
-      try { setRequests(await getRequests()); } catch (e) { console.error(e); }
-      setLoading(false);
-    };
-    load();
-  }, []);
+  const loadRequests = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await getRequests();
+      setRequests(data);
+    } catch (e) {
+      console.error(e);
+      setError("Could not load requests. Please refresh.");
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => { loadRequests(); }, []);
 
   return (
     <div className="page-wrapper">
       <div className="container" style={{ paddingTop: 28 }}>
         <PageHeader
           title="Open Requests"
-          subtitle="Post what you need and get offers from sellers"
+          subtitle={`${requests.length} active request${requests.length !== 1 ? "s" : ""}`}
           action={currentUser && <Button variant="primary" onClick={() => setShowCreate(true)}>+ Post Request</Button>}
         />
+        {error && <Alert type="danger">{error} <button onClick={loadRequests} style={{ marginLeft: 8, background: "none", border: "none", color: "var(--danger)", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>Retry</button></Alert>}
         {loading ? <Spinner center />
           : requests.length > 0
             ? <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 {requests.map(r => <RequestCard key={r.id} item={r} />)}
               </div>
-            : <EmptyState icon="📋" title="No open requests" description="Be the first to post a request" action={currentUser && <Button variant="primary" onClick={() => setShowCreate(true)}>Post Request</Button>} />
+            : <EmptyState icon="📋" title="No open requests yet" description="Be the first to post what you need" action={currentUser && <Button variant="primary" onClick={() => setShowCreate(true)}>Post a Request</Button>} />
         }
       </div>
-      <CreateRequestModal isOpen={showCreate} onClose={() => setShowCreate(false)}
-        onCreated={() => { setShowCreate(false); getRequests().then(setRequests); }} />
+      <CreateRequestModal
+        isOpen={showCreate}
+        onClose={() => setShowCreate(false)}
+        onCreated={() => { setShowCreate(false); loadRequests(); }}
+      />
     </div>
   );
 }
@@ -60,9 +73,21 @@ const CreateRequestModal = ({ isOpen, onClose, onCreated }) => {
         ...form, budget: parseFloat(form.budget) || 0,
         buyerId: currentUser.uid, buyerName: userDoc?.displayName, offerCount: 0
       });
-      toast.success("Request posted!");
+      // In-app notification
+      await createNotification(currentUser.uid, {
+        title: "Request Posted!",
+        body: `Your request "${form.title}" is now live. Sellers will start sending offers soon.`,
+        type: "system",
+      });
+      // Email confirmation
+      await sendRequestPostedEmail(currentUser.email, userDoc?.displayName, form.title);
+      toast.success("Request posted! Sellers can now send you offers.");
+      setForm({ title: "", description: "", budget: "", category: "Products", deadline: "", location: "" });
       onCreated();
-    } catch (e) { toast.error("Failed to post request"); }
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to post request — " + e.message);
+    }
     setLoading(false);
   };
 
@@ -235,14 +260,24 @@ const SendOfferModal = ({ isOpen, onClose, request, onSent }) => {
         deliveryTime: form.deliveryTime, message: form.message,
         sellerId: currentUser.uid, sellerName: userDoc?.displayName
       });
+      // In-app notification to buyer
       await createNotification(request.buyerId, {
-        title: "New Offer",
-        body: `${userDoc?.displayName} sent an offer for your request`,
+        title: `New Offer from ${userDoc?.displayName}`,
+        body: `GHS ${form.price} offer for "${request.title}" — Delivery: ${form.deliveryTime || "TBD"}`,
         type: "offer", link: `/requests/${request.id}`
       });
-      toast.success("Offer sent!");
+      // Email the buyer
+      const buyer = await getUserDoc(request.buyerId);
+      if (buyer?.email) {
+        await sendOfferReceivedEmail(buyer.email, buyer.displayName, request.title, userDoc?.displayName, form.price);
+      }
+      toast.success("Offer sent successfully!");
+      setForm({ price: "", deliveryTime: "", message: "" });
       onSent();
-    } catch (e) { toast.error("Failed to send offer"); }
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to send offer — " + e.message);
+    }
     setLoading(false);
   };
 
