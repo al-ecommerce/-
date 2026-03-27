@@ -95,15 +95,16 @@ export default function Home() {
 
       {/* ── HERO BANNER ─────────────────────────────────────── */}
       <section style={{
-            backgroundImage: `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(${slide.image})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        minHeight: 480,
-        position: "relative",
-        overflow: "hidden",
-        display: "flex",
-        alignItems: "center",
-        transition: "background-image 0.8s ease",
+        backgroundImage: `url(${slide.image})`,
+  backgroundSize: "contain",       // fits entire image inside container
+  backgroundRepeat: "no-repeat",   // prevents tiling
+  backgroundPosition: "center",    // centers image
+  minHeight: 480,
+  position: "relative",
+  overflow: "hidden",
+  display: "flex",
+  alignItems: "center",
+  transition: "background-image 0.8s ease",
       }}>
         {/* Decorative circles */}
         <div style={{
