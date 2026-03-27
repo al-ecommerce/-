@@ -24,19 +24,19 @@ const HERO_SLIDES = [
   {
     headline: "Ghana's Most Trusted Marketplace",
     sub: "Buy products, hire services, and post requests — all protected by escrow.",
-    bg: "linear-gradient(135deg, #0A0F1E 0%, #1a2744 60%, #0d2060 100%)",
+    image: "linear-gradient(135deg, #0A0F1E 0%, #1a2744 60%, #0d2060 100%)",
     accent: "#4F8EFF",
   },
   {
     headline: "Sell to Thousands of Buyers",
     sub: "List your products and services for free. Admin-verified. Escrow-secured payments.",
-    bg: "linear-gradient(135deg, #0f1f12 0%, #1a3a1f 60%, #0f2a1a 100%)",
+    image: "linear-gradient(135deg, #0f1f12 0%, #1a3a1f 60%, #0f2a1a 100%)",
     accent: "#34D399",
   },
   {
     headline: "Secure Payments. Every Time.",
     sub: "Funds held in escrow until delivery confirmed. No risk. No scams. Full buyer protection.",
-    bg: "linear-gradient(135deg, #1a0f2e 0%, #2d1a4a 60%, #1f1060 100%)",
+    image: "linear-gradient(135deg, #1a0f2e 0%, #2d1a4a 60%, #1f1060 100%)",
     accent: "#A78BFA",
   },
 ];
@@ -95,13 +95,15 @@ export default function Home() {
 
       {/* ── HERO BANNER ─────────────────────────────────────── */}
       <section style={{
-        background: slide.bg,
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(${slide.image})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
         minHeight: 480,
         position: "relative",
         overflow: "hidden",
         display: "flex",
         alignItems: "center",
-        transition: "background 0.8s ease",
+        transition: "background-image 0.8s ease",
       }}>
         {/* Decorative circles */}
         <div style={{
