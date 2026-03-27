@@ -3,7 +3,7 @@ import emailjs from "emailjs-com";
 // ─── YOUR EMAILJS CREDENTIALS ────────────────────────────
 // Replace with your actual values from emailjs.com dashboard
 export const SERVICE_ID = "service_30gqve5";
-export const PUBLIC_KEY = "template_2l9r3sl";
+export const PUBLIC_KEY = "";
 
 // ─── SINGLE TEMPLATE ─────────────────────────────────────
 // You only need ONE template in EmailJS: template_main
@@ -14,7 +14,7 @@ export const PUBLIC_KEY = "template_2l9r3sl";
 //
 // The "From" email in EmailJS is fixed to alecommerce123@gmail.com
 // (set this in your EmailJS email service settings)
-const TEMPLATE = "template_main";
+const TEMPLATE = "template_2l9r3sl";
 
 // Admin email — receives a copy of all payment & order events
 const ADMIN_EMAIL = "alecommerce123@gmail.com";
