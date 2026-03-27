@@ -1,159 +1,137 @@
 import emailjs from "emailjs-com";
 
-// ─── CONFIGURATION ────────────────────────────────────────
-// Replace these with your actual EmailJS credentials
-const SERVICE_ID  = "YOUR_EMAILJS_SERVICE_ID";   // e.g. "service_abc123"
-const PUBLIC_KEY  = "YOUR_EMAILJS_PUBLIC_KEY";    // e.g. "user_xxxxxxxxxxx"
+// ─── YOUR EMAILJS CREDENTIALS ────────────────────────────
+// Replace with your actual values from emailjs.com dashboard
+export const SERVICE_ID = "YOUR_EMAILJS_SERVICE_ID";
+export const PUBLIC_KEY = "YOUR_EMAILJS_PUBLIC_KEY";
 
-// ─── TEMPLATE IDs ─────────────────────────────────────────
-// Create each of these templates in your EmailJS dashboard.
-// Template variables available in all templates: {{to_name}}, {{to_email}}
-const T = {
-  welcome:          "template_welcome",           // on signup
-  payment:          "template_payment",           // on any wallet credit/debit
-  momoSubmitted:    "template_momo_submitted",    // user submits MoMo proof
-  momoVerified:     "template_momo_verified",     // admin verifies MoMo
-  momoRejected:     "template_momo_rejected",     // admin rejects MoMo
-  orderPlaced:      "template_order_placed",      // buyer places order
-  orderReceived:    "template_order_received",    // seller gets new order
-  orderCompleted:   "template_order_completed",   // delivery confirmed
-  sellerApproval:   "template_seller_approval",   // seller approved/rejected
-  productApproved:  "template_product_approved",  // product goes live
-  withdrawal:       "template_withdrawal",        // withdrawal approved
-  announcement:     "template_announcement",      // admin broadcast
-  requestPosted:    "template_request_posted",    // new request posted
-  offerReceived:    "template_offer_received",    // buyer gets an offer
-};
+// ─── SINGLE TEMPLATE ─────────────────────────────────────
+// You only need ONE template in EmailJS: template_main
+// Template fields:
+//   To:       {{to_email}}
+//   Subject:  {{to_subject}}
+//   Body:     Hi {{to_name}}, \n\n {{message}} \n\n — ASVAN Team
+//
+// The "From" email in EmailJS is fixed to alecommerce123@gmail.com
+// (set this in your EmailJS email service settings)
+const TEMPLATE = "template_main";
 
-// ─── SAFE SEND ────────────────────────────────────────────
-// Wraps every send in try/catch so email failures never break the app
-const send = async (templateId, params) => {
+// Admin email — receives a copy of all payment & order events
+const ADMIN_EMAIL = "alecommerce123@gmail.com";
+const ADMIN_NAME  = "ASVAN Admin";
+
+// ─── CORE SEND ────────────────────────────────────────────
+// Never throws — email failure must never crash the app
+const send = async (toEmail, toName, subject, message) => {
   try {
-    await emailjs.send(SERVICE_ID, templateId, params, PUBLIC_KEY);
+    await emailjs.send(SERVICE_ID, TEMPLATE, {
+      to_email:   toEmail,
+      to_name:    toName,
+      to_subject: subject,
+      message,
+    }, PUBLIC_KEY);
   } catch (e) {
-    // Log silently — never crash the app because email failed
-    console.warn(`EmailJS send failed [${templateId}]:`, e?.text || e?.message || e);
+    console.warn("EmailJS failed:", e?.text || e?.message || e);
   }
 };
 
-// ─── ACCOUNT EMAILS ───────────────────────────────────────
+// Admin copy — sends a second email to the admin inbox
+const adminCopy = (subject, message) =>
+  send(ADMIN_EMAIL, ADMIN_NAME, `[ASVAN Copy] ${subject}`, message);
+
+// ─── ACCOUNT ─────────────────────────────────────────────
 export const sendWelcomeEmail = (email, name) =>
-  send(T.welcome, {
-    to_email: email,
-    to_name: name,
-    platform_name: "ASVAN",
-    login_url: window.location.origin,
-  });
+  send(email, name,
+    "Welcome to ASVAN Marketplace! 🎉",
+    `Thank you for joining ASVAN, Ghana's trusted marketplace.\n\nYou can now browse products and services, post requests, and connect with verified sellers.\n\nPlease verify your email address to unlock all features.\n\nWe're glad to have you!`
+  );
 
-// ─── MOMO PAYMENT EMAILS ──────────────────────────────────
-export const sendMomoSubmittedEmail = (email, name, amount, reference) =>
-  send(T.momoSubmitted, {
-    to_email: email,
-    to_name: name,
-    amount: `GHS ${Number(amount).toFixed(2)}`,
-    reference,
-    admin_number: "0549548274",
-    message: `Your MoMo top-up of GHS ${Number(amount).toFixed(2)} has been received and is being verified. Reference: ${reference}. You will be notified once your wallet is credited.`,
-  });
+export const sendAccountDeletedEmail = (email, name) =>
+  send(email, name,
+    "Your ASVAN Account Has Been Deleted",
+    `Hi ${name},\n\nYour ASVAN account has been permanently deleted as requested.\n\nAll your data, listings, and wallet balance have been removed.\n\nIf this was a mistake or you didn't request this, please contact support immediately at ${ADMIN_EMAIL}.\n\nWe're sorry to see you go.`
+  );
 
-export const sendMomoVerifiedEmail = (email, name, amount) =>
-  send(T.momoVerified, {
-    to_email: email,
-    to_name: name,
-    amount: `GHS ${Number(amount).toFixed(2)}`,
-    message: `Great news! Your MoMo payment of GHS ${Number(amount).toFixed(2)} has been verified and credited to your ASVAN wallet. You can now shop and place orders.`,
-  });
+// ─── PAYMENTS — user + admin copy ────────────────────────
+export const sendMomoSubmittedEmail = (email, name, amount, reference) => {
+  const msg = `Your MoMo top-up of GHS ${Number(amount).toFixed(2)} has been received and is pending verification.\n\nTransaction Reference: ${reference}\nAdmin MoMo Number: 0549548274\n\nYou will receive another notification once your wallet has been credited. This usually takes a few minutes.`;
+  send(email, name, "MoMo Payment Received — Pending Verification", msg);
+  adminCopy(`MoMo Payment Submitted — GHS ${Number(amount).toFixed(2)}`,
+    `User: ${name} (${email})\nAmount: GHS ${Number(amount).toFixed(2)}\nReference: ${reference}\n\nPlease verify this payment in the admin panel at /admin/momo`
+  );
+};
 
-export const sendMomoRejectedEmail = (email, name, amount, reason) =>
-  send(T.momoRejected, {
-    to_email: email,
-    to_name: name,
-    amount: `GHS ${Number(amount).toFixed(2)}`,
-    reason: reason || "The payment reference could not be verified.",
-    message: `Your MoMo top-up request for GHS ${Number(amount).toFixed(2)} was not verified. Reason: ${reason || "Could not verify payment reference."}. Please contact support if you believe this is an error.`,
-  });
+export const sendMomoVerifiedEmail = (email, name, amount) => {
+  const msg = `Great news! Your MoMo payment of GHS ${Number(amount).toFixed(2)} has been verified and credited to your ASVAN wallet.\n\nYou can now use your wallet to place orders on the platform.\n\nThank you for topping up!`;
+  send(email, name, "✅ Wallet Credited — GHS " + Number(amount).toFixed(2), msg);
+};
 
-// ─── ORDER EMAILS ─────────────────────────────────────────
-export const sendOrderPlacedEmail = (email, name, orderId, amount) =>
-  send(T.orderPlaced, {
-    to_email: email,
-    to_name: name,
-    order_id: orderId?.slice(0, 8)?.toUpperCase(),
-    amount: `GHS ${Number(amount).toFixed(2)}`,
-    message: `Your order has been placed successfully. Order ID: #${orderId?.slice(0,8)?.toUpperCase()}. Amount: GHS ${Number(amount).toFixed(2)}. Your payment is held in escrow and will be released to the seller once you confirm delivery.`,
-  });
+export const sendMomoRejectedEmail = (email, name, amount, reason) => {
+  const msg = `Unfortunately, your MoMo payment submission of GHS ${Number(amount).toFixed(2)} could not be verified.\n\nReason: ${reason || "The transaction reference provided could not be matched."}\n\nIf you believe this is an error, please contact support and provide your MoMo reference number.\n\nSupport: ${ADMIN_EMAIL}`;
+  send(email, name, "Payment Submission Not Verified", msg);
+};
 
-export const sendOrderReceivedEmail = (email, name, orderId, itemTitle, buyerName) =>
-  send(T.orderReceived, {
-    to_email: email,
-    to_name: name,
-    order_id: orderId?.slice(0, 8)?.toUpperCase(),
-    item_title: itemTitle,
-    buyer_name: buyerName,
-    message: `You have a new order! ${buyerName} ordered "${itemTitle}". Order ID: #${orderId?.slice(0,8)?.toUpperCase()}. Please fulfil this order promptly.`,
-  });
+// ─── ORDERS — user + admin copy ──────────────────────────
+export const sendOrderPlacedEmail = (email, name, orderId, amount, itemTitle) => {
+  const ref = orderId?.slice(0, 8)?.toUpperCase();
+  const msg = `Your order has been placed successfully!\n\nOrder ID: #${ref}\nItem: ${itemTitle}\nAmount: GHS ${Number(amount).toFixed(2)}\n\nYour payment is held securely in escrow and will only be released to the seller after you confirm delivery.\n\nYou can track your order in the Orders section of your account.`;
+  send(email, name, `Order Confirmed — #${ref}`, msg);
+  adminCopy(`New Order #${ref} — GHS ${Number(amount).toFixed(2)}`,
+    `Buyer: ${name} (${email})\nItem: ${itemTitle}\nOrder ID: #${ref}\nAmount: GHS ${Number(amount).toFixed(2)}`
+  );
+};
 
-export const sendOrderCompletedEmail = (email, name, orderId, amount) =>
-  send(T.orderCompleted, {
-    to_email: email,
-    to_name: name,
-    order_id: orderId?.slice(0, 8)?.toUpperCase(),
-    amount: `GHS ${Number(amount).toFixed(2)}`,
-    message: `Order #${orderId?.slice(0,8)?.toUpperCase()} has been completed. GHS ${Number(amount).toFixed(2)} has been credited to your ASVAN wallet.`,
-  });
+export const sendOrderReceivedEmail = (email, name, orderId, itemTitle, buyerName) => {
+  const ref = orderId?.slice(0, 8)?.toUpperCase();
+  const msg = `You have a new order!\n\nOrder ID: #${ref}\nItem: "${itemTitle}"\nBuyer: ${buyerName}\n\nPlease fulfil this order promptly. Payment is held in escrow and will be released to your wallet once the buyer confirms delivery.\n\nLog in to view the full order details.`;
+  send(email, name, `New Order Received — #${ref}`, msg);
+};
 
-// ─── SELLER EMAILS ────────────────────────────────────────
-export const sendSellerApprovalEmail = (email, name, status) =>
-  send(T.sellerApproval, {
-    to_email: email,
-    to_name: name,
-    status,
-    message: status === "approved"
-      ? `Congratulations ${name}! Your seller account on ASVAN has been approved. You can now list products and services.`
-      : `Your seller application has been reviewed. Unfortunately it was not approved at this time. Contact support for details.`,
-  });
+export const sendOrderCompletedEmail = (email, name, orderId, amount) => {
+  const ref = orderId?.slice(0, 8)?.toUpperCase();
+  const msg = `Order #${ref} has been completed!\n\nGHS ${Number(amount).toFixed(2)} has been released from escrow and credited to your ASVAN wallet.\n\nThank you for selling on ASVAN.`;
+  send(email, name, `Payment Released — GHS ${Number(amount).toFixed(2)}`, msg);
+};
 
-export const sendProductApprovedEmail = (email, name, productTitle) =>
-  send(T.productApproved, {
-    to_email: email,
-    to_name: name,
-    product_title: productTitle,
-    message: `Your product "${productTitle}" has been approved by our team and is now live on ASVAN for buyers to see.`,
-  });
+// ─── SELLER ───────────────────────────────────────────────
+export const sendSellerApprovalEmail = (email, name, approved) => {
+  const msg = approved
+    ? `Congratulations ${name}! Your seller account on ASVAN has been approved.\n\nYou can now list products and services, receive orders, and get paid directly to your wallet.\n\nLog in to your Seller Dashboard to get started.`
+    : `Thank you for applying to sell on ASVAN.\n\nUnfortunately, your seller application was not approved at this time.\n\nPlease ensure your profile is complete and contact support if you have questions.`;
+  send(email, name, approved ? "🎉 Seller Account Approved!" : "Seller Application Update", msg);
+};
 
-// ─── WITHDRAWAL EMAIL ─────────────────────────────────────
-export const sendWithdrawalApprovedEmail = (email, name, amount) =>
-  send(T.withdrawal, {
-    to_email: email,
-    to_name: name,
-    amount: `GHS ${Number(amount).toFixed(2)}`,
-    message: `Your withdrawal request of GHS ${Number(amount).toFixed(2)} has been approved and is being processed to your account.`,
-  });
+export const sendProductApprovedEmail = (email, name, productTitle) => {
+  const msg = `Your product "${productTitle}" has been reviewed and approved by the ASVAN team.\n\nIt is now live on the marketplace and visible to all buyers.\n\nLog in to view your listing and start receiving orders!`;
+  send(email, name, `Product Approved — "${productTitle}"`, msg);
+};
 
-// ─── REQUEST / OFFER EMAILS ───────────────────────────────
-export const sendRequestPostedEmail = (email, name, requestTitle) =>
-  send(T.requestPosted, {
-    to_email: email,
-    to_name: name,
-    request_title: requestTitle,
-    message: `Your request "${requestTitle}" is now live on ASVAN. Sellers will start sending you offers shortly.`,
-  });
+// ─── REQUESTS & OFFERS ───────────────────────────────────
+export const sendRequestPostedEmail = (email, name, requestTitle) => {
+  const msg = `Your request "${requestTitle}" is now live on ASVAN.\n\nSellers will start sending you offers shortly. You will be notified by email when an offer arrives.\n\nYou can view and manage your request from the Requests page.`;
+  send(email, name, `Request Posted — "${requestTitle}"`, msg);
+};
 
-export const sendOfferReceivedEmail = (email, name, requestTitle, sellerName, offerPrice) =>
-  send(T.offerReceived, {
-    to_email: email,
-    to_name: name,
-    request_title: requestTitle,
-    seller_name: sellerName,
-    offer_price: `GHS ${Number(offerPrice).toFixed(2)}`,
-    message: `${sellerName} sent you an offer of GHS ${Number(offerPrice).toFixed(2)} for your request "${requestTitle}". Log in to review and accept.`,
-  });
+export const sendOfferReceivedEmail = (email, name, requestTitle, sellerName, offerPrice) => {
+  const msg = `${sellerName} has sent you an offer on your request!\n\nRequest: "${requestTitle}"\nOffer Price: GHS ${Number(offerPrice).toFixed(2)}\nFrom: ${sellerName}\n\nLog in to review the offer details and accept if it meets your requirements.`;
+  send(email, name, `New Offer Received — GHS ${Number(offerPrice).toFixed(2)}`, msg);
+};
+
+// ─── WITHDRAWALS ─────────────────────────────────────────
+export const sendWithdrawalApprovedEmail = (email, name, amount) => {
+  const msg = `Your withdrawal request of GHS ${Number(amount).toFixed(2)} has been approved.\n\nThe funds are being processed to your registered payment account. Please allow up to 24 hours for the transfer to complete.\n\nThank you for using ASVAN.`;
+  send(email, name, `Withdrawal Approved — GHS ${Number(amount).toFixed(2)}`, msg);
+  adminCopy(`Withdrawal Processed — GHS ${Number(amount).toFixed(2)}`,
+    `User: ${name} (${email})\nAmount: GHS ${Number(amount).toFixed(2)}`
+  );
+};
 
 // ─── ADMIN ANNOUNCEMENT ───────────────────────────────────
 export const sendAnnouncementEmail = (email, name, subject, message) =>
-  send(T.announcement, {
-    to_email: email,
-    to_name: name,
-    subject,
-    message,
-  });
+  send(email, name, subject, message);
+
+// ─── ACCOUNT ACTIONS ─────────────────────────────────────
+export const sendSuspensionEmail = (email, name, reason) => {
+  const msg = `Your ASVAN account has been temporarily suspended.\n\nReason: ${reason || "Violation of platform terms."}\n\nIf you believe this is an error, please contact support at ${ADMIN_EMAIL}.`;
+  send(email, name, "Account Suspended — Action Required", msg);
+};
