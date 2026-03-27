@@ -401,7 +401,7 @@ export default function Home() {
             <h2 style={{
               fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700,
               letterSpacing: "-0.3px", marginBottom: 8,
-            }}>How ASVAN Works</h2>
+            }}>How AlEcom Works</h2>
             <p style={{ color: "var(--text-muted)", fontSize: 14, maxWidth: 480, margin: "0 auto" }}>
               Transparent, secure, and simple — from browsing to delivery.
             </p>
