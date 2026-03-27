@@ -24,7 +24,7 @@ const ADMIN_NAME  = "ASVAN Admin";
 // Never throws — email failure must never crash the app
 const send = async (toEmail, toName, subject, message) => {
   try {
-    await emailjs.send(SERVICE_ID, Asvan, {
+    await emailjs.send(SERVICE_ID, TEMPLATE, {
       to_email:   toEmail,
       to_name:    toName,
       to_subject: subject,
