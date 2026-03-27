@@ -1,7 +1,7 @@
 import emailjs from "emailjs-com";
 
 // ─── CREDENTIALS ─────────────────────────────────────────
-const SERVICE_ID  = "service_30gqve5";
+const SERVICE_ID  = "service_4s496vf";
 const PUBLIC_KEY  = "neoIsEgbi-PZwadW3";
 const TEMPLATE_ID = "template_2l9r3sl";
 
