@@ -144,7 +144,7 @@ export default function Home() {
               <span style={{
                 fontFamily: "var(--font-display)", fontWeight: 700,
                 fontSize: 28, color: "#fff", letterSpacing: "-0.5px",
-              }}>ASVAN</span>
+              }}>AlEcom</span>
             </div>
 
             {/* Slide badge */}
