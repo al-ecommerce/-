@@ -137,13 +137,14 @@ export default function Home() {
             }}>
               <div style={{
                 width: 52, height: 52,
-                background: `linear-gradient(135deg, ${slide.accent}, ${slide.accent}99)`,
+                backgroundImage: "url('https://lh3.googleusercontent.com/pw/AP1GczN44bk0kMpcAQzvsrM5e5lMJpfznZtMHV926LKmozD5AwlkWPJfN4d3b-gH6X-xL5EtQ68xCX61FmW3_G_uWaRmLRfLg8WUY2OUVYgGRH0-wJY8hXE')",
                 borderRadius: 14,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "var(--font-display)", fontWeight: 700,
-                color: "#fff", fontSize: 22,
+                backgroundSize: "cover",    
+  backgroundRepeat: "no-repeat",   // prevents tiling
+  backgroundPosition: "center",    // centers image
                 boxShadow: `0 8px 24px ${slide.accent}44`,
-              }}>A</div>
+              }}></div>
               <span style={{
                 fontFamily: "var(--font-display)", fontWeight: 700,
                 fontSize: 28, color: "#fff", letterSpacing: "-0.5px",
