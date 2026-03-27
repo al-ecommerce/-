@@ -24,7 +24,7 @@ emailjs.init(PUBLIC_KEY);
 // Admin copy: payment & order emails also send to alecommerce123@gmail.com
 
 const ADMIN_EMAIL = "alecommerce123@gmail.com";
-const ADMIN_NAME  = "ASVAN Admin";
+const ADMIN_NAME  = "AlEcom Admin";
 
 // ─── CORE SEND ───────────────────────────────────────────
 // Uses emailjs.sendForm is NOT used here.
@@ -60,7 +60,7 @@ const send = async (toEmail, toName, subject, message) => {
 
 // Admin gets a copy of important events
 const adminCopy = (subject, message) =>
-  send(ADMIN_EMAIL, ADMIN_NAME, `[ASVAN] ${subject}`, message);
+  send(ADMIN_EMAIL, ADMIN_NAME, `[AlEcom] ${subject}`, message);
 
 // ─── ACCOUNT ─────────────────────────────────────────────
 export const sendWelcomeEmail = (email, name) =>
@@ -92,7 +92,7 @@ export const sendMomoVerifiedEmail = (email, name, amount) =>
   send(
     email, name,
     "Wallet Credited — GHS " + Number(amount).toFixed(2),
-    `Your MoMo payment of GHS ${Number(amount).toFixed(2)} has been verified and credited to your ASVAN wallet.\n\nYou can now use your balance to place orders on the platform.\n\nThank you for topping up!`
+    `Your MoMo payment of GHS ${Number(amount).toFixed(2)} has been verified and credited to your AlEcom wallet.\n\nYou can now use your balance to place orders on the platform.\n\nThank you for topping up!`
   );
 
 export const sendMomoRejectedEmail = (email, name, amount, reason) =>
@@ -168,7 +168,7 @@ export const sendWithdrawalApprovedEmail = (email, name, amount) => {
   send(
     email, name,
     `Withdrawal Approved — GHS ${Number(amount).toFixed(2)}`,
-    `Your withdrawal of GHS ${Number(amount).toFixed(2)} has been approved and is being processed to your account.\n\nPlease allow up to 24 hours for the transfer to complete.\n\nThank you for using ASVAN.`
+    `Your withdrawal of GHS ${Number(amount).toFixed(2)} has been approved and is being processed to your account.\n\nPlease allow up to 24 hours for the transfer to complete.\n\nThank you for using AlEcom.`
   );
   adminCopy(
     `Withdrawal Processed — GHS ${Number(amount).toFixed(2)}`,

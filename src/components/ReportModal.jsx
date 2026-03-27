@@ -41,7 +41,7 @@ export const ReportModal = ({ isOpen, onClose, targetId, targetType }) => {
         <Alert type="success">Report submitted. Our team will review it.</Alert>
       ) : (
         <>
-          <Alert type="warning">Reports help keep ASVAN safe. False reports may result in account action.</Alert>
+          <Alert type="warning">Reports help keep AlEcom safe. False reports may result in account action.</Alert>
           <FormSelect label="Reason" value={reason} onChange={e => setReason(e.target.value)}>
             {REASONS.map(r => <option key={r}>{r}</option>)}
           </FormSelect>

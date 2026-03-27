@@ -110,7 +110,7 @@ export default function SellerDashboard() {
           <div style={{ textAlign: "center", marginBottom: 40 }}>
             <div style={{ fontSize: 64, marginBottom: 16 }}>🏪</div>
             <h1 style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 800, marginBottom: 12 }}>
-              Become a Seller on ASVAN
+              Become a Seller on AlEcom
             </h1>
             <p style={{ color: "var(--text-secondary)", fontSize: 16, lineHeight: 1.7 }}>
               Join thousands of sellers and reach buyers across Ghana. List products, offer services, and grow your business.

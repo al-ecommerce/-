@@ -298,7 +298,7 @@ export function AdsPage() {
       <div className="container" style={{ paddingTop: 28 }}>
         <PageHeader
           title="My Advertisements"
-          subtitle="Promote your business across ASVAN"
+          subtitle="Promote your business across AlEcom"
           action={<Button variant="primary" onClick={() => setShowForm(true)}>+ Create Ad</Button>}
         />
 
@@ -306,7 +306,7 @@ export function AdsPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 28 }}>
           {[
             { icon: "🏠", title: "Homepage Banner",    desc: "Your ad shows as a prominent banner on the homepage seen by all visitors." },
-            { icon: "🎯", title: "Targeted Audience",   desc: "Reach buyers actively browsing products and services on ASVAN." },
+            { icon: "🎯", title: "Targeted Audience",   desc: "Reach buyers actively browsing products and services on AlEcom." },
             { icon: "📊", title: "Live Performance",    desc: "Track impressions and clicks on your ad in real-time." },
           ].map(f => (
             <div key={f.title} className="card" style={{ padding: 20 }}>

@@ -193,7 +193,7 @@ export default function Subscriptions() {
           <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 20, textAlign: "center" }}>Subscription FAQ</h3>
           {[
             ["Can I cancel anytime?", "Yes. Your plan remains active until the end of the billing period. No automatic renewals."],
-            ["How does billing work?", "Subscription fee is deducted from your ASVAN wallet. Ensure you have sufficient balance."],
+            ["How does billing work?", "Subscription fee is deducted from your AlEcom wallet. Ensure you have sufficient balance."],
             ["Can I upgrade mid-month?", "Yes. Upgrade to Premium anytime; the premium fee will be deducted and your plan updated immediately."],
             ["What happens when my plan expires?", "Your account reverts to the free tier. Listings remain active but without premium benefits."],
           ].map(([q, a]) => (

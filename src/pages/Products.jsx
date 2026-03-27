@@ -103,7 +103,7 @@ export default function Products() {
             : <EmptyState
                 icon="📦"
                 title={search || category !== "All" ? "No products match your filters" : "No products yet"}
-                description={search || category !== "All" ? "Try a different search or category" : "Be the first to list a product on ASVAN"}
+                description={search || category !== "All" ? "Try a different search or category" : "Be the first to list a product on AlEcom"}
                 action={search || category !== "All"
                   ? <Button variant="secondary" onClick={() => { setSearch(""); setCategory("All"); }}>Clear Filters</Button>
                   : isSeller && <Button variant="primary" onClick={() => navigate("/seller-dashboard?tab=products")}>Add First Product</Button>

@@ -177,7 +177,7 @@ export default function Profile() {
             borderRadius: "var(--radius-xl)", padding: "28px 24px", color: "#fff", marginBottom: 24,
           }}>
             <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 20, marginBottom: 8 }}>
-              Start Selling on ASVAN
+              Start Selling on AlEcom
             </h3>
             <p style={{ opacity: 0.8, fontSize: 14, marginBottom: 16 }}>
               Reach thousands of buyers. List products and services with full escrow protection.

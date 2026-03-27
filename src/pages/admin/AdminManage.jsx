@@ -339,7 +339,7 @@ export function AdminVerification() {
     await logAdminAction(adminDoc.uid, approved ? "verifyApproved" : "verifyRejected", { uid });
     await createNotification(uid, {
       title: approved ? "✓ Seller Verified!" : "Verification Rejected",
-      body: approved ? "Congratulations! You're now a verified seller on ASVAN." : "Your verification was not approved. Contact support for details.",
+      body: approved ? "Congratulations! You're now a verified seller on AlEcom." : "Your verification was not approved. Contact support for details.",
       type: "system"
     });
     setVerifications(prev => prev.map(v => v.id === uid ? { ...v, status: approved ? "approved" : "rejected" } : v));

@@ -130,7 +130,7 @@ export default function Home() {
         <div className="container" style={{ position: "relative", padding: "60px 16px" }}>
           <div style={{ maxWidth: 660, margin: "0 auto", textAlign: "center" }}>
 
-            {/* ASVAN Logo mark */}
+            {/* AlEcom Logo mark */}
             <div className="hero-float" style={{
               display: "inline-flex", alignItems: "center", gap: 12,
               marginBottom: 28,
@@ -480,11 +480,11 @@ export default function Home() {
           ) : null}
         </section>
 
-        {/* ── WHY ASVAN ─────────────────────────────────────── */}
+        {/* ── WHY AlEcom ─────────────────────────────────────── */}
         <section style={{ padding: "48px 0 0" }}>
           <div style={{ textAlign: "center", marginBottom: 32 }}>
             <h2 style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, letterSpacing: "-0.3px", marginBottom: 8 }}>
-              Why Businesses Choose ASVAN
+              Why Businesses Choose AlEcom
             </h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
@@ -530,7 +530,7 @@ export default function Home() {
                 fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 700,
                 color: "#fff", marginBottom: 10, letterSpacing: "-0.3px",
               }}>
-                Ready to Start Selling on ASVAN?
+                Ready to Start Selling on AlEcom?
               </h2>
               <p style={{ color: "rgba(255,255,255,0.68)", fontSize: 15, lineHeight: 1.7, margin: 0 }}>
                 Join verified sellers across Ghana. List your products and services today — escrow payments, real buyers, zero risk.
