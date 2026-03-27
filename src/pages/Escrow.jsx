@@ -3,83 +3,406 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase/config";
-import { getAllEscrow, getUserOrders } from "../firebase/db";
-import { Spinner, PageHeader, EmptyState, StatusBadge, Badge, Button, Alert } from "../components/UI";
+import {
+  updateOrder, updateEscrow, creditWallet, createNotification,
+  getUserDoc, getPlatformSettings
+} from "../firebase/db";
+import { sendOrderCompletedEmail } from "../services/emailService";
+import { Spinner, PageHeader, EmptyState, StatusBadge, Badge, Button, Alert, Modal, FormTextarea, toast } from "../components/UI";
 
+// ─── STATUS TIMELINE ──────────────────────────────────────
+const EscrowTimeline = ({ escrow, isBuyer }) => {
+  const steps = [
+    { key: "held",     label: "Payment Received",   desc: "Buyer paid. Funds locked in escrow.",         icon: "💳" },
+    { key: "delivery", label: "Awaiting Delivery",  desc: "Seller is fulfilling the order.",             icon: "📦" },
+    { key: "confirm",  label: "Confirm Receipt",    desc: isBuyer ? "You confirm delivery." : "Awaiting buyer confirmation.", icon: "✅" },
+    { key: "released", label: "Funds Released",     desc: "Payment sent to seller's wallet.",            icon: "💰" },
+  ];
+  const currentIdx =
+    escrow.status === "held"     ? 1 :
+    escrow.status === "released" ? 3 :
+    escrow.status === "refunded" ? 3 : 2;
+
+  return (
+    <div style={{ display: "flex", gap: 0, margin: "20px 0", position: "relative" }}>
+      {/* Connector line */}
+      <div style={{
+        position: "absolute", top: 20, left: "10%", right: "10%", height: 2,
+        background: "var(--border)", zIndex: 0,
+      }} />
+      <div style={{
+        position: "absolute", top: 20, left: "10%", height: 2, zIndex: 1,
+        width: `${Math.min(currentIdx / (steps.length - 1), 1) * 80}%`,
+        background: escrow.status === "refunded" ? "var(--danger)" : "var(--accent)",
+        transition: "width 0.5s ease",
+      }} />
+      {steps.map((step, i) => {
+        const done = i < currentIdx;
+        const active = i === currentIdx;
+        return (
+          <div key={step.key} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", position: "relative", zIndex: 2 }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: "50%", marginBottom: 10,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 18,
+              background: done ? "var(--accent)" : active ? "var(--accent-glow)" : "var(--surface-3)",
+              border: `2px solid ${done || active ? "var(--accent)" : "var(--border)"}`,
+              transition: "all 0.3s",
+            }}>
+              {done ? "✓" : step.icon}
+            </div>
+            <div style={{ fontSize: 12, fontWeight: active || done ? 700 : 500, color: done || active ? "var(--text)" : "var(--text-muted)", textAlign: "center" }}>
+              {step.label}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", marginTop: 2, maxWidth: 90 }}>
+              {step.desc}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// ─── ESCROW CARD ──────────────────────────────────────────
+const EscrowCard = ({ escrow, currentUser, onAction }) => {
+  const navigate = useNavigate();
+  const isBuyer  = escrow.buyerId  === currentUser.uid;
+  const isSeller = escrow.sellerId === currentUser.uid;
+  const [showDispute, setShowDispute] = useState(false);
+  const [disputeText, setDisputeText] = useState("");
+  const [acting, setActing] = useState(false);
+
+  const handleRelease = async () => {
+    setActing(true);
+    try { await onAction("release", escrow); toast.success("Payment released!"); }
+    catch (e) { toast.error(e.message); }
+    setActing(false);
+  };
+
+  const handleDispute = async () => {
+    if (!disputeText.trim()) return toast.error("Please describe the issue");
+    setActing(true);
+    try { await onAction("dispute", escrow, disputeText); setShowDispute(false); toast.success("Dispute raised. Admin will review."); }
+    catch (e) { toast.error(e.message); }
+    setActing(false);
+  };
+
+  const statusColor = {
+    held:     "var(--warning)",
+    released: "var(--success)",
+    refunded: "var(--danger)",
+    disputed: "var(--danger)",
+  }[escrow.status] || "var(--accent)";
+
+  return (
+    <div style={{
+      background: "var(--surface)", border: "1px solid var(--border)",
+      borderRadius: "var(--radius-xl)", overflow: "hidden", marginBottom: 16,
+    }}>
+      {/* Header */}
+      <div style={{
+        padding: "16px 20px", borderBottom: "1px solid var(--border)",
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        background: "var(--surface-2)",
+      }}>
+        <div>
+          <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 15 }}>
+            Order #{escrow.orderId?.slice(0, 8)?.toUpperCase()}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
+            {escrow.createdAt?.seconds ? new Date(escrow.createdAt.seconds * 1000).toLocaleString("en-GH", { dateStyle: "medium", timeStyle: "short" }) : "—"}
+          </div>
+        </div>
+        <div style={{ textAlign: "right" }}>
+          <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 20, color: "var(--accent)" }}>
+            GHS {Number(escrow.amount).toFixed(2)}
+          </div>
+          <div style={{
+            display: "inline-block", fontSize: 12, fontWeight: 700,
+            padding: "2px 10px", borderRadius: 20,
+            background: statusColor + "18", color: statusColor, marginTop: 2,
+          }}>
+            {escrow.status === "held" ? "🔒 In Escrow" : escrow.status === "released" ? "✓ Released" : escrow.status === "refunded" ? "↩ Refunded" : "⚠ Disputed"}
+          </div>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div style={{ padding: "20px" }}>
+        {/* Role badge */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+          <Badge type={isBuyer ? "primary" : "success"}>
+            {isBuyer ? "👤 You are the Buyer" : "🏪 You are the Seller"}
+          </Badge>
+          {escrow.itemTitle && <Badge type="muted">{escrow.itemTitle}</Badge>}
+        </div>
+
+        {/* Timeline */}
+        <EscrowTimeline escrow={escrow} isBuyer={isBuyer} />
+
+        {/* Breakdown */}
+        <div style={{
+          background: "var(--surface-2)", borderRadius: "var(--radius-sm)",
+          padding: "14px 16px", marginBottom: 16,
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 6 }}>
+            <span style={{ color: "var(--text-muted)" }}>Item Amount</span>
+            <span style={{ fontWeight: 600 }}>GHS {Number(escrow.amount).toFixed(2)}</span>
+          </div>
+          {escrow.escrowFee > 0 && (
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 6 }}>
+              <span style={{ color: "var(--text-muted)" }}>Escrow Fee</span>
+              <span>GHS {Number(escrow.escrowFee).toFixed(2)}</span>
+            </div>
+          )}
+          {escrow.commission > 0 && isSeller && (
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 6 }}>
+              <span style={{ color: "var(--text-muted)" }}>Platform Commission</span>
+              <span style={{ color: "var(--danger)" }}>- GHS {Number(escrow.commission).toFixed(2)}</span>
+            </div>
+          )}
+          <div style={{ height: 1, background: "var(--border)", margin: "8px 0" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 15 }}>
+            <span>{isBuyer ? "Total Paid" : "You Receive"}</span>
+            <span style={{ color: "var(--accent)" }}>
+              GHS {isBuyer
+                ? (Number(escrow.amount) + Number(escrow.escrowFee || 0)).toFixed(2)
+                : (Number(escrow.amount) - Number(escrow.commission || 0)).toFixed(2)
+              }
+            </span>
+          </div>
+        </div>
+
+        {/* Buyer protection */}
+        {isBuyer && escrow.status === "held" && (
+          <div style={{
+            background: "rgba(5,150,105,0.06)", border: "1px solid rgba(5,150,105,0.2)",
+            borderRadius: "var(--radius-sm)", padding: "12px 14px", marginBottom: 16,
+            fontSize: 13, color: "#065f46", lineHeight: 1.6,
+          }}>
+            🛡️ <strong>Buyer Protection Active.</strong> Your payment is locked in escrow. Only release funds after you have physically received and verified the item. You can raise a dispute within 7 days of delivery.
+          </div>
+        )}
+
+        {/* Seller info */}
+        {isSeller && escrow.status === "held" && (
+          <div style={{
+            background: "rgba(26,86,219,0.06)", border: "1px solid rgba(26,86,219,0.2)",
+            borderRadius: "var(--radius-sm)", padding: "12px 14px", marginBottom: 16,
+            fontSize: 13, color: "#1e40af", lineHeight: 1.6,
+          }}>
+            ⏳ <strong>Awaiting buyer confirmation.</strong> Deliver the item/service. Once the buyer confirms receipt, GHS {(Number(escrow.amount) - Number(escrow.commission || 0)).toFixed(2)} will be credited to your wallet automatically.
+          </div>
+        )}
+
+        {/* Actions */}
+        {escrow.status === "held" && (
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <Button variant="secondary" size="sm" onClick={() => navigate(`/orders/${escrow.orderId}`)}>
+              View Order
+            </Button>
+            {isBuyer && (
+              <>
+                <Button variant="success" size="sm" loading={acting} onClick={handleRelease}>
+                  ✓ Confirm Delivery & Release Payment
+                </Button>
+                <Button variant="danger" size="sm" onClick={() => setShowDispute(true)}>
+                  ⚠ Raise Dispute
+                </Button>
+              </>
+            )}
+            <Button variant="secondary" size="sm" onClick={() => navigate(`/chat?with=${isBuyer ? escrow.sellerId : escrow.buyerId}`)}>
+              💬 Message {isBuyer ? "Seller" : "Buyer"}
+            </Button>
+          </div>
+        )}
+
+        {escrow.status !== "held" && (
+          <Button variant="secondary" size="sm" onClick={() => navigate(`/orders/${escrow.orderId}`)}>
+            View Order Details
+          </Button>
+        )}
+      </div>
+
+      {/* Dispute Modal */}
+      <Modal
+        isOpen={showDispute}
+        onClose={() => setShowDispute(false)}
+        title="Raise a Dispute"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setShowDispute(false)}>Cancel</Button>
+            <Button variant="danger" loading={acting} onClick={handleDispute}>Submit Dispute</Button>
+          </>
+        }
+      >
+        <Alert type="warning">
+          Only raise a dispute if there is a genuine problem. False disputes may result in account action.
+        </Alert>
+        <div style={{ fontSize: 14, color: "var(--text-secondary)", margin: "12px 0" }}>
+          Describe the issue clearly. An admin will review and resolve within 24 hours.
+        </div>
+        <FormTextarea
+          label="Describe the Problem *"
+          value={disputeText}
+          onChange={e => setDisputeText(e.target.value)}
+          placeholder="e.g. Item not received, wrong item sent, item damaged..."
+          rows={4}
+        />
+      </Modal>
+    </div>
+  );
+};
+
+// ─── MAIN ESCROW PAGE ─────────────────────────────────────
 export function EscrowPage() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [escrows, setEscrows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState("active");
 
-  useEffect(() => {
+  const load = async () => {
     if (!currentUser) return navigate("/login");
-    const load = async () => {
-      try {
-        const snap = await getDocs(query(collection(db, "escrow"),
-          where("buyerId", "==", currentUser.uid)));
-        const snap2 = await getDocs(query(collection(db, "escrow"),
-          where("sellerId", "==", currentUser.uid)));
-        const all = [
-          ...snap.docs.map(d => ({ id: d.id, ...d.data() })),
-          ...snap2.docs.map(d => ({ id: d.id, ...d.data() }))
-        ];
-        const unique = Array.from(new Map(all.map(e => [e.id, e])).values());
-        setEscrows(unique.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
-      } catch (e) { console.error(e); }
-      setLoading(false);
-    };
-    load();
-  }, [currentUser]);
+    setLoading(true);
+    try {
+      const [snap1, snap2] = await Promise.all([
+        getDocs(query(collection(db, "escrow"), where("buyerId",  "==", currentUser.uid))),
+        getDocs(query(collection(db, "escrow"), where("sellerId", "==", currentUser.uid))),
+      ]);
+      const all = [
+        ...snap1.docs.map(d => ({ id: d.id, ...d.data() })),
+        ...snap2.docs.map(d => ({ id: d.id, ...d.data() })),
+      ];
+      const unique = Array.from(new Map(all.map(e => [e.id, e])).values())
+        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+      setEscrows(unique);
+    } catch (e) { console.error(e); }
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, [currentUser]);
+
+  const handleAction = async (action, escrow, disputeText = "") => {
+    if (action === "release") {
+      const settings = await getPlatformSettings();
+      const commission   = escrow.commission  || (escrow.amount * (settings.commissionRate || 10)) / 100;
+      const sellerAmount = escrow.amount - commission;
+
+      await updateEscrow(escrow.id, { status: "released", releasedAt: new Date() });
+      await updateOrder(escrow.orderId, { status: "completed", completedAt: new Date() });
+      await creditWallet(escrow.sellerId, sellerAmount, `Escrow released — Order #${escrow.orderId?.slice(0, 8)}`);
+
+      const seller = await getUserDoc(escrow.sellerId);
+      await createNotification(escrow.sellerId, {
+        title: "💰 Payment Released!",
+        body:  `GHS ${sellerAmount.toFixed(2)} has been added to your wallet for Order #${escrow.orderId?.slice(0, 8)?.toUpperCase()}.`,
+        type:  "payment",
+        link:  "/wallet",
+      });
+      if (seller?.email) {
+        await sendOrderCompletedEmail(seller.email, seller.displayName, escrow.orderId, sellerAmount);
+      }
+      setEscrows(prev => prev.map(e => e.id === escrow.id ? { ...e, status: "released" } : e));
+    }
+
+    if (action === "dispute") {
+      await updateEscrow(escrow.id, { status: "disputed", disputeReason: disputeText, disputedAt: new Date() });
+      await updateOrder(escrow.orderId, { status: "disputed" });
+      await createNotification(escrow.sellerId, {
+        title: "⚠ Dispute Raised",
+        body:  `The buyer has raised a dispute on Order #${escrow.orderId?.slice(0, 8)?.toUpperCase()}. Admin is reviewing.`,
+        type:  "alert",
+      });
+      setEscrows(prev => prev.map(e => e.id === escrow.id ? { ...e, status: "disputed" } : e));
+    }
+  };
+
+  const active   = escrows.filter(e => e.status === "held" || e.status === "disputed");
+  const history  = escrows.filter(e => e.status === "released" || e.status === "refunded");
+  const display  = tab === "active" ? active : history;
+
+  const totalHeld = active.filter(e => e.status === "held").reduce((a, e) => a + (e.amount || 0), 0);
 
   return (
     <div className="page-wrapper">
       <div className="container" style={{ paddingTop: 28 }}>
-        <PageHeader title="Escrow" subtitle="Track your secured transactions" />
+        <PageHeader title="Escrow" subtitle="Secure payment protection for every transaction" />
 
-        <Alert type="info">
-          🔒 Escrow holds your payment securely until both parties complete the transaction. Funds are only released when you confirm delivery.
-        </Alert>
-
-        {/* How it works */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, margin: "24px 0" }}>
+        {/* Stats */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 28 }}>
           {[
-            { step: "1", title: "Buyer Pays", desc: "Funds locked in escrow", icon: "💳" },
-            { step: "2", title: "Seller Delivers", desc: "Item/service delivered", icon: "📦" },
-            { step: "3", title: "Buyer Confirms", desc: "Buyer confirms receipt", icon: "✓" },
-            { step: "4", title: "Funds Released", desc: "Seller receives payment", icon: "💰" },
+            { icon: "🔒", label: "Funds in Escrow", value: `GHS ${totalHeld.toFixed(2)}`, color: "var(--warning)" },
+            { icon: "✓",  label: "Active Transactions", value: active.length, color: "var(--accent)" },
+            { icon: "📋", label: "Total History", value: escrows.length, color: "var(--success)" },
           ].map(s => (
-            <div key={s.step} className="card" style={{ textAlign: "center", padding: 16 }}>
-              <div style={{ fontSize: 28, marginBottom: 6 }}>{s.icon}</div>
-              <div style={{ background: "var(--accent)", color: "#fff", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, margin: "0 auto 8px" }}>{s.step}</div>
-              <div style={{ fontWeight: 700, fontSize: 13 }}>{s.title}</div>
-              <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{s.desc}</div>
+            <div key={s.label} style={{
+              background: "var(--surface)", border: "1px solid var(--border)",
+              borderRadius: "var(--radius-lg)", padding: "20px 18px",
+            }}>
+              <div style={{ fontSize: 24, marginBottom: 8 }}>{s.icon}</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 800, color: s.color }}>{s.value}</div>
+              <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>{s.label}</div>
             </div>
           ))}
         </div>
 
-        {loading ? <Spinner center /> : escrows.length === 0 ? (
-          <EmptyState icon="🔒" title="No escrow transactions" description="Your escrow history will appear here" />
-        ) : (
-          <div className="table-wrapper">
-            <table>
-              <thead><tr><th>Order ID</th><th>Amount</th><th>Role</th><th>Status</th><th>Date</th><th></th></tr></thead>
-              <tbody>
-                {escrows.map(e => (
-                  <tr key={e.id}>
-                    <td style={{ fontFamily: "monospace", fontSize: 13 }}>#{e.orderId?.slice(0, 8)}</td>
-                    <td style={{ fontWeight: 700 }}>GHS {e.amount?.toFixed(2)}</td>
-                    <td><Badge type="muted">{e.buyerId === currentUser.uid ? "Buyer" : "Seller"}</Badge></td>
-                    <td><StatusBadge status={e.status} /></td>
-                    <td style={{ color: "var(--text-muted)", fontSize: 13 }}>
-                      {e.createdAt?.seconds ? new Date(e.createdAt.seconds * 1000).toLocaleDateString() : "—"}
-                    </td>
-                    <td><Button variant="secondary" size="sm" onClick={() => navigate(`/orders/${e.orderId}`)}>View Order</Button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* How it works */}
+        <div style={{
+          background: "linear-gradient(135deg, var(--primary), #1a2560)",
+          borderRadius: "var(--radius-xl)", padding: "24px", marginBottom: 24, color: "#fff",
+        }}>
+          <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 16, marginBottom: 16 }}>
+            🔒 How Escrow Protects You
           </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }}>
+            {[
+              { icon: "💳", n: "1", t: "Buyer Pays",         d: "Funds locked, never touched" },
+              { icon: "📦", n: "2", t: "Seller Delivers",     d: "Fulfil the order fully" },
+              { icon: "✅", n: "3", t: "Buyer Confirms",      d: "Release when satisfied" },
+              { icon: "💰", n: "4", t: "Seller Gets Paid",    d: "Instant wallet credit" },
+            ].map(s => (
+              <div key={s.n} style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 24, marginBottom: 6 }}>{s.icon}</div>
+                <div style={{
+                  width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.2)",
+                  margin: "0 auto 8px", display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 12, fontWeight: 700,
+                }}>{s.n}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 2 }}>{s.t}</div>
+                <div style={{ fontSize: 11, opacity: 0.65 }}>{s.d}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div style={{ display: "flex", borderBottom: "2px solid var(--border)", marginBottom: 20 }}>
+          {[
+            { key: "active",  label: `Active (${active.length})` },
+            { key: "history", label: `Completed (${history.length})` },
+          ].map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)} style={{
+              padding: "10px 20px", border: "none", background: "none", cursor: "pointer",
+              fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 14,
+              color: tab === t.key ? "var(--accent)" : "var(--text-muted)",
+              borderBottom: `2px solid ${tab === t.key ? "var(--accent)" : "transparent"}`,
+              marginBottom: -2,
+            }}>{t.label}</button>
+          ))}
+        </div>
+
+        {loading ? <Spinner center /> : display.length === 0 ? (
+          <EmptyState
+            icon="🔒"
+            title={tab === "active" ? "No active escrow" : "No completed transactions"}
+            description={tab === "active" ? "Place an order to see escrow protection in action" : "Completed transactions appear here"}
+          />
+        ) : (
+          display.map(e => (
+            <EscrowCard key={e.id} escrow={e} currentUser={currentUser} onAction={handleAction} />
+          ))
         )}
       </div>
     </div>
@@ -90,87 +413,35 @@ export function InstallmentsPage() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
 
-  const mockPlans = [
-    { id: 1, item: "Samsung TV 55\"", total: 4500, paid: 1500, installments: 3, perInstallment: 1500, nextDue: "2024-02-15", status: "active" },
-    { id: 2, item: "iPhone 15 Pro", total: 12000, paid: 4000, installments: 3, perInstallment: 4000, nextDue: "2024-03-01", status: "active" },
-  ];
-
   return (
     <div className="page-wrapper">
-      <div className="container" style={{ paddingTop: 28, maxWidth: 800 }}>
+      <div className="container" style={{ paddingTop: 28, maxWidth: 680 }}>
         <PageHeader title="Installment Plans" subtitle="Pay for big purchases in smaller amounts" />
-
-        <Alert type="warning">
-          ⚠️ Installment payment is a mock feature. In production, this would integrate with a payment provider.
+        <Alert type="info">
+          Installment payment requires MoMo wallet integration. Top up your wallet and contact admin to arrange a custom installment plan.
         </Alert>
-
-        {/* Features */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, margin: "24px 0" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, margin: "24px 0" }}>
           {[
-            { icon: "💳", title: "0% Interest", desc: "On select items" },
-            { icon: "📅", title: "Flexible Terms", desc: "3, 6, or 12 months" },
-            { icon: "🔒", title: "Secure", desc: "Escrow protected" },
+            { icon: "💳", title: "Split Payments", desc: "Break large purchases into 3-12 months" },
+            { icon: "📅", title: "Flexible Terms",  desc: "Choose the schedule that works for you" },
+            { icon: "🔒", title: "Escrow Protected", desc: "Each payment secured until delivery" },
           ].map(f => (
-            <div key={f.title} className="card" style={{ textAlign: "center" }}>
+            <div key={f.title} className="card" style={{ textAlign: "center", padding: 20 }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>{f.icon}</div>
-              <div style={{ fontWeight: 700 }}>{f.title}</div>
+              <div style={{ fontWeight: 700, marginBottom: 4 }}>{f.title}</div>
               <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{f.desc}</div>
             </div>
           ))}
         </div>
-
-        {!currentUser ? (
-          <Alert type="info">Please <span style={{ fontWeight: 700, cursor: "pointer" }} onClick={() => navigate("/login")}>login</span> to view your installment plans.</Alert>
-        ) : (
-          <div>
-            <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 16 }}>Active Plans (Demo)</h3>
-            {mockPlans.map(plan => (
-              <div key={plan.id} className="card" style={{ marginBottom: 16 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 15 }}>{plan.item}</div>
-                    <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>
-                      Next payment: {plan.nextDue}
-                    </div>
-                  </div>
-                  <Badge type="success">Active</Badge>
-                </div>
-                {/* Progress */}
-                <div style={{ marginBottom: 12 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 6 }}>
-                    <span>GHS {plan.paid.toLocaleString()} paid</span>
-                    <span>GHS {plan.total.toLocaleString()} total</span>
-                  </div>
-                  <div style={{ height: 8, background: "var(--surface-3)", borderRadius: 4, overflow: "hidden" }}>
-                    <div style={{ height: "100%", width: `${(plan.paid / plan.total) * 100}%`, background: "var(--accent)", borderRadius: 4 }} />
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 13, color: "var(--text-muted)" }}>{plan.installments} installments of GHS {plan.perInstallment.toLocaleString()}</span>
-                  <Button variant="primary" size="sm">Pay GHS {plan.perInstallment.toLocaleString()}</Button>
-                </div>
-              </div>
-            ))}
+        <div className="card">
+          <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 16 }}>Request an Installment Plan</h3>
+          <p style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 16, lineHeight: 1.7 }}>
+            Found a product you want on installments? Contact the admin through chat and share the product link. The admin will set up a custom plan with escrow protection on each payment.
+          </p>
+          <div style={{ display: "flex", gap: 12 }}>
+            <Button variant="primary" onClick={() => navigate("/chat?with=admin")}>Contact Admin</Button>
+            <Button variant="secondary" onClick={() => navigate("/momo-payment")}>Top Up Wallet First</Button>
           </div>
-        )}
-
-        {/* How it works */}
-        <div style={{ marginTop: 32 }}>
-          <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 16 }}>How Installments Work</h3>
-          {[
-            ["Choose installment option at checkout", "Select 3, 6, or 12 month plan"],
-            ["Pay first installment", "Down payment locks your order in escrow"],
-            ["Receive your item", "Seller delivers after first payment"],
-            ["Continue monthly payments", "Remaining installments auto-deducted from wallet"],
-          ].map(([title, desc], i) => (
-            <div key={i} style={{ display: "flex", gap: 16, marginBottom: 16, alignItems: "flex-start" }}>
-              <div style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--accent-glow)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, flexShrink: 0 }}>{i + 1}</div>
-              <div>
-                <div style={{ fontWeight: 600 }}>{title}</div>
-                <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{desc}</div>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>

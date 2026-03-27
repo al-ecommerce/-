@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getProducts, getServices, getRequests, getApprovedAds } from "../firebase/db";
+import { getProducts, getServices, getRequests } from "../firebase/db";
 import { ListingCard, RequestCard } from "../components/ListingCard";
 import { Spinner, Button, Badge } from "../components/UI";
+import AdBanner from "../components/AdBanner";
+import FeaturedGrid from "../components/FeaturedGrid";
 
 const CATEGORIES = [
   { label: "Electronics", icon: "💻" },
@@ -57,7 +59,6 @@ export default function Home() {
   const [products, setProducts]   = useState([]);
   const [services, setServices]   = useState([]);
   const [requests, setRequests]   = useState([]);
-  const [ads, setAds]             = useState([]);
   const [loading, setLoading]     = useState(true);
   const [slideIndex, setSlideIndex] = useState(0);
   const slideTimer = useRef(null);
@@ -73,16 +74,14 @@ export default function Home() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [p, s, r, a] = await Promise.all([
+        const [p, s, r] = await Promise.all([
           getProducts({ limit: 8 }),
           getServices({ limit: 4 }),
           getRequests(),
-          getApprovedAds(),
         ]);
         setProducts(p);
         setServices(s);
         setRequests(r.slice(0, 3));
-        setAds(a);
       } catch (e) { console.error(e); }
       setLoading(false);
     };
@@ -330,42 +329,12 @@ export default function Home() {
       </section>
 
       {/* ── SPONSORED AD BANNER ─────────────────────────────── */}
-      {ads.length > 0 && (
-        <div className="container" style={{ paddingTop: 24 }}>
-          <div style={{
-            background: "linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)",
-            borderRadius: "var(--radius-lg)", padding: "20px 24px",
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            flexWrap: "wrap", gap: 12,
-          }}>
-            <div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginBottom: 4, fontWeight: 600, letterSpacing: "1px", textTransform: "uppercase" }}>
-                Sponsored
-              </div>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff", fontSize: 17, letterSpacing: "-0.2px" }}>
-                {ads[0].title}
-              </div>
-              <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 13, marginTop: 2 }}>
-                {ads[0].description}
-              </div>
-            </div>
-            {ads[0].ctaLink && (
-              <a
-                href={ads[0].ctaLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  padding: "10px 20px", background: "#fff", color: "#1d4ed8",
-                  borderRadius: "var(--radius-sm)", fontWeight: 700,
-                  fontSize: 14, textDecoration: "none", whiteSpace: "nowrap",
-                }}
-              >
-                {ads[0].ctaText || "Learn More"}
-              </a>
-            )}
-          </div>
-        </div>
-      )}
+      <div className="container" style={{ paddingTop: 24 }}>
+        <AdBanner />
+      </div>
+
+      {/* ── FEATURED LISTINGS ───────────────────────────────── */}
+      <FeaturedGrid />
 
       <div className="container">
 
