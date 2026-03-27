@@ -3,6 +3,79 @@ import { Link, useNavigate } from "react-router-dom";
 import { login, register, resetPassword } from "../firebase/auth";
 import { Button, Alert, FormInput } from "../components/UI";
 
+// ─── PASSWORD STRENGTH ────────────────────────────────────
+const checkPasswordStrength = (password) => {
+  const checks = {
+    length:    password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number:    /[0-9]/.test(password),
+    special:   /[^A-Za-z0-9]/.test(password),
+  };
+  const passed = Object.values(checks).filter(Boolean).length;
+  const level =
+    passed <= 1 ? "weak" :
+    passed <= 3 ? "fair" :
+    passed === 4 ? "good" : "strong";
+  return { checks, passed, level };
+};
+
+const STRENGTH_COLOR = { weak: "#DC2626", fair: "#D97706", good: "#2563EB", strong: "#059669" };
+const STRENGTH_LABEL = { weak: "Weak", fair: "Fair", good: "Good", strong: "Strong" };
+
+const PasswordStrengthMeter = ({ password }) => {
+  if (!password) return null;
+  const { checks, passed, level } = checkPasswordStrength(password);
+  const color = STRENGTH_COLOR[level];
+
+  return (
+    <div style={{ marginTop: 8, marginBottom: 4 }}>
+      {/* Strength bar */}
+      <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
+        {[1, 2, 3, 4, 5].map(i => (
+          <div key={i} style={{
+            flex: 1, height: 4, borderRadius: 2,
+            background: i <= passed ? color : "var(--border)",
+            transition: "background 0.3s",
+          }} />
+        ))}
+      </div>
+      {/* Label */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <span style={{ fontSize: 12, color, fontWeight: 700 }}>
+          {STRENGTH_LABEL[level]} Password
+        </span>
+        <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+          {passed}/5 requirements met
+        </span>
+      </div>
+      {/* Requirements checklist */}
+      <div style={{
+        display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 12px",
+        padding: "10px 12px", background: "var(--surface-2)",
+        borderRadius: "var(--radius-sm)", border: "1px solid var(--border)",
+      }}>
+        {[
+          [checks.length,    "At least 8 characters"],
+          [checks.uppercase, "One uppercase letter"],
+          [checks.lowercase, "One lowercase letter"],
+          [checks.number,    "One number"],
+          [checks.special,   "One special character (!@#...)"],
+        ].map(([met, label]) => (
+          <div key={label} style={{
+            display: "flex", alignItems: "center", gap: 6, fontSize: 12,
+            color: met ? "var(--success)" : "var(--text-muted)",
+          }}>
+            <span style={{ fontWeight: 700, fontSize: 13 }}>{met ? "✓" : "○"}</span>
+            {label}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ─── AUTH CARD WRAPPER ────────────────────────────────────
 const AuthCard = ({ children, title, subtitle }) => (
   <div style={{
     minHeight: "100vh", display: "flex", alignItems: "center",
@@ -10,15 +83,14 @@ const AuthCard = ({ children, title, subtitle }) => (
     background: "linear-gradient(135deg, var(--surface-2) 0%, var(--surface-3) 100%)"
   }}>
     <div style={{ width: "100%", maxWidth: 440 }}>
-      {/* Logo */}
-      <div style={{ textAlign: "center", marginBottom: 32 }}>
+      <div style={{ textAlign: "center", marginBottom: 28 }}>
         <div style={{
           width: 52, height: 52, background: "var(--accent)",
           borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center",
-          fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: 22,
-          margin: "0 auto 14px"
+          fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff", fontSize: 22,
+          margin: "0 auto 14px",
         }}>A</div>
-        <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 26 }}>{title}</h1>
+        <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 26, letterSpacing: "-0.3px" }}>{title}</h1>
         <p style={{ color: "var(--text-muted)", fontSize: 14, marginTop: 4 }}>{subtitle}</p>
       </div>
       <div style={{
@@ -31,6 +103,7 @@ const AuthCard = ({ children, title, subtitle }) => (
   </div>
 );
 
+// ─── LOGIN ────────────────────────────────────────────────
 export const LoginPage = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
@@ -38,6 +111,7 @@ export const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [showReset, setShowReset] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [showPass, setShowPass] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -51,9 +125,8 @@ export const LoginPage = () => {
     setLoading(false);
   };
 
-  const handleReset = async (e) => {
-    e.preventDefault();
-    if (!form.email) return setError("Enter your email first");
+  const handleReset = async () => {
+    if (!form.email) return setError("Enter your email address first");
     setLoading(true);
     try {
       await resetPassword(form.email);
@@ -67,62 +140,92 @@ export const LoginPage = () => {
       {error && <Alert type="danger">{error}</Alert>}
       {resetSent && <Alert type="success">Password reset email sent! Check your inbox.</Alert>}
       <form onSubmit={handleLogin}>
-        <FormInput
-          label="Email Address"
-          type="email"
-          value={form.email}
+        <FormInput label="Email Address" type="email" value={form.email}
           onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
-          placeholder="you@example.com"
-          required
-        />
-        <FormInput
-          label="Password"
-          type="password"
-          value={form.password}
-          onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
-          placeholder="Enter your password"
-          required
-        />
+          placeholder="you@example.com" required />
+
+        {/* Password with show/hide toggle */}
+        <div className="form-group">
+          <label className="form-label">Password</label>
+          <div style={{ position: "relative" }}>
+            <input
+              className="form-input"
+              type={showPass ? "text" : "password"}
+              value={form.password}
+              onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
+              placeholder="Enter your password"
+              required
+              style={{ paddingRight: 44 }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPass(v => !v)}
+              style={{
+                position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+                background: "none", border: "none", cursor: "pointer",
+                fontSize: 14, color: "var(--text-muted)",
+              }}
+            >{showPass ? "🙈" : "👁"}</button>
+          </div>
+        </div>
+
         <div style={{ textAlign: "right", marginTop: -8, marginBottom: 16 }}>
-          <button type="button" onClick={() => setShowReset(true)}
+          <button type="button" onClick={() => setShowReset(v => !v)}
             style={{ background: "none", border: "none", color: "var(--accent)", fontSize: 13, cursor: "pointer" }}>
             Forgot password?
           </button>
         </div>
+
+        {showReset && (
+          <div style={{ marginBottom: 16, padding: 14, background: "var(--surface-2)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)" }}>
+            <p style={{ fontSize: 13, marginBottom: 10, color: "var(--text-secondary)" }}>
+              Enter your email to receive a reset link:
+            </p>
+            <div style={{ display: "flex", gap: 8 }}>
+              <input className="form-input" type="email" placeholder="your@email.com" value={form.email}
+                onChange={e => setForm(p => ({ ...p, email: e.target.value }))} style={{ flex: 1 }} />
+              <Button size="sm" onClick={handleReset} loading={loading}>Send</Button>
+            </div>
+          </div>
+        )}
+
         <Button type="submit" variant="primary" full loading={loading}>Sign In</Button>
       </form>
-      {showReset && (
-        <div style={{ marginTop: 16, padding: 16, background: "var(--surface-3)", borderRadius: "var(--radius-sm)" }}>
-          <p style={{ fontSize: 13, marginBottom: 10 }}>Enter your email to receive a reset link:</p>
-          <div style={{ display: "flex", gap: 8 }}>
-            <input className="form-input" type="email" placeholder="Email" value={form.email}
-              onChange={e => setForm(p => ({ ...p, email: e.target.value }))} style={{ flex: 1 }} />
-            <Button size="sm" onClick={handleReset} loading={loading}>Send</Button>
-          </div>
-        </div>
-      )}
       <p style={{ textAlign: "center", marginTop: 20, fontSize: 14, color: "var(--text-muted)" }}>
-        Don't have an account? <Link to="/register" style={{ fontWeight: 700 }}>Sign Up</Link>
+        Don't have an account? <Link to="/register" style={{ fontWeight: 700, color: "var(--accent)" }}>Sign Up</Link>
       </p>
     </AuthCard>
   );
 };
 
+// ─── REGISTER ─────────────────────────────────────────────
 export const RegisterPage = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ displayName: "", email: "", password: "", confirmPassword: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showPass, setShowPass] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const strength = checkPasswordStrength(form.password);
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
+
+    // Validation
+    if (!form.displayName.trim()) return setError("Please enter your full name");
+    if (form.displayName.trim().length < 2) return setError("Name must be at least 2 characters");
     if (form.password !== form.confirmPassword) return setError("Passwords do not match");
-    if (form.password.length < 6) return setError("Password must be at least 6 characters");
+    if (form.password.length < 8) return setError("Password must be at least 8 characters");
+    if (!strength.checks.uppercase) return setError("Password must contain at least one uppercase letter (A-Z)");
+    if (!strength.checks.number)    return setError("Password must contain at least one number (0-9)");
+    if (strength.level === "weak")  return setError("Password is too weak. Please choose a stronger password");
+
     setLoading(true);
     try {
-      await register(form.email, form.password, form.displayName);
+      await register(form.email, form.password, form.displayName.trim());
       setSuccess(true);
     } catch (err) {
       setError(getAuthError(err.code));
@@ -131,54 +234,113 @@ export const RegisterPage = () => {
   };
 
   if (success) return (
-    <AuthCard title="Check Your Email" subtitle="Almost there!">
+    <AuthCard title="Check Your Email" subtitle="One more step!">
       <div style={{ textAlign: "center" }}>
         <div style={{ fontSize: 52, marginBottom: 16 }}>📧</div>
-        <p style={{ color: "var(--text-secondary)", marginBottom: 20 }}>
-          We've sent a verification email to <strong>{form.email}</strong>. Please verify your email before signing in.
+        <p style={{ color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: 20 }}>
+          A verification email has been sent to <strong>{form.email}</strong>.<br />
+          Please verify your email before signing in.
         </p>
-        <Button variant="primary" full onClick={() => navigate("/login")}>Go to Login</Button>
+        <Alert type="info">Check your spam/junk folder if you don't see it within a minute.</Alert>
+        <Button variant="primary" full onClick={() => navigate("/login")} style={{ marginTop: 12 }}>
+          Go to Login
+        </Button>
       </div>
     </AuthCard>
   );
 
   return (
-    <AuthCard title="Create Account" subtitle="Join ASVAN today — it's free">
+    <AuthCard title="Create Account" subtitle="Join ASVAN — Ghana's trusted marketplace">
       {error && <Alert type="danger">{error}</Alert>}
       <form onSubmit={handleRegister}>
-        <FormInput label="Full Name" value={form.displayName}
+        <FormInput label="Full Name *" value={form.displayName}
           onChange={e => setForm(p => ({ ...p, displayName: e.target.value }))}
-          placeholder="John Doe" required />
-        <FormInput label="Email Address" type="email" value={form.email}
+          placeholder="e.g. Kwame Mensah" required />
+
+        <FormInput label="Email Address *" type="email" value={form.email}
           onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
           placeholder="you@example.com" required />
-        <FormInput label="Password" type="password" value={form.password}
-          onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
-          placeholder="At least 6 characters" required />
-        <FormInput label="Confirm Password" type="password" value={form.confirmPassword}
-          onChange={e => setForm(p => ({ ...p, confirmPassword: e.target.value }))}
-          placeholder="Repeat password" required />
+
+        {/* Password with strength meter */}
+        <div className="form-group">
+          <label className="form-label">Password *</label>
+          <div style={{ position: "relative" }}>
+            <input
+              className="form-input"
+              type={showPass ? "text" : "password"}
+              value={form.password}
+              onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
+              placeholder="Create a strong password"
+              required
+              style={{ paddingRight: 44 }}
+            />
+            <button type="button" onClick={() => setShowPass(v => !v)}
+              style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", fontSize: 14, color: "var(--text-muted)" }}>
+              {showPass ? "🙈" : "👁"}
+            </button>
+          </div>
+          <PasswordStrengthMeter password={form.password} />
+        </div>
+
+        {/* Confirm password */}
+        <div className="form-group">
+          <label className="form-label">Confirm Password *</label>
+          <div style={{ position: "relative" }}>
+            <input
+              className="form-input"
+              type={showConfirm ? "text" : "password"}
+              value={form.confirmPassword}
+              onChange={e => setForm(p => ({ ...p, confirmPassword: e.target.value }))}
+              placeholder="Repeat your password"
+              required
+              style={{ paddingRight: 44 }}
+            />
+            <button type="button" onClick={() => setShowConfirm(v => !v)}
+              style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", fontSize: 14, color: "var(--text-muted)" }}>
+              {showConfirm ? "🙈" : "👁"}
+            </button>
+          </div>
+          {form.confirmPassword && form.password !== form.confirmPassword && (
+            <span style={{ fontSize: 12, color: "var(--danger)" }}>✕ Passwords do not match</span>
+          )}
+          {form.confirmPassword && form.password === form.confirmPassword && form.password.length >= 8 && (
+            <span style={{ fontSize: 12, color: "var(--success)" }}>✓ Passwords match</span>
+          )}
+        </div>
+
         <div style={{ margin: "12px 0 16px", fontSize: 12, color: "var(--text-muted)", lineHeight: 1.6 }}>
           By creating an account you agree to ASVAN's Terms of Service and Privacy Policy.
         </div>
-        <Button type="submit" variant="primary" full loading={loading}>Create Account</Button>
+
+        <Button
+          type="submit"
+          variant="primary"
+          full
+          loading={loading}
+          disabled={strength.level === "weak" && form.password.length > 0}
+        >
+          Create Account
+        </Button>
       </form>
       <p style={{ textAlign: "center", marginTop: 20, fontSize: 14, color: "var(--text-muted)" }}>
-        Already have an account? <Link to="/login" style={{ fontWeight: 700 }}>Sign In</Link>
+        Already have an account? <Link to="/login" style={{ fontWeight: 700, color: "var(--accent)" }}>Sign In</Link>
       </p>
     </AuthCard>
   );
 };
 
+// ─── ERROR MESSAGES ───────────────────────────────────────
 const getAuthError = (code) => {
   const map = {
-    "auth/user-not-found": "No account found with this email",
-    "auth/wrong-password": "Incorrect password",
-    "auth/email-already-in-use": "Email already registered",
-    "auth/weak-password": "Password is too weak",
-    "auth/invalid-email": "Invalid email address",
-    "auth/too-many-requests": "Too many attempts. Please try again later",
-    "auth/network-request-failed": "Network error. Check your connection",
+    "auth/user-not-found":        "No account found with this email address",
+    "auth/wrong-password":        "Incorrect password. Please try again",
+    "auth/invalid-credential":    "Invalid email or password",
+    "auth/email-already-in-use":  "An account with this email already exists",
+    "auth/weak-password":         "Password is too weak. Use at least 8 characters with uppercase and numbers",
+    "auth/invalid-email":         "Invalid email address format",
+    "auth/too-many-requests":     "Too many failed attempts. Please wait a few minutes and try again",
+    "auth/network-request-failed":"Network error. Check your internet connection",
+    "auth/user-disabled":         "This account has been disabled. Contact support",
   };
   return map[code] || "An error occurred. Please try again.";
 };

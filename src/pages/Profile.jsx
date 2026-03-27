@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { updateUserDoc, getProducts, getServices, getReviewsForTarget } from "../firebase/db";
-import { Spinner, Button, Alert, FormInput, FormTextarea, PageHeader, Badge, StatusBadge, StarRating, toast, VerifiedBadge, Avatar } from "../components/UI";
+import { updateUserDoc, getProducts, getServices } from "../firebase/db";
+import { deleteAccount } from "../firebase/auth";
+import { Spinner, Button, Alert, FormInput, FormTextarea, PageHeader, Badge, StarRating, toast, VerifiedBadge, Avatar, Modal } from "../components/UI";
 
 export default function Profile() {
   const { currentUser, userDoc, isSeller, isVerifiedSeller } = useAuth();
@@ -12,7 +13,10 @@ export default function Profile() {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [services, setServices] = useState([]);
-  const [reviews, setReviews] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     if (!currentUser) return navigate("/login");
@@ -40,6 +44,24 @@ export default function Profile() {
       setEditing(false);
     } catch (e) { toast.error("Update failed"); }
     setLoading(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deletePassword) return setDeleteError("Please enter your password to confirm");
+    setDeleteLoading(true);
+    setDeleteError("");
+    try {
+      await deleteAccount(deletePassword);
+      navigate("/");
+      toast.success("Account deleted.");
+    } catch (e) {
+      if (e.code === "auth/wrong-password" || e.code === "auth/invalid-credential") {
+        setDeleteError("Incorrect password. Please try again.");
+      } else {
+        setDeleteError(e.message || "Deletion failed. Try again.");
+      }
+    }
+    setDeleteLoading(false);
   };
 
   if (!userDoc) return <Spinner center />;
@@ -154,9 +176,9 @@ export default function Profile() {
         {!isSeller && (
           <div style={{
             background: "linear-gradient(135deg, var(--accent), #6B48FF)",
-            borderRadius: "var(--radius-xl)", padding: "28px 24px", color: "#fff"
+            borderRadius: "var(--radius-xl)", padding: "28px 24px", color: "#fff", marginBottom: 24,
           }}>
-            <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 20, marginBottom: 8 }}>
+            <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 20, marginBottom: 8 }}>
               Start Selling on ASVAN
             </h3>
             <p style={{ opacity: 0.8, fontSize: 14, marginBottom: 16 }}>
@@ -168,7 +190,53 @@ export default function Profile() {
             </Button>
           </div>
         )}
+
+        {/* Danger Zone */}
+        <div style={{
+          border: "1.5px solid var(--danger)", borderRadius: "var(--radius-lg)",
+          padding: "20px 22px",
+        }}>
+          <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 16, color: "var(--danger)", marginBottom: 8 }}>
+            ⚠ Danger Zone
+          </h3>
+          <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.6 }}>
+            Permanently delete your account and all associated data. This action <strong>cannot be undone</strong>. Your wallet balance, listings, order history, and messages will all be removed.
+          </p>
+          <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>
+            Delete My Account
+          </Button>
+        </div>
       </div>
+
+      {/* Delete Account Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => { setShowDeleteModal(false); setDeletePassword(""); setDeleteError(""); }}
+        title="Delete Account"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => { setShowDeleteModal(false); setDeletePassword(""); setDeleteError(""); }}>Cancel</Button>
+            <Button variant="danger" loading={deleteLoading} onClick={handleDeleteAccount}>
+              Permanently Delete
+            </Button>
+          </>
+        }
+      >
+        <Alert type="danger">
+          This will permanently delete your account, all your listings, wallet balance, and data. This cannot be reversed.
+        </Alert>
+        <p style={{ fontSize: 14, color: "var(--text-secondary)", margin: "16px 0" }}>
+          To confirm, please enter your current password:
+        </p>
+        {deleteError && <Alert type="danger">{deleteError}</Alert>}
+        <FormInput
+          label="Current Password"
+          type="password"
+          value={deletePassword}
+          onChange={e => setDeletePassword(e.target.value)}
+          placeholder="Enter your password"
+        />
+      </Modal>
     </div>
   );
 }
