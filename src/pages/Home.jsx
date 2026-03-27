@@ -24,7 +24,7 @@ const HERO_SLIDES = [
   {
     headline: "Ghana's Most Trusted Marketplace",
     sub: "Buy products, hire services, and post requests — all protected by escrow.",
-    image: "linear-gradient(135deg, #0A0F1E 0%, #1a2744 60%, #0d2060 100%)",
+    image: "https://lh3.googleusercontent.com/pw/AP1GczMpnbXpADw4-RNcE3YQYec7Jbcx5iytpjKDH53Pr7D50J32tWtHooglHxXLCzieM6RDgL9rhm9xq8F0RbDRXhZ7avFH4VU7RWpb49_9IYLvec0rW2g",
     accent: "#4F8EFF",
   },
   {
