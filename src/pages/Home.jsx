@@ -36,7 +36,7 @@ const HERO_SLIDES = [
   {
     headline: "Secure Payments. Every Time.",
     sub: "Funds held in escrow until delivery confirmed. No risk. No scams. Full buyer protection.",
-    image: "linear-gradient(135deg, #1a0f2e 0%, #2d1a4a 60%, #1f1060 100%)",
+    image: "https://lh3.googleusercontent.com/pw/AP1GczP3DcOg3jicGI6PXTn5QwICA881XFwBDXkk4Vz_NTOanPpi4rVbZMLd0OM3YcurG7ldW1jHVYvz4piG-LGg2sz9h3fFL1Z1ukwi0l2qEzQrsxZ57io",
     accent: "#A78BFA",
   },
 ];
