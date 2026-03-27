@@ -4,9 +4,10 @@ import { useAuth } from "../../context/AuthContext";
 import {
   getAllUsers, updateUserDoc, getAllProducts, getAllServices,
   updateProduct, updateService, deleteProduct, deleteService,
-  getAllSellerVerifications, updateSellerVerification, logAdminAction, createNotification
+  getAllSellerVerifications, updateSellerVerification,
+  logAdminAction, createNotification, deleteUserData
 } from "../../firebase/db";
-import { sendSellerApprovalEmail } from "../../services/emailService";
+import { sendSellerApprovalEmail, sendSuspensionEmail, sendAccountDeletedEmail } from "../../services/emailService";
 import { Spinner, Button, Badge, StatusBadge, PageHeader, Modal, Alert, ConfirmDialog, SearchBar, FormSelect, toast } from "../../components/UI";
 
 // ─── MANAGE USERS ──────────────────────────────────────────
@@ -37,10 +38,28 @@ export function AdminUsers() {
       removeAdmin: { role: "buyer" },
     }[action];
     if (!data) return;
+    const user = users.find(u => u.id === uid);
     await updateUserDoc(uid, data);
     await logAdminAction(adminDoc.uid, action, { targetUid: uid });
+    // Email user on suspension
+    if (action === "suspend" && user?.email) {
+      await sendSuspensionEmail(user.email, user.displayName, "Violation of platform terms.");
+    }
     setUsers(prev => prev.map(u => u.id === uid ? { ...u, ...data } : u));
     toast.success("Action completed");
+  };
+
+  const handleAdminDelete = async (user) => {
+    if (!window.confirm(`Permanently delete account for ${user.displayName} (${user.email})? This cannot be undone.`)) return;
+    try {
+      await deleteUserData(user.id);
+      await logAdminAction(adminDoc.uid, "deleteAccount", { targetUid: user.id, email: user.email });
+      try { await sendAccountDeletedEmail(user.email, user.displayName); } catch (e) { }
+      setUsers(prev => prev.filter(u => u.id !== user.id));
+      toast.success(`Account deleted: ${user.email}`);
+    } catch (e) {
+      toast.error("Deletion failed: " + e.message);
+    }
   };
 
   return (
@@ -97,6 +116,9 @@ export function AdminUsers() {
                       )}
                       {u.role !== "admin" && (
                         <Button size="sm" variant="secondary" onClick={() => handleAction(u.id, "makeAdmin")}>Make Admin</Button>
+                      )}
+                      {u.role !== "superadmin" && (
+                        <Button size="sm" variant="danger" onClick={() => handleAdminDelete(u)}>🗑 Delete</Button>
                       )}
                     </div>
                   </td>
