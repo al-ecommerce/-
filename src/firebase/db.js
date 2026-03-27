@@ -442,9 +442,16 @@ export const createFeaturedListing = async (data) =>
   addDoc(collection(db, "featuredListings"), { ...data, status: "pending", createdAt: serverTimestamp() });
 
 export const getFeaturedListings = async () => {
-  const snap = await getDocs(query(collection(db, "featuredListings"),
-    where("status", "==", "approved"), where("expiresAt", ">", new Date())));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  // Fetch all approved, filter expired client-side to avoid composite index
+  const snap = await getDocs(query(collection(db, "featuredListings"), where("status", "==", "approved")));
+  const now  = Date.now();
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .filter(f => {
+      if (!f.expiresAt) return true;
+      const exp = f.expiresAt?.seconds ? f.expiresAt.seconds * 1000 : new Date(f.expiresAt).getTime();
+      return exp > now;
+    });
 };
 
 export const getAllFeaturedListings = async () => {
