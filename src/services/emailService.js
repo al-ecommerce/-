@@ -66,15 +66,15 @@ const adminCopy = (subject, message) =>
 export const sendWelcomeEmail = (email, name) =>
   send(
     email, name,
-    "Welcome to ASVAN Marketplace!",
-    `Thank you for joining ASVAN, Ghana's trusted marketplace.\n\nYou can now browse products and services, post requests, and connect with verified sellers.\n\nPlease verify your email address to unlock all features.\n\nWe are glad to have you on board!`
+    "Welcome to AlEcom Marketplace!",
+    `Thank you for joining AlEcom, Ghana's trusted marketplace.\n\nYou can now browse products and services, post requests, and connect with verified sellers.\n\nPlease verify your email address to unlock all features.\n\nWe are glad to have you on board!`
   );
 
 export const sendAccountDeletedEmail = (email, name) =>
   send(
     email, name,
-    "Your ASVAN Account Has Been Deleted",
-    `Your ASVAN account has been permanently deleted as requested.\n\nAll your data, listings, and wallet balance have been removed.\n\nIf this was a mistake, please contact support at ${ADMIN_EMAIL} immediately.`
+    "Your AlEcom Account Has Been Deleted",
+    `Your AlEcom account has been permanently deleted as requested.\n\nAll your data, listings, and wallet balance have been removed.\n\nIf this was a mistake, please contact support at ${ADMIN_EMAIL} immediately.`
   );
 
 // ─── MOMO PAYMENTS ───────────────────────────────────────
@@ -127,7 +127,7 @@ export const sendOrderCompletedEmail = (email, name, orderId, amount) => {
   send(
     email, name,
     `Payment Released — GHS ${Number(amount).toFixed(2)}`,
-    `Order #${ref} has been completed.\n\nGHS ${Number(amount).toFixed(2)} has been released from escrow and credited to your ASVAN wallet.\n\nThank you for selling on ASVAN!`
+    `Order #${ref} has been completed.\n\nGHS ${Number(amount).toFixed(2)} has been released from escrow and credited to your AlEcom wallet.\n\nThank you for selling on AlEcom!`
   );
 };
 
@@ -137,15 +137,15 @@ export const sendSellerApprovalEmail = (email, name, approved) =>
     email, name,
     approved ? "Seller Account Approved!" : "Seller Application Update",
     approved
-      ? `Congratulations ${name}! Your seller account on ASVAN has been approved.\n\nYou can now list products and services, receive orders, and get paid directly to your wallet.\n\nLog in to your Seller Dashboard to get started.`
-      : `Thank you for applying to sell on ASVAN.\n\nUnfortunately your application was not approved at this time. Please ensure your profile is complete and contact support if you have questions.`
+      ? `Congratulations ${name}! Your seller account on AlEcom has been approved.\n\nYou can now list products and services, receive orders, and get paid directly to your wallet.\n\nLog in to your Seller Dashboard to get started.`
+      : `Thank you for applying to sell on AlEcom.\n\nUnfortunately your application was not approved at this time. Please ensure your profile is complete and contact support if you have questions.`
   );
 
 export const sendProductApprovedEmail = (email, name, productTitle) =>
   send(
     email, name,
     `Product Approved — "${productTitle}"`,
-    `Your product "${productTitle}" has been reviewed and approved by the ASVAN team.\n\nIt is now live on the marketplace and visible to all buyers.\n\nLog in to view your listing and start receiving orders!`
+    `Your product "${productTitle}" has been reviewed and approved by the AlEcom team.\n\nIt is now live on the marketplace and visible to all buyers.\n\nLog in to view your listing and start receiving orders!`
   );
 
 // ─── REQUESTS & OFFERS ───────────────────────────────────
@@ -153,7 +153,7 @@ export const sendRequestPostedEmail = (email, name, requestTitle) =>
   send(
     email, name,
     `Request Posted — "${requestTitle}"`,
-    `Your request "${requestTitle}" is now live on ASVAN.\n\nSellers will start sending you offers shortly. You will be notified by email when an offer arrives.`
+    `Your request "${requestTitle}" is now live on AlEcom.\n\nSellers will start sending you offers shortly. You will be notified by email when an offer arrives.`
   );
 
 export const sendOfferReceivedEmail = (email, name, requestTitle, sellerName, offerPrice) =>
@@ -185,5 +185,5 @@ export const sendSuspensionEmail = (email, name, reason) =>
   send(
     email, name,
     "Account Suspended — Action Required",
-    `Your ASVAN account has been temporarily suspended.\n\nReason: ${reason || "Violation of platform terms."}\n\nIf you believe this is an error, please contact support at ${ADMIN_EMAIL}.`
+    `Your AlEcom account has been temporarily suspended.\n\nReason: ${reason || "Violation of platform terms."}\n\nIf you believe this is an error, please contact support at ${ADMIN_EMAIL}.`
   );
