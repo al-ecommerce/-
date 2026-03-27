@@ -183,8 +183,15 @@ export const updateRequest = async (id, data) =>
   updateDoc(doc(db, "requests", id), { ...data, updatedAt: serverTimestamp() });
 
 export const listenToRequests = (cb) =>
-  onSnapshot(query(collection(db, "requests"), where("status", "==", "open"), orderBy("createdAt", "desc")),
-    snap => cb(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
+  onSnapshot(
+    query(collection(db, "requests"), where("status", "==", "open")),
+    snap => {
+      const results = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+      cb(results);
+    }
+  );
 
 // ─── OFFERS ──────────────────────────────────────────────
 export const createOffer = async (data) =>
@@ -218,15 +225,17 @@ export const getOrderById = async (id) => {
 };
 
 export const getUserOrders = async (uid) => {
-  const snap = await getDocs(query(collection(db, "orders"),
-    where("buyerId", "==", uid), orderBy("createdAt", "desc")));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(query(collection(db, "orders"), where("buyerId", "==", uid)));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 };
 
 export const getSellerOrders = async (uid) => {
-  const snap = await getDocs(query(collection(db, "orders"),
-    where("sellerId", "==", uid), orderBy("createdAt", "desc")));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(query(collection(db, "orders"), where("sellerId", "==", uid)));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 };
 
 export const getAllOrders = async () => {
@@ -388,9 +397,10 @@ export const debitWallet = async (uid, amount, note = "") => {
 };
 
 export const getTransactions = async (uid) => {
-  const snap = await getDocs(query(collection(db, "transactions"),
-    where("uid", "==", uid), orderBy("createdAt", "desc")));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(query(collection(db, "transactions"), where("uid", "==", uid)));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 };
 
 export const getAllTransactions = async () => {
@@ -467,9 +477,10 @@ export const createWithdrawal = async (data) =>
   addDoc(collection(db, "withdrawals"), { ...data, status: "pending", createdAt: serverTimestamp() });
 
 export const getUserWithdrawals = async (uid) => {
-  const snap = await getDocs(query(collection(db, "withdrawals"),
-    where("uid", "==", uid), orderBy("createdAt", "desc")));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(query(collection(db, "withdrawals"), where("uid", "==", uid)));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 };
 
 export const getAllWithdrawals = async () => {
@@ -527,3 +538,40 @@ export const getAllMomoPayments = async () => {
 
 export const updateMomoPayment = async (id, data) =>
   updateDoc(doc(db, "momoPayments", id), { ...data, updatedAt: serverTimestamp() });
+
+// ─── ACCOUNT DELETION ────────────────────────────────────
+// Deletes all Firestore data belonging to a user.
+// Call this BEFORE deleting the Firebase Auth account.
+export const deleteUserData = async (uid) => {
+  const ownedCollections = [
+    ["notifications",      "uid"],
+    ["wallets",            "uid"],
+    ["withdrawals",        "uid"],
+    ["subscriptions",      "uid"],
+    ["momoPayments",       "uid"],
+    ["sellerVerification", "uid"],
+    ["transactions",       "uid"],
+  ];
+  const roleCollections = [
+    ["products",         "sellerId"],
+    ["services",         "sellerId"],
+    ["requests",         "buyerId"],
+    ["featuredListings", "sellerId"],
+    ["ads",              "advertiserId"],
+  ];
+
+  const allCollections = [...ownedCollections, ...roleCollections];
+  const deletePromises = [];
+
+  for (const [colName, field] of allCollections) {
+    try {
+      const snap = await getDocs(query(collection(db, colName), where(field, "==", uid)));
+      snap.docs.forEach(d => deletePromises.push(deleteDoc(d.ref)));
+    } catch (e) { console.warn(`Skip delete ${colName}:`, e.message); }
+  }
+
+  // Delete user document
+  deletePromises.push(deleteDoc(doc(db, "users", uid)));
+
+  await Promise.allSettled(deletePromises);
+};
