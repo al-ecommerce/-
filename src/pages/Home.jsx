@@ -95,7 +95,7 @@ export default function Home() {
 
       {/* ── HERO BANNER ─────────────────────────────────────── */}
       <section style={{
-        backgroundImage: ``linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(${slide.image})`,
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(${slide.image})`,
   backgroundSize: "cover",    
   backgroundRepeat: "no-repeat",   // prevents tiling
   backgroundPosition: "center",    // centers image
