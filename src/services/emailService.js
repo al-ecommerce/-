@@ -4,6 +4,7 @@ import emailjs from "emailjs-com";
 // Replace with your actual values from emailjs.com dashboard
 export const SERVICE_ID = "service_30gqve5";
 export const PUBLIC_KEY = "neoIsEgbi-PZwadW3";
+emailjs.init(PUBLIC_KEY);
 
 // ─── SINGLE TEMPLATE ─────────────────────────────────────
 // You only need ONE template in EmailJS: template_main
