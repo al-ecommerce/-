@@ -96,7 +96,7 @@ export default function Home() {
       {/* ── HERO BANNER ─────────────────────────────────────── */}
       <section style={{
         backgroundImage: `url(${slide.image})`,
-  backgroundSize: "contain",       // fits entire image inside container
+  backgroundSize: "cover",    
   backgroundRepeat: "no-repeat",   // prevents tiling
   backgroundPosition: "center",    // centers image
   minHeight: 480,
