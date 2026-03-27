@@ -2,8 +2,8 @@ import emailjs from "emailjs-com";
 
 // ─── YOUR EMAILJS CREDENTIALS ────────────────────────────
 // Replace with your actual values from emailjs.com dashboard
-export const SERVICE_ID = "YOUR_EMAILJS_SERVICE_ID";
-export const PUBLIC_KEY = "YOUR_EMAILJS_PUBLIC_KEY";
+export const SERVICE_ID = "service_30gqve5";
+export const PUBLIC_KEY = "template_2l9r3sl";
 
 // ─── SINGLE TEMPLATE ─────────────────────────────────────
 // You only need ONE template in EmailJS: template_main
