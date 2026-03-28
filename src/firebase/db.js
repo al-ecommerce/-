@@ -239,8 +239,10 @@ export const getSellerOrders = async (uid) => {
 };
 
 export const getAllOrders = async () => {
-  const snap = await getDocs(query(collection(db, "orders"), orderBy("createdAt", "desc")));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(collection(db, "orders"));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 };
 
 export const updateOrder = async (id, data) =>
@@ -404,8 +406,10 @@ export const getTransactions = async (uid) => {
 };
 
 export const getAllTransactions = async () => {
-  const snap = await getDocs(query(collection(db, "transactions"), orderBy("createdAt", "desc")));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(collection(db, "transactions"));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 };
 
 // ─── ESCROW ──────────────────────────────────────────────
@@ -455,8 +459,10 @@ export const getFeaturedListings = async () => {
 };
 
 export const getAllFeaturedListings = async () => {
-  const snap = await getDocs(query(collection(db, "featuredListings"), orderBy("createdAt", "desc")));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(collection(db, "featuredListings"));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 };
 
 export const updateFeaturedListing = async (id, data) =>
@@ -472,8 +478,10 @@ export const getApprovedAds = async () => {
 };
 
 export const getAllAds = async () => {
-  const snap = await getDocs(query(collection(db, "ads"), orderBy("createdAt", "desc")));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(collection(db, "ads"));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 };
 
 export const updateAd = async (id, data) =>
@@ -491,8 +499,10 @@ export const getUserWithdrawals = async (uid) => {
 };
 
 export const getAllWithdrawals = async () => {
-  const snap = await getDocs(query(collection(db, "withdrawals"), orderBy("createdAt", "desc")));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(collection(db, "withdrawals"));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 };
 
 export const updateWithdrawal = async (id, data) =>
