@@ -24,8 +24,9 @@ const ADMIN_NAV = [
   { path: "/admin/verification", label: "Verification", icon: "✓" },
   { path: "/admin/settings", label: "Settings", icon: "⚙️" },
   { path: "/admin/analytics", label: "Analytics", icon: "📈" },
-  { path: "/admin/logs", label: "Logs", icon: "📝" },
-  { path: "/admin/announce", label: "Announce", icon: "📣" },
+  { path: "/admin/logs",       label: "Logs",       icon: "📝" },
+  { path: "/admin/suspicious", label: "Suspicious",  icon: "🚨" },
+  { path: "/admin/announce",   label: "Announce",    icon: "📣" },
 ];
 
 export const AdminLayout = ({ children }) => {

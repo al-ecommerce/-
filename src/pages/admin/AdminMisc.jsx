@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase/config";
 import { useAuth } from "../../context/AuthContext";
 import {
   getPlatformSettings, updatePlatformSettings,
@@ -354,6 +356,73 @@ export function AdminFeatured() {
                       {f.status !== "approved" && <Button size="sm" variant="success" onClick={() => handleStatus(f.id, "approved")}>✓</Button>}
                       {f.status !== "rejected" && <Button size="sm" variant="danger" onClick={() => handleStatus(f.id, "rejected")}>✕</Button>}
                     </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── SUSPICIOUS ACTIVITY ────────────────────────────────
+export function AdminSuspiciousActivity() {
+  const [items,   setItems]   = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const snap = await getDocs(collection(db, "suspiciousActivity"));
+        setItems(
+          snap.docs
+            .map(d => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0))
+        );
+      } catch (e) { console.error(e); }
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  const typeColor = {
+    fake_momo_ref:       "var(--danger)",
+    momo_rate_limit_hit: "var(--warning)",
+    db_flood_attempt:    "var(--danger)",
+    spam_detected:       "var(--warning)",
+  };
+
+  return (
+    <div>
+      <PageHeader title="Suspicious Activity" subtitle="Flagged actions requiring admin review" />
+      {loading ? <Spinner center /> : items.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-icon">🛡️</div>
+          <h3>No suspicious activity</h3>
+          <p>Platform is clean.</p>
+        </div>
+      ) : (
+        <div className="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Type</th><th>User ID</th><th>Details</th><th>Time</th></tr>
+            </thead>
+            <tbody>
+              {items.map(item => (
+                <tr key={item.id}>
+                  <td>
+                    <span style={{ color: typeColor[item.type] || "var(--text)", fontWeight: 700, fontSize: 13 }}>
+                      ⚠ {item.type?.replace(/_/g, " ")}
+                    </span>
+                  </td>
+                  <td style={{ fontFamily: "monospace", fontSize: 12 }}>{item.uid?.slice(0, 14)}...</td>
+                  <td style={{ fontSize: 12, maxWidth: 200 }}>
+                    <div className="truncate">{JSON.stringify(item.details)}</div>
+                  </td>
+                  <td style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                    {item.timestamp?.seconds ? new Date(item.timestamp.seconds * 1000).toLocaleString() : "—"}
                   </td>
                 </tr>
               ))}
