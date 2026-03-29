@@ -55,6 +55,146 @@ const Countdown = ({ seconds, onExpire }) => {
   );
 };
 
+// ─── PRODUCT IMAGE GALLERY ───────────────────────────────
+const ProductImageGallery = ({ product }) => {
+  // Build image list from new images array or fall back to single imageURL
+  const images = (product.images?.filter(i => i.url) || []).length > 0
+    ? product.images.filter(i => i.url)
+    : product.imageURL
+      ? [{ url: product.imageURL, label: "" }]
+      : [];
+
+  const [active, setActive] = useState(0);
+
+  if (images.length === 0) {
+    return (
+      <div style={{
+        width: "100%", height: 380, background: "var(--surface-3)",
+        borderRadius: "var(--radius-xl)", display: "flex",
+        alignItems: "center", justifyContent: "center", fontSize: 64,
+        border: "1px solid var(--border)",
+      }}>📦</div>
+    );
+  }
+
+  return (
+    <div>
+      {/* Main image */}
+      <div style={{
+        width: "100%", height: 380, background: "var(--surface-3)",
+        borderRadius: "var(--radius-xl)", overflow: "hidden",
+        border: "1px solid var(--border)", position: "relative",
+      }}>
+        <img
+          key={active}
+          src={images[active].url}
+          alt={images[active].label || product.title}
+          style={{ width: "100%", height: "100%", objectFit: "cover", transition: "opacity 0.25s" }}
+          onError={e => { e.target.style.display = "none"; }}
+        />
+        {images[active].label && (
+          <div style={{
+            position: "absolute", bottom: 14, left: 14,
+            background: "rgba(0,0,0,0.65)", color: "#fff",
+            padding: "4px 12px", borderRadius: 20,
+            fontSize: 13, fontWeight: 600, backdropFilter: "blur(4px)",
+          }}>
+            {images[active].label}
+          </div>
+        )}
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={() => setActive(a => (a - 1 + images.length) % images.length)}
+              style={{
+                position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)",
+                width: 36, height: 36, borderRadius: "50%",
+                background: "rgba(255,255,255,0.9)", border: "none",
+                cursor: "pointer", fontSize: 16, display: "flex",
+                alignItems: "center", justifyContent: "center",
+                boxShadow: "var(--shadow)",
+              }}
+            >‹</button>
+            <button
+              onClick={() => setActive(a => (a + 1) % images.length)}
+              style={{
+                position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+                width: 36, height: 36, borderRadius: "50%",
+                background: "rgba(255,255,255,0.9)", border: "none",
+                cursor: "pointer", fontSize: 16, display: "flex",
+                alignItems: "center", justifyContent: "center",
+                boxShadow: "var(--shadow)",
+              }}
+            >›</button>
+          </>
+        )}
+      </div>
+
+      {/* Thumbnails + colour buttons */}
+      {images.length > 1 && (
+        <div style={{ marginTop: 12, display: "flex", gap: 10, flexWrap: "wrap" }}>
+          {images.map((img, i) => (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
+              style={{
+                padding: 0, border: `2.5px solid ${i === active ? "var(--accent)" : "var(--border)"}`,
+                borderRadius: "var(--radius-sm)", overflow: "hidden",
+                cursor: "pointer", background: "var(--surface-3)",
+                width: 72, height: 72, flexShrink: 0,
+                transition: "border-color 0.2s",
+                position: "relative",
+              }}
+            >
+              <img
+                src={img.url}
+                alt={img.label || `View ${i + 1}`}
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                onError={e => { e.target.style.display = "none"; }}
+              />
+              {img.label && (
+                <div style={{
+                  position: "absolute", bottom: 0, left: 0, right: 0,
+                  background: "rgba(0,0,0,0.55)", color: "#fff",
+                  fontSize: 9, fontWeight: 700, textAlign: "center",
+                  padding: "2px 2px", letterSpacing: "0.2px",
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                }}>
+                  {img.label}
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Colour label chips (if any have labels) */}
+      {images.some(i => i.label) && (
+        <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <span style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 500 }}>Colour / Variant:</span>
+          {images.map((img, i) => img.label ? (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
+              style={{
+                padding: "5px 14px", borderRadius: 20, border: "1.5px solid",
+                borderColor: i === active ? "var(--accent)" : "var(--border)",
+                background: i === active ? "var(--accent-glow)" : "var(--surface)",
+                color: i === active ? "var(--accent)" : "var(--text-secondary)",
+                fontSize: 13, fontWeight: i === active ? 700 : 500,
+                cursor: "pointer", fontFamily: "var(--font-body)",
+                transition: "all 0.15s",
+              }}
+            >
+              {img.label}
+            </button>
+          ) : null)}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -234,16 +374,11 @@ export default function ProductDetail() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr min(340px,100%)", gap: 28 }} className="detail-grid">
           {/* ── LEFT ── */}
           <div>
-            {/* Image */}
-            <div style={{ width: "100%", height: 380, background: "var(--surface-3)", borderRadius: "var(--radius-xl)", overflow: "hidden", marginBottom: 24, border: "1px solid var(--border)" }}>
-              {product.imageURL
-                ? <img src={product.imageURL} alt={product.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 60 }}>📦</div>
-              }
-            </div>
+            {/* Image Gallery with variant switcher */}
+            <ProductImageGallery product={product} />
 
             {/* Title + rating */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginTop: 24 }}>
               <div>
                 <h1 style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 700 }}>{product.title}</h1>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>

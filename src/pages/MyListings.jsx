@@ -13,6 +13,7 @@ import {
   Modal, FormInput, FormTextarea, Alert, ConfirmDialog,
   Tabs, EmptyState, PriceTag, toast,
 } from "../components/UI";
+import ImageURLField from "../components/ImageURLField";
 
 const PRODUCT_CATS = ["Electronics","Fashion","Food","Auto","Property","Health","Education","Other"];
 const SERVICE_CATS = ["Design","Development","Writing","Marketing","Tutoring","Legal","Finance","Health","Other"];
@@ -197,28 +198,38 @@ export default function MyListings() {
 
 // ── Edit Modal ──────────────────────────────────────────────
 function EditListingModal({ item, type, categories, onClose, onSaved }) {
+  // Build images array from existing data
+  const existingImages = item.images?.filter(i => i.url)?.length > 0
+    ? item.images.filter(i => i.url)
+    : item.imageURL
+      ? [{ url: item.imageURL, label: "" }]
+      : [{ url: "", label: "" }];
+
   const [form, setForm] = useState({
-    title: item.title || "",
-    description: item.description || "",
-    price: item.price || "",
-    category: item.category || categories[0],
-    condition: item.condition || "New",
-    stock: item.stock || "",
-    location: item.location || "",
-    imageURL: item.imageURL || "",
+    title:        item.title        || "",
+    description:  item.description  || "",
+    price:        item.price        || "",
+    category:     item.category     || categories[0],
+    condition:    item.condition    || "New",
+    stock:        item.stock        || "",
+    location:     item.location     || "",
+    imageURL:     item.imageURL     || "",
+    images:       existingImages,
     deliveryTime: item.deliveryTime || "",
   });
   const [loading, setLoading] = useState(false);
 
   const handleSave = async () => {
     if (!form.title || !form.description || !form.price) return toast.error("Title, description and price are required");
+    const validImages = (form.images || []).filter(i => i.url?.trim());
     setLoading(true);
     try {
       const data = {
         ...form,
-        price: parseFloat(form.price),
-        stock: form.stock ? parseInt(form.stock) : null,
-        // Resubmit for approval only if it was rejected
+        price:    parseFloat(form.price),
+        stock:    form.stock ? parseInt(form.stock) : null,
+        imageURL: validImages[0]?.url || form.imageURL || "",
+        images:   validImages,
         ...(item.status === "rejected" ? { status: "pending" } : {}),
       };
       if (type === "product") await updateProduct(item.id, data);
@@ -275,18 +286,17 @@ function EditListingModal({ item, type, categories, onClose, onSaved }) {
       {type === "service" && <FormInput label="Delivery Time" placeholder="e.g. 2-3 days" {...f("deliveryTime")} />}
 
       <FormInput label="Location" placeholder="e.g. Accra, Ghana" {...f("location")} />
-      <FormInput
-        label="Image URL"
-        placeholder="https://i.imgur.com/example.jpg"
-        hint="Paste any public image link"
-        {...f("imageURL")}
-      />
-      {form.imageURL && (
-        <img
-          src={form.imageURL}
-          alt="Preview"
-          onError={e => { e.target.style.display = "none"; }}
-          style={{ width: "100%", height: 150, objectFit: "cover", borderRadius: "var(--radius-sm)", marginTop: 6, border: "1px solid var(--border)" }}
+
+      {type === "product" ? (
+        <ImageGalleryField
+          images={form.images}
+          onChange={imgs => setForm(p => ({ ...p, images: imgs }))}
+        />
+      ) : (
+        <ImageURLField
+          label="Service Image"
+          value={form.imageURL}
+          onChange={url => setForm(p => ({ ...p, imageURL: url }))}
         />
       )}
     </Modal>

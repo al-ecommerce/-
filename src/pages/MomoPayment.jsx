@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { submitMomoPayment, getUserMomoPayments, createNotification } from "../firebase/db";
 import { sendMomoSubmittedEmail } from "../services/emailService";
+import { validateMomoSubmission, sanitizeText, logSuspiciousActivity } from "../services/abuseProtection";
 import { Spinner, Button, Alert, FormInput, PageHeader, StatusBadge, Badge, Modal, toast } from "../components/UI";
 
 const ADMIN_MOMO = "0549548274";
-const ADMIN_NAME = "AlEcom Marketplace";
+const ADMIN_NAME = "ASVAN Marketplace";
 const NETWORK    = "MTN MoMo";          // change if different
 
 export default function MomoPayment() {
@@ -53,7 +54,7 @@ export default function MomoPayment() {
               {
                 step: "1",
                 title: "Send MoMo Payment",
-                desc: `Dial *170# on your phone and send any amount to the AlEcom admin number.`,
+                desc: `Dial *170# on your phone and send any amount to the ASVAN admin number.`,
                 highlight: true,
               },
               {
@@ -183,16 +184,30 @@ function SubmitPaymentModal({ isOpen, onClose, currentUser, userDoc, onSubmitted
     if (form.reference.trim().length < 4) return toast.error("Enter a valid transaction reference");
 
     setLoading(true);
+
+    // ── Fraud & abuse validation ──────────────────────────
+    const validation = await validateMomoSubmission(currentUser.uid, {
+      amount:        amt,
+      reference:     form.reference.trim(),
+      userReference: form.reference.trim(),
+      senderPhone:   form.senderPhone.trim(),
+    });
+    if (!validation.valid) {
+      toast.error(validation.reason);
+      setLoading(false);
+      return;
+    }
+
     try {
       await submitMomoPayment({
-        uid: currentUser.uid,
-        userName: userDoc?.displayName,
-        userEmail: currentUser.email,
-        amount: amt,
-        reference: form.reference.trim(),
-        network: form.network,
-        senderPhone: form.senderPhone.trim(),
-        adminMomo: ADMIN_MOMO,
+        uid:        currentUser.uid,
+        userName:   userDoc?.displayName,
+        userEmail:  currentUser.email,
+        amount:     amt,
+        reference:  sanitizeText(form.reference.trim(), 50),
+        network:    form.network,
+        senderPhone: sanitizeText(form.senderPhone.trim(), 20),
+        adminMomo:  ADMIN_MOMO,
       });
 
       // In-app notification

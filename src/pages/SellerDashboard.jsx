@@ -13,6 +13,8 @@ import {
   PriceTag, Modal, FormInput, FormTextarea, FormSelect,
   StatCard, Tabs, EmptyState, ConfirmDialog, toast
 } from "../components/UI";
+import ImageURLField from "../components/ImageURLField";
+import ImageGalleryField from "../components/ImageGalleryField";
 
 const PRODUCT_CATS = ["Electronics", "Fashion", "Food", "Auto", "Property", "Health", "Education", "Other"];
 const SERVICE_CATS = ["Design", "Development", "Writing", "Marketing", "Tutoring", "Legal", "Finance", "Health", "Other"];
@@ -110,7 +112,7 @@ export default function SellerDashboard() {
           <div style={{ textAlign: "center", marginBottom: 40 }}>
             <div style={{ fontSize: 64, marginBottom: 16 }}>🏪</div>
             <h1 style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 800, marginBottom: 12 }}>
-              Become a Seller on AlEcom
+              Become a Seller on ASVAN
             </h1>
             <p style={{ color: "var(--text-secondary)", fontSize: 16, lineHeight: 1.7 }}>
               Join thousands of sellers and reach buyers across Ghana. List products, offer services, and grow your business.
@@ -392,25 +394,51 @@ export default function SellerDashboard() {
 const ListingFormModal = ({ isOpen, onClose, type, categories, editItem, uid, userDoc, onSaved }) => {
   const defaultForm = {
     title: "", description: "", price: "", category: categories[0],
-    condition: "New", stock: "", location: "", imageURL: "", deliveryTime: "", tags: ""
+    condition: "New", stock: "", location: "",
+    imageURL: "",                              // keep for backward compat (first image)
+    images: [{ url: "", label: "" }],          // new multi-image array
+    deliveryTime: "", tags: ""
   };
-  const [form, setForm] = useState(defaultForm);
+  const [form,    setForm]    = useState(defaultForm);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (editItem) setForm({ ...defaultForm, ...editItem, price: editItem.price || "", stock: editItem.stock || "" });
-    else setForm(defaultForm);
+    if (editItem) {
+      // Migrate old imageURL to images array if no images array exists
+      const existingImages = editItem.images?.length
+        ? editItem.images
+        : editItem.imageURL
+          ? [{ url: editItem.imageURL, label: "" }]
+          : [{ url: "", label: "" }];
+      setForm({
+        ...defaultForm, ...editItem,
+        price: editItem.price || "",
+        stock: editItem.stock || "",
+        images: existingImages,
+      });
+    } else {
+      setForm(defaultForm);
+    }
   }, [editItem, isOpen]);
 
   const handleSubmit = async () => {
     if (!form.title || !form.description || !form.price) return toast.error("Please fill required fields");
+
+    // Validate at least one image has a URL
+    const validImages = (form.images || []).filter(img => img.url?.trim());
+    if (validImages.length === 0) return toast.error("Please add at least one product image");
+
     setLoading(true);
     try {
       const data = {
-        ...form, price: parseFloat(form.price),
+        ...form,
+        price: parseFloat(form.price),
         stock: parseInt(form.stock) || null,
+        // Set imageURL to first valid image for backward compatibility
+        imageURL: validImages[0]?.url || "",
+        images: validImages,
         sellerId: uid, sellerName: userDoc?.displayName,
-        isSellerVerified: userDoc?.isSellerVerified || false
+        isSellerVerified: userDoc?.isSellerVerified || false,
       };
       if (editItem) {
         if (type === "product") await updateProduct(editItem.id, data);
@@ -422,15 +450,23 @@ const ListingFormModal = ({ isOpen, onClose, type, categories, editItem, uid, us
         toast.success("Listing created! Awaiting admin approval.");
       }
       onSaved();
-    } catch (e) { toast.error("Failed to save listing"); }
+    } catch (e) { toast.error("Failed to save listing: " + e.message); }
     setLoading(false);
   };
 
   const f = (k) => ({ value: form[k], onChange: e => setForm(p => ({ ...p, [k]: e.target.value })) });
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`${editItem ? "Edit" : "Create"} ${type === "product" ? "Product" : "Service"}`}
-      footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button variant="primary" loading={loading} onClick={handleSubmit}>{editItem ? "Save Changes" : "Create Listing"}</Button></>}
+    <Modal isOpen={isOpen} onClose={onClose}
+      title={`${editItem ? "Edit" : "Create"} ${type === "product" ? "Product" : "Service"}`}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button variant="primary" loading={loading} onClick={handleSubmit}>
+            {editItem ? "Save Changes" : "Create Listing"}
+          </Button>
+        </>
+      }
     >
       {!editItem && <Alert type="info">Your listing will be reviewed by admin before going live.</Alert>}
       <FormInput label="Title *" placeholder={`${type === "product" ? "Product" : "Service"} name`} {...f("title")} />
@@ -459,22 +495,20 @@ const ListingFormModal = ({ isOpen, onClose, type, categories, editItem, uid, us
         <FormInput label="Delivery Time" placeholder="e.g. 3-5 days" {...f("deliveryTime")} />
       )}
       <FormInput label="Location" placeholder="e.g. Accra, Kumasi..." {...f("location")} />
-      <FormInput
-        label="Image URL"
-        placeholder="https://i.imgur.com/example.jpg"
-        hint="Paste any public image link — Imgur, Google Drive (direct), WhatsApp CDN, etc."
-        {...f("imageURL")}
-      />
-      {form.imageURL ? (
-        <div style={{ marginTop: 8 }}>
-          <img
-            src={form.imageURL}
-            alt="Preview"
-            onError={e => { e.target.style.display = "none"; }}
-            style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)" }}
-          />
-        </div>
-      ) : null}
+
+      {/* Multi-image gallery for products */}
+      {type === "product" ? (
+        <ImageGalleryField
+          images={form.images}
+          onChange={imgs => setForm(p => ({ ...p, images: imgs }))}
+        />
+      ) : (
+        <ImageURLField
+          label="Service Image"
+          value={form.imageURL}
+          onChange={url => setForm(p => ({ ...p, imageURL: url }))}
+        />
+      )}
     </Modal>
   );
 };
