@@ -395,8 +395,9 @@ const ListingFormModal = ({ isOpen, onClose, type, categories, editItem, uid, us
   const defaultForm = {
     title: "", description: "", price: "", category: categories[0],
     condition: "New", stock: "", location: "",
-    imageURL: "",                              // keep for backward compat (first image)
-    images: [{ url: "", label: "" }],          // new multi-image array
+    imageURL: "",
+    images: [{ url: "", label: "" }],
+    videoURL: "",
     deliveryTime: "", tags: ""
   };
   const [form,    setForm]    = useState(defaultForm);
@@ -426,7 +427,7 @@ const ListingFormModal = ({ isOpen, onClose, type, categories, editItem, uid, us
 
     // Validate at least one image has a URL
     const validImages = (form.images || []).filter(img => img.url?.trim());
-    if (validImages.length === 0) return toast.error("Please add at least one product image");
+    if (type === "product" && validImages.length === 0) return toast.error("Please add at least one product image");
 
     setLoading(true);
     try {
@@ -435,8 +436,8 @@ const ListingFormModal = ({ isOpen, onClose, type, categories, editItem, uid, us
         price: parseFloat(form.price),
         stock: parseInt(form.stock) || null,
         // Set imageURL to first valid image for backward compatibility
-        imageURL: validImages[0]?.url || "",
-        images: validImages,
+        imageURL: validImages[0]?.url || form.imageURL || "",
+        images: type === "product" ? validImages : [],
         sellerId: uid, sellerName: userDoc?.displayName,
         isSellerVerified: userDoc?.isSellerVerified || false,
       };
@@ -500,7 +501,9 @@ const ListingFormModal = ({ isOpen, onClose, type, categories, editItem, uid, us
       {type === "product" ? (
         <ImageGalleryField
           images={form.images}
+          videoURL={form.videoURL}
           onChange={imgs => setForm(p => ({ ...p, images: imgs }))}
+          onVideoChange={url => setForm(p => ({ ...p, videoURL: url }))}
         />
       ) : (
         <ImageURLField

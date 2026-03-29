@@ -3,7 +3,6 @@ import { db } from "./../firebase/config";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import ImageGalleryField from "../components/ImageGalleryField";
 import {
   getProducts, getServices,
   updateProduct, updateService,
@@ -216,6 +215,7 @@ function EditListingModal({ item, type, categories, onClose, onSaved }) {
     location:     item.location     || "",
     imageURL:     item.imageURL     || "",
     images:       existingImages,
+    videoURL:     item.videoURL     || "",
     deliveryTime: item.deliveryTime || "",
   });
   const [loading, setLoading] = useState(false);
@@ -291,7 +291,9 @@ function EditListingModal({ item, type, categories, onClose, onSaved }) {
       {type === "product" ? (
         <ImageGalleryField
           images={form.images}
+          videoURL={form.videoURL}
           onChange={imgs => setForm(p => ({ ...p, images: imgs }))}
+          onVideoChange={url => setForm(p => ({ ...p, videoURL: url }))}
         />
       ) : (
         <ImageURLField

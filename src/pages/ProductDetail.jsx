@@ -168,11 +168,11 @@ const ProductImageGallery = ({ product }) => {
         </div>
       )}
 
-      {/* Colour label chips (if any have labels) */}
+      {/* Label chips — only show if any images have labels */}
       {images.some(i => i.label) && (
         <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <span style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 500 }}>Colour / Variant:</span>
-          {images.map((img, i) => img.label ? (
+          <span style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 500 }}>Views:</span>
+          {images.map((img, i) => (
             <button
               key={i}
               onClick={() => setActive(i)}
@@ -186,9 +186,9 @@ const ProductImageGallery = ({ product }) => {
                 transition: "all 0.15s",
               }}
             >
-              {img.label}
+              {img.label || `Photo ${i + 1}`}
             </button>
-          ) : null)}
+          ))}
         </div>
       )}
     </div>
@@ -391,6 +391,25 @@ export default function ProductDetail() {
             </div>
 
             <p style={{ color: "var(--text-secondary)", lineHeight: 1.8, margin: "20px 0" }}>{product.description}</p>
+
+            {/* Video button */}
+            {product.videoURL && (
+              <a
+                href={product.videoURL}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 8,
+                  padding: "10px 20px", marginBottom: 20,
+                  background: "linear-gradient(135deg, #FF0000, #CC0000)",
+                  color: "#fff", borderRadius: "var(--radius-sm)",
+                  fontWeight: 700, fontSize: 14, textDecoration: "none",
+                  boxShadow: "0 4px 14px rgba(220,38,38,0.3)",
+                }}
+              >
+                🎬 Watch Product Video
+              </a>
+            )}
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 24 }}>
               {product.category  && <Badge type="muted">📁 {product.category}</Badge>}
