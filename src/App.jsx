@@ -30,7 +30,7 @@ import NotFound from "./pages/NotFound";
 import AdminDashboard, { AdminLayout } from "./pages/admin/AdminDashboard";
 import { AdminUsers, AdminSellers, AdminProducts, AdminServices, AdminVerification } from "./pages/admin/AdminManage";
 import { AdminOrders, AdminPayments, AdminEscrow, AdminWithdrawals, AdminReports } from "./pages/admin/AdminTransactions";
-import { AdminSettings, AdminAnalytics, AdminLogs, AdminAnnounce, AdminAds, AdminFeatured } from "./pages/admin/AdminMisc";
+import { AdminSettings, AdminAnalytics, AdminLogs, AdminAnnounce, AdminAds, AdminFeatured, AdminSuspiciousActivity } from "./pages/admin/AdminMisc";
 import AdminMomo from "./pages/admin/AdminMomo";
 
 import { AdminRequests } from "./pages/admin/AdminRequests";
@@ -107,6 +107,7 @@ function AppContent() {
         <Route path="/admin/logs" element={<AdminRoute><AdminLogs /></AdminRoute>} />
         <Route path="/admin/announce" element={<AdminRoute><AdminAnnounce /></AdminRoute>} />
         <Route path="/admin/momo" element={<AdminRoute><AdminMomo /></AdminRoute>} />
+        <Route path="/admin/suspicious" element={<AdminRoute><AdminSuspiciousActivity /></AdminRoute>} />
 
         {/* Fallback */}
         <Route path="*" element={<NotFound />} />
