@@ -189,3 +189,15 @@ service cloud.firestore {
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
+
+    // ── Rate Limits ───────────────────────────────────────────
+    match /rateLimits/{uid} {
+      allow read, write: if isAuth() && isOwner(uid);
+      allow read: if isAdmin();
+    }
+
+    // ── Suspicious Activity ───────────────────────────────────
+    match /suspiciousActivity/{id} {
+      allow create: if isAuth();
+      allow read, write: if isAdmin();
+    }
