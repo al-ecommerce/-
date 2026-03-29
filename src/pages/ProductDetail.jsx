@@ -206,6 +206,7 @@ export default function ProductDetail() {
   const [loading,      setLoading]      = useState(true);
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [showReport,   setShowReport]   = useState(false);
+  const [showGuestPrompt, setShowGuestPrompt] = useState(false);
   const [qty,          setQty]          = useState(1);
 
   // Payment flow state
@@ -241,7 +242,10 @@ export default function ProductDetail() {
   const isLarge      = grandTotal >= 500;  // orders ≥ GHS 500 get extra notice
 
   const openBuy = () => {
-    if (!currentUser)              return navigate("/login");
+    if (!currentUser) {
+      setShowGuestPrompt(true);
+      return;
+    }
     if (!currentUser.emailVerified) return toast.error("Please verify your email address first");
     setPayStep("choose");
     setPayMethod("momo");
@@ -470,41 +474,88 @@ export default function ProductDetail() {
 
               <hr style={{ margin: "16px 0", borderColor: "var(--border)" }} />
 
-              {/* Quantity */}
-              <div className="form-group">
-                <label className="form-label">Quantity</label>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ width: 32, height: 32, borderRadius: 8, border: "1.5px solid var(--border)", background: "var(--surface)", cursor: "pointer", fontWeight: 700, fontFamily: "var(--font-body)" }}>-</button>
-                  <span style={{ fontWeight: 700, fontSize: 16 }}>{qty}</span>
-                  <button onClick={() => setQty(qty + 1)} style={{ width: 32, height: 32, borderRadius: 8, border: "1.5px solid var(--border)", background: "var(--surface)", cursor: "pointer", fontWeight: 700, fontFamily: "var(--font-body)" }}>+</button>
-                </div>
-              </div>
+              {/* Only show qty and breakdown for logged-in non-owners */}
+              {currentUser && product.sellerId !== currentUser.uid && (
+                <>
+                  {/* Quantity */}
+                  <div className="form-group">
+                    <label className="form-label">Quantity</label>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ width: 32, height: 32, borderRadius: 8, border: "1.5px solid var(--border)", background: "var(--surface)", cursor: "pointer", fontWeight: 700, fontFamily: "var(--font-body)" }}>-</button>
+                      <span style={{ fontWeight: 700, fontSize: 16 }}>{qty}</span>
+                      <button onClick={() => setQty(qty + 1)} style={{ width: 32, height: 32, borderRadius: 8, border: "1.5px solid var(--border)", background: "var(--surface)", cursor: "pointer", fontWeight: 700, fontFamily: "var(--font-body)" }}>+</button>
+                    </div>
+                  </div>
 
-              {/* Price breakdown */}
-              <div style={{ background: "var(--surface-2)", borderRadius: "var(--radius-sm)", padding: 14, marginBottom: 16 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 6 }}>
-                  <span style={{ color: "var(--text-muted)" }}>Subtotal</span>
-                  <span>GHS {total.toFixed(2)}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 6 }}>
-                  <span style={{ color: "var(--text-muted)" }}>Escrow fee ({settings.escrowFee || 2}%)</span>
-                  <span>GHS {escrowFeeAmt.toFixed(2)}</span>
-                </div>
-                <hr style={{ margin: "8px 0", borderColor: "var(--border)" }} />
-                <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700 }}>
-                  <span>Total</span>
-                  <span style={{ color: "var(--accent)" }}>GHS {grandTotal.toFixed(2)}</span>
-                </div>
-              </div>
+                  {/* Price breakdown */}
+                  <div style={{ background: "var(--surface-2)", borderRadius: "var(--radius-sm)", padding: 14, marginBottom: 16 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 6 }}>
+                      <span style={{ color: "var(--text-muted)" }}>Subtotal</span>
+                      <span>GHS {total.toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 6 }}>
+                      <span style={{ color: "var(--text-muted)" }}>Escrow fee ({settings.escrowFee || 2}%)</span>
+                      <span>GHS {escrowFeeAmt.toFixed(2)}</span>
+                    </div>
+                    <hr style={{ margin: "8px 0", borderColor: "var(--border)" }} />
+                    <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700 }}>
+                      <span>Total</span>
+                      <span style={{ color: "var(--accent)" }}>GHS {grandTotal.toFixed(2)}</span>
+                    </div>
+                  </div>
 
-              {isLarge && (
-                <div style={{ fontSize: 12, color: "var(--text-muted)", background: "rgba(26,86,219,0.06)", border: "1px solid rgba(26,86,219,0.15)", borderRadius: "var(--radius-sm)", padding: "8px 12px", marginBottom: 12 }}>
-                  ℹ Large purchase — admin will verify payment before order is confirmed.
-                </div>
+                  {isLarge && (
+                    <div style={{ fontSize: 12, color: "var(--text-muted)", background: "rgba(26,86,219,0.06)", border: "1px solid rgba(26,86,219,0.15)", borderRadius: "var(--radius-sm)", padding: "8px 12px", marginBottom: 12 }}>
+                      ℹ Large purchase — admin will verify payment before order is confirmed.
+                    </div>
+                  )}
+                </>
               )}
 
               {product.sellerId === currentUser?.uid ? (
                 <Alert type="info">This is your listing</Alert>
+              ) : !currentUser ? (
+                /* ── GUEST NOTICE ── */
+                <div style={{
+                  background: "linear-gradient(135deg, #0A0F1E, #1a2560)",
+                  borderRadius: "var(--radius-lg)", padding: "20px",
+                  textAlign: "center",
+                }}>
+                  <div style={{ fontSize: 36, marginBottom: 10 }}>🔐</div>
+                  <div style={{
+                    fontFamily: "var(--font-display)", fontWeight: 700,
+                    color: "#fff", fontSize: 16, marginBottom: 8,
+                  }}>
+                    Sign in to Purchase
+                  </div>
+                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", marginBottom: 16, lineHeight: 1.6 }}>
+                    Create a free account to buy products, contact sellers, and enjoy full escrow protection.
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <button
+                      onClick={() => navigate("/register")}
+                      style={{
+                        padding: "11px", background: "var(--accent)", color: "#fff",
+                        border: "none", borderRadius: "var(--radius-sm)",
+                        fontFamily: "var(--font-body)", fontWeight: 700,
+                        fontSize: 14, cursor: "pointer",
+                      }}
+                    >
+                      Create Free Account
+                    </button>
+                    <button
+                      onClick={() => navigate("/login")}
+                      style={{
+                        padding: "11px", background: "transparent", color: "rgba(255,255,255,0.85)",
+                        border: "1px solid rgba(255,255,255,0.25)", borderRadius: "var(--radius-sm)",
+                        fontFamily: "var(--font-body)", fontWeight: 600,
+                        fontSize: 14, cursor: "pointer",
+                      }}
+                    >
+                      Sign In
+                    </button>
+                  </div>
+                </div>
               ) : (
                 <Button variant="primary" full size="lg"
                   disabled={product.stock === 0}
@@ -724,6 +775,51 @@ export default function ProductDetail() {
       </Modal>
 
       <ReportModal isOpen={showReport} onClose={() => setShowReport(false)} targetId={id} targetType="product" />
+
+      {/* ── GUEST PROMPT MODAL ── */}
+      <Modal
+        isOpen={showGuestPrompt}
+        onClose={() => setShowGuestPrompt(false)}
+        title="Create an Account to Buy"
+      >
+        <div style={{ textAlign: "center", padding: "8px 0 16px" }}>
+          <div style={{ fontSize: 52, marginBottom: 16 }}>🛒</div>
+          <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 10 }}>
+            You need an account to purchase
+          </h3>
+          <p style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: 24 }}>
+            Creating an account is <strong>free</strong> and takes less than a minute. You'll get access to escrow-protected purchases, buyer protection, order tracking, and the ability to message sellers directly.
+          </p>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+            {[
+              "🔒 Escrow-protected payments — your money is safe",
+              "🛡 Buyer protection on every purchase",
+              "📦 Full order tracking and history",
+              "💬 Direct messaging with sellers",
+              "💰 Wallet for fast repeat purchases",
+            ].map(f => (
+              <div key={f} style={{
+                fontSize: 13, color: "var(--text-secondary)",
+                display: "flex", alignItems: "center", gap: 8,
+                padding: "8px 12px", background: "var(--surface-2)",
+                borderRadius: "var(--radius-sm)", textAlign: "left",
+              }}>
+                {f}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: "flex", gap: 10 }}>
+            <Button variant="primary" full onClick={() => { setShowGuestPrompt(false); navigate("/register"); }}>
+              Create Free Account
+            </Button>
+            <Button variant="secondary" full onClick={() => { setShowGuestPrompt(false); navigate("/login"); }}>
+              Sign In
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
