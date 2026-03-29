@@ -125,6 +125,7 @@ export function ServiceDetail() {
   const [loading,      setLoading]      = useState(true);
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [showReport,   setShowReport]   = useState(false);
+  const [showGuestPrompt, setShowGuestPrompt] = useState(false);
 
   // Payment flow
   const [payStep,     setPayStep]     = useState("choose");
@@ -152,7 +153,7 @@ export function ServiceDetail() {
   const grandTotal   = (service?.price || 0) + escrowFeeAmt;
 
   const openBuy = () => {
-    if (!currentUser)               return navigate("/login");
+    if (!currentUser) { setShowGuestPrompt(true); return; }
     if (!currentUser.emailVerified) return toast.error("Please verify your email address first");
     setPayStep("choose"); setPayMethod("momo");
     setMomoRef(generateRef()); setUserRef(""); setSenderPhone(""); setExpired(false);
@@ -327,7 +328,20 @@ export function ServiceDetail() {
               </div>
               {service.sellerId === currentUser?.uid
                 ? <Alert type="info">This is your service</Alert>
-                : <Button variant="primary" full size="lg" onClick={openBuy}>📅 Book Service</Button>
+                : !currentUser ? (
+                  <div>
+                    <div style={{
+                      background: "rgba(26,86,219,0.06)", border: "1px solid rgba(26,86,219,0.2)",
+                      borderRadius: "var(--radius-sm)", padding: "12px 14px", marginBottom: 12,
+                      fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6,
+                    }}>
+                      🔒 <strong>Create a free account</strong> to book this service with full escrow protection.
+                    </div>
+                    <Button variant="primary" full size="lg" onClick={() => setShowGuestPrompt(true)}>
+                      📅 Book Service
+                    </Button>
+                  </div>
+                ) : <Button variant="primary" full size="lg" onClick={openBuy}>📅 Book Service</Button>
               }
               <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6, fontSize: 12, color: "var(--text-muted)", marginTop: 14 }}>
                 <div>🔒 Escrow Protection — pay only when satisfied</div>
@@ -444,6 +458,20 @@ export function ServiceDetail() {
       </Modal>
 
       <ReportModal isOpen={showReport} onClose={() => setShowReport(false)} targetId={id} targetType="service" />
+
+      {/* Guest Prompt */}
+      <Modal isOpen={showGuestPrompt} onClose={() => setShowGuestPrompt(false)} title="Sign In to Book">
+        <div style={{ textAlign: "center", padding: "8px 0 16px" }}>
+          <div style={{ fontSize: 52, marginBottom: 16 }}>📅</div>
+          <p style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: 20 }}>
+            You need a free account to book services. It takes less than a minute and gives you escrow protection, order tracking, and direct messaging with the service provider.
+          </p>
+          <div style={{ display: "flex", gap: 10 }}>
+            <Button variant="primary" full onClick={() => { setShowGuestPrompt(false); navigate("/register"); }}>Create Free Account</Button>
+            <Button variant="secondary" full onClick={() => { setShowGuestPrompt(false); navigate("/login"); }}>Sign In</Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

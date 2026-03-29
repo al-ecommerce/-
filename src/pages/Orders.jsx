@@ -7,23 +7,103 @@ import {
   createNotification, getUserDoc, createReview, listenToOrder
 } from "../firebase/db";
 import { sendOrderCompletedEmail } from "../services/emailService";
-import { OrderCard } from "../components/ListingCard";
 import { Spinner, Button, Badge, Alert, Modal, PageHeader, EmptyState, StatusBadge, PriceTag, StarRating, FormTextarea, toast, Tabs } from "../components/UI";
 
+// ─── STATUS CONFIG ────────────────────────────────────────
+const STATUS = {
+  awaiting_payment: { label: "Awaiting Payment",  color: "#D97706", icon: "⏳", bg: "rgba(217,119,6,0.08)"  },
+  paid:             { label: "Paid — Processing",  color: "#2563EB", icon: "💳", bg: "rgba(37,99,235,0.08)"  },
+  accepted:         { label: "Accepted",           color: "#059669", icon: "✅", bg: "rgba(5,150,105,0.08)"  },
+  shipped:          { label: "Shipped / In Progress", color: "#7C3AED", icon: "🚚", bg: "rgba(124,58,237,0.08)" },
+  completed:        { label: "Completed",          color: "#059669", icon: "🎉", bg: "rgba(5,150,105,0.08)"  },
+  cancelled:        { label: "Cancelled",          color: "#DC2626", icon: "✕",  bg: "rgba(220,38,38,0.08)"  },
+  disputed:         { label: "Disputed",           color: "#DC2626", icon: "⚠",  bg: "rgba(220,38,38,0.08)"  },
+  refunded:         { label: "Refunded",           color: "#6B7280", icon: "↩",  bg: "rgba(107,114,128,0.08)" },
+};
+
+const StatusPill = ({ status }) => {
+  const s = STATUS[status] || { label: status, color: "var(--text-muted)", icon: "•", bg: "var(--surface-3)" };
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 5,
+      padding: "4px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700,
+      background: s.bg, color: s.color,
+    }}>
+      {s.icon} {s.label}
+    </span>
+  );
+};
+
+// ─── STEP PROGRESS BAR ────────────────────────────────────
+const ORDER_STEPS = [
+  { key: ["awaiting_payment"],        label: "Payment Sent",    icon: "📱" },
+  { key: ["paid"],                    label: "Payment Verified",icon: "💳" },
+  { key: ["accepted"],                label: "Order Accepted",  icon: "✅" },
+  { key: ["shipped"],                 label: "Delivered",       icon: "🚚" },
+  { key: ["completed"],               label: "Completed",       icon: "🎉" },
+];
+const OrderProgress = ({ status }) => {
+  const stepIdx = ORDER_STEPS.findIndex(s => s.key.includes(status));
+  const done    = status === "completed";
+  const cancelled = status === "cancelled" || status === "refunded" || status === "disputed";
+  if (cancelled) return (
+    <div style={{ textAlign: "center", padding: "14px 0", color: "var(--danger)", fontWeight: 600, fontSize: 14 }}>
+      {STATUS[status]?.icon} {STATUS[status]?.label}
+    </div>
+  );
+  return (
+    <div style={{ display: "flex", gap: 0, margin: "20px 0", position: "relative" }}>
+      <div style={{
+        position: "absolute", top: 18, left: "10%", right: "10%", height: 2,
+        background: "var(--border)", zIndex: 0,
+      }} />
+      <div style={{
+        position: "absolute", top: 18, left: "10%", height: 2, zIndex: 1,
+        width: `${(stepIdx / (ORDER_STEPS.length - 1)) * 80}%`,
+        background: "var(--accent)", transition: "width 0.5s",
+      }} />
+      {ORDER_STEPS.map((step, i) => {
+        const isDone   = i < stepIdx || done;
+        const isActive = i === stepIdx && !done;
+        return (
+          <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", position: "relative", zIndex: 2 }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: "50%", marginBottom: 8,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: isDone ? 14 : 16,
+              background: isDone ? "var(--accent)" : isActive ? "var(--accent-glow)" : "var(--surface-3)",
+              border: `2px solid ${isDone || isActive ? "var(--accent)" : "var(--border)"}`,
+              color: isDone ? "#fff" : "inherit",
+              transition: "all 0.3s",
+            }}>
+              {isDone ? "✓" : step.icon}
+            </div>
+            <div style={{ fontSize: 11, fontWeight: isActive || isDone ? 700 : 400, textAlign: "center", color: isDone || isActive ? "var(--text)" : "var(--text-muted)" }}>
+              {step.label}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// ─── ORDERS LIST PAGE ─────────────────────────────────────
 export function OrdersPage() {
   const { currentUser, isSeller } = useAuth();
-  const [orders, setOrders] = useState([]);
+  const navigate = useNavigate();
+  const [orders,  setOrders]  = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState("buying");
+  const [tab,     setTab]     = useState("buying");
 
   useEffect(() => {
     if (!currentUser) return;
+    setLoading(true);
     const load = async () => {
-      setLoading(true);
       try {
-        let data = [];
-        if (tab === "buying") data = await getUserOrders(currentUser.uid);
-        else data = await getSellerOrders(currentUser.uid);
+        const data = tab === "buying"
+          ? await getUserOrders(currentUser.uid)
+          : await getSellerOrders(currentUser.uid);
         setOrders(data);
       } catch (e) { console.error(e); }
       setLoading(false);
@@ -32,53 +112,154 @@ export function OrdersPage() {
   }, [currentUser, tab]);
 
   const tabs = [
-    { value: "buying", label: "My Purchases" },
-    ...(isSeller ? [{ value: "selling", label: "My Sales" }] : [])
+    { value: "buying",  label: `My Purchases` },
+    ...(isSeller ? [{ value: "selling", label: "My Sales" }] : []),
   ];
+
+  const needsAction = orders.filter(o =>
+    (tab === "selling" && (o.status === "paid" || o.status === "shipped")) ||
+    (tab === "buying"  && o.status === "awaiting_payment")
+  ).length;
 
   return (
     <div className="page-wrapper">
       <div className="container" style={{ paddingTop: 28 }}>
-        <PageHeader title="Orders" subtitle="Track and manage your orders" />
+        <PageHeader
+          title="Orders"
+          subtitle={needsAction > 0 ? `${needsAction} order${needsAction > 1 ? "s" : ""} need your attention` : "Manage your purchases and sales"}
+        />
+
         {isSeller && <Tabs tabs={tabs} active={tab} onChange={setTab} />}
-        {loading ? <Spinner center />
-          : orders.length > 0
-            ? <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {orders.map(o => <OrderCard key={o.id} order={o} />)}
-              </div>
-            : <EmptyState icon="📦" title="No orders yet" description={tab === "buying" ? "Browse products and services to make your first order" : "Your sales will appear here"} />
-        }
+
+        {/* Needs-action banner */}
+        {needsAction > 0 && (
+          <div className="alert alert-warning" style={{ marginBottom: 20 }}>
+            <span>⚡</span>
+            <span>
+              {tab === "selling"
+                ? `You have ${needsAction} order${needsAction > 1 ? "s" : ""} waiting for you to accept or confirm delivery.`
+                : `You have ${needsAction} order${needsAction > 1 ? "s" : ""} pending payment verification.`
+              }
+            </span>
+          </div>
+        )}
+
+        {loading ? <Spinner center /> : orders.length === 0 ? (
+          <EmptyState
+            icon="📦"
+            title={tab === "buying" ? "No purchases yet" : "No sales yet"}
+            description={tab === "buying" ? "Browse products and services to place your first order" : "When buyers purchase your products, they'll appear here"}
+            action={tab === "buying" ? <Button variant="primary" onClick={() => navigate("/products")}>Browse Products</Button> : null}
+          />
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {orders.map(o => (
+              <OrderListCard
+                key={o.id}
+                order={o}
+                role={tab === "buying" ? "buyer" : "seller"}
+                onClick={() => navigate(`/orders/${o.id}`)}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
+// ─── ORDER CARD (in list) ─────────────────────────────────
+const OrderListCard = ({ order, role, onClick }) => {
+  const s         = STATUS[order.status] || {};
+  const needsAction =
+    (role === "seller" && (order.status === "paid" || order.status === "shipped")) ||
+    (role === "buyer"  && order.status === "awaiting_payment");
+
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        background: "var(--surface)", border: `1.5px solid ${needsAction ? "var(--warning)" : "var(--border)"}`,
+        borderRadius: "var(--radius-lg)", padding: 0, cursor: "pointer",
+        overflow: "hidden", transition: "box-shadow 0.2s",
+      }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow = "var(--shadow)"; }}
+      onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; }}
+    >
+      {/* Attention strip */}
+      {needsAction && (
+        <div style={{
+          padding: "6px 16px", background: "rgba(217,119,6,0.12)",
+          borderBottom: "1px solid rgba(217,119,6,0.2)",
+          fontSize: 12, fontWeight: 700, color: "#D97706",
+          display: "flex", alignItems: "center", gap: 6,
+        }}>
+          ⚡ {role === "seller" ? "Action needed — click to view and proceed" : "Waiting for payment verification"}
+        </div>
+      )}
+
+      <div style={{ padding: "16px 18px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }} className="truncate">
+              {order.itemTitle || "Order"}
+            </div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+              #{order.id?.slice(0, 8)?.toUpperCase()}
+              {" · "}
+              {order.createdAt?.seconds
+                ? new Date(order.createdAt.seconds * 1000).toLocaleDateString("en-GH", { dateStyle: "medium" })
+                : "—"
+              }
+            </div>
+          </div>
+          <div style={{ textAlign: "right", flexShrink: 0 }}>
+            <StatusPill status={order.status} />
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 17, color: "var(--accent)", marginTop: 6 }}>
+              GHS {(order.grandTotal || order.amount || 0).toFixed(2)}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+          <Badge type="muted">{order.itemType || "product"}</Badge>
+          {order.quantity > 1 && <Badge type="muted">× {order.quantity}</Badge>}
+          <Badge type={role === "buyer" ? "primary" : "success"}>
+            {role === "buyer" ? "👤 You bought" : "🏪 You sold"}
+          </Badge>
+          {order.paymentMethod === "momo_direct" && <Badge type="muted">📱 MoMo</Badge>}
+          {order.paymentMethod === "wallet" && <Badge type="muted">💰 Wallet</Badge>}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── ORDER DETAIL PAGE ────────────────────────────────────
 export function OrderDetail() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id }      = useParams();
+  const navigate    = useNavigate();
   const { currentUser, userDoc } = useAuth();
-  const [order, setOrder] = useState(null);
-  const [escrow, setEscrow] = useState(null);
-  const [settings, setSettings] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [confirming, setConfirming] = useState(false);
-  const [cancelling, setCancelling] = useState(false);
-  const [showReview, setShowReview] = useState(false);
-  const [review, setReview] = useState({ rating: 5, comment: "" });
-  const [submittingReview, setSubmittingReview] = useState(false);
-  const [buyer, setBuyer] = useState(null);
-  const [seller, setSeller] = useState(null);
+  const [order,     setOrder]     = useState(null);
+  const [escrow,    setEscrow]    = useState(null);
+  const [settings,  setSettings]  = useState({});
+  const [loading,   setLoading]   = useState(true);
+  const [acting,    setActing]     = useState("");   // which action is loading
+  const [showReview,setShowReview] = useState(false);
+  const [review,    setReview]     = useState({ rating: 5, comment: "" });
+  const [buyer,     setBuyer]      = useState(null);
+  const [seller,    setSeller]     = useState(null);
 
   useEffect(() => {
     if (!currentUser) return;
-    const unsub = listenToOrder(id, async (o) => {
+    const unsub = listenToOrder(id, async o => {
       if (!o) { navigate("/orders"); return; }
       setOrder(o);
       const [e, s, bu, se] = await Promise.all([
         getEscrowByOrder(id),
         getPlatformSettings(),
         getUserDoc(o.buyerId),
-        getUserDoc(o.sellerId)
+        getUserDoc(o.sellerId),
       ]);
       setEscrow(e); setSettings(s); setBuyer(bu); setSeller(se);
       setLoading(false);
@@ -86,178 +267,418 @@ export function OrderDetail() {
     return unsub;
   }, [id, currentUser]);
 
-  const handleConfirmDelivery = async () => {
-    setConfirming(true);
+  if (loading) return <Spinner center />;
+  if (!order)  return null;
+
+  const isBuyer  = currentUser?.uid === order.buyerId;
+  const isSellerUser = currentUser?.uid === order.sellerId;
+
+  // ── Seller actions ──────────────────────────────────────
+  const handleAccept = async () => {
+    setActing("accept");
     try {
-      const commission = (order.amount * (settings.commissionRate || 10)) / 100;
-      const sellerAmount = order.amount - commission;
-      await updateOrder(id, { status: "completed", completedAt: new Date() });
-      if (escrow) await updateEscrow(escrow.id, { status: "released", releasedAt: new Date() });
-      await creditWallet(order.sellerId, sellerAmount, `Payment for order #${id.slice(0, 8)}`);
-      await createNotification(order.sellerId, {
-        title: "Payment Released!",
-        body: `GHS ${sellerAmount.toFixed(2)} has been added to your wallet`,
-        type: "payment"
+      await updateOrder(id, { status: "accepted", acceptedAt: new Date() });
+      await createNotification(order.buyerId, {
+        title: "✅ Order Accepted!",
+        body:  `${seller?.displayName || "The seller"} accepted your order for "${order.itemTitle}". They will deliver soon.`,
+        type:  "order", link: `/orders/${id}`,
       });
-      try {
-        if (seller?.email) await sendOrderCompletedEmail(seller.email, seller.displayName, id);
-      } catch (e) { }
+      toast.success("Order accepted! The buyer has been notified.");
+    } catch (e) { toast.error(e.message); }
+    setActing("");
+  };
+
+  const handleMarkDelivered = async () => {
+    setActing("deliver");
+    try {
+      await updateOrder(id, { status: "shipped", shippedAt: new Date() });
+      await createNotification(order.buyerId, {
+        title: "📦 Order Delivered!",
+        body:  `"${order.itemTitle}" has been marked as delivered. Please confirm receipt to release payment to the seller.`,
+        type:  "order", link: `/orders/${id}`,
+      });
+      toast.success("Marked as delivered. Waiting for buyer to confirm receipt.");
+    } catch (e) { toast.error(e.message); }
+    setActing("");
+  };
+
+  // ── Buyer actions ───────────────────────────────────────
+  const handleConfirmDelivery = async () => {
+    setActing("confirm");
+    try {
+      const commission   = escrow?.commission || (order.amount * (settings.commissionRate || 10)) / 100;
+      const sellerAmount = order.amount - commission;
+
+      await updateOrder(id, { status: "completed", completedAt: new Date(), reviewed: false });
+      if (escrow) await updateEscrow(escrow.id, { status: "released", releasedAt: new Date() });
+      await creditWallet(order.sellerId, sellerAmount, `Payment for Order #${id.slice(0, 8)}`);
+
+      await createNotification(order.sellerId, {
+        title: "💰 Payment Released!",
+        body:  `GHS ${sellerAmount.toFixed(2)} has been added to your wallet for "${order.itemTitle}".`,
+        type:  "payment", link: "/wallet",
+      });
+
+      if (seller?.email) {
+        try { await sendOrderCompletedEmail(seller.email, seller.displayName, id, sellerAmount); } catch (e) {}
+      }
+
       toast.success("Delivery confirmed! Payment released to seller.");
       setShowReview(true);
     } catch (e) { toast.error(e.message || "Error confirming delivery"); }
-    setConfirming(false);
+    setActing("");
   };
 
   const handleCancel = async () => {
-    if (!window.confirm("Are you sure you want to cancel this order?")) return;
-    setCancelling(true);
+    if (!window.confirm("Cancel this order? Your payment will be refunded to your wallet.")) return;
+    setActing("cancel");
     try {
-      await updateOrder(id, { status: "cancelled" });
+      await updateOrder(id, { status: "cancelled", cancelledAt: new Date() });
       if (escrow) await updateEscrow(escrow.id, { status: "refunded" });
-      await creditWallet(currentUser.uid, order.grandTotal || order.amount, `Refund for cancelled order #${id.slice(0, 8)}`);
-      toast.success("Order cancelled and refunded");
+      if (order.paymentMethod === "wallet") {
+        await creditWallet(currentUser.uid, order.grandTotal || order.amount, `Refund for cancelled Order #${id.slice(0, 8)}`);
+      }
+      await createNotification(order.sellerId, {
+        title: "Order Cancelled",
+        body:  `The buyer cancelled their order for "${order.itemTitle}".`,
+        type:  "alert",
+      });
+      toast.success("Order cancelled and refunded.");
     } catch (e) { toast.error("Cancellation failed"); }
-    setCancelling(false);
+    setActing("");
   };
 
   const handleReview = async () => {
-    setSubmittingReview(true);
+    setActing("review");
     try {
       await createReview({
-        targetId: order.itemId, targetType: order.itemType,
-        reviewerId: currentUser.uid, reviewerName: userDoc?.displayName,
-        sellerId: order.sellerId, orderId: id,
-        rating: review.rating, comment: review.comment
+        targetId:     order.itemId,
+        targetType:   order.itemType,
+        reviewerId:   currentUser.uid,
+        reviewerName: userDoc?.displayName,
+        sellerId:     order.sellerId,
+        orderId:      id,
+        rating:       review.rating,
+        comment:      review.comment,
       });
-      toast.success("Review submitted!");
+      await updateOrder(id, { reviewed: true });
+      toast.success("Review submitted! Thank you.");
       setShowReview(false);
     } catch (e) { toast.error("Failed to submit review"); }
-    setSubmittingReview(false);
+    setActing("");
   };
 
-  if (loading) return <Spinner center />;
-  if (!order) return null;
-
-  const isBuyer = currentUser?.uid === order.buyerId;
-  const isSeller = currentUser?.uid === order.sellerId;
+  const s   = STATUS[order.status] || {};
+  const orderRef = id.slice(0, 8).toUpperCase();
 
   return (
     <div className="page-wrapper">
-      <div className="container" style={{ paddingTop: 28, maxWidth: 720 }}>
-        <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, color: "var(--text-muted)", fontSize: 14, marginBottom: 20 }}>← Back</button>
+      <div className="container" style={{ paddingTop: 28, maxWidth: 740 }}>
+        <button
+          onClick={() => navigate("/orders")}
+          style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, color: "var(--text-muted)", fontSize: 14, marginBottom: 20 }}
+        >← Back to Orders</button>
 
+        {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
           <div>
-            <h1 style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 800 }}>Order #{id.slice(0, 8)}</h1>
+            <h1 style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, letterSpacing: "-0.2px" }}>
+              Order #{orderRef}
+            </h1>
             <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>
-              {order.createdAt?.seconds ? new Date(order.createdAt.seconds * 1000).toLocaleDateString("en-GH", { dateStyle: "long" }) : "—"}
+              {order.createdAt?.seconds
+                ? new Date(order.createdAt.seconds * 1000).toLocaleDateString("en-GH", { dateStyle: "long" })
+                : ""}
             </div>
           </div>
-          <StatusBadge status={order.status} />
+          <StatusPill status={order.status} />
         </div>
 
-        {/* Order Card */}
+        {/* Progress tracker */}
         <div className="card" style={{ marginBottom: 20 }}>
-          <h3 style={{ fontWeight: 700, marginBottom: 16 }}>Order Details</h3>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, fontSize: 15 }}>
-            <span style={{ color: "var(--text-secondary)" }}>Item</span>
-            <span style={{ fontWeight: 600 }}>{order.itemTitle}</span>
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, fontSize: 15 }}>
-            <span style={{ color: "var(--text-secondary)" }}>Type</span>
-            <Badge type="muted">{order.itemType}</Badge>
-          </div>
-          {order.quantity > 1 && (
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, fontSize: 15 }}>
-              <span style={{ color: "var(--text-secondary)" }}>Quantity</span>
-              <span style={{ fontWeight: 600 }}>× {order.quantity}</span>
-            </div>
-          )}
-          <hr style={{ margin: "12px 0", borderColor: "var(--border)" }} />
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 14, color: "var(--text-muted)" }}>
-            <span>Subtotal</span><span>GHS {order.amount?.toFixed(2)}</span>
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 14, color: "var(--text-muted)" }}>
-            <span>Platform Commission ({settings.commissionRate || 10}%)</span>
-            <span>GHS {order.commission?.toFixed(2)}</span>
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 14, color: "var(--text-muted)" }}>
-            <span>Escrow Fee</span><span>GHS {order.escrowFee?.toFixed(2)}</span>
-          </div>
-          <hr style={{ margin: "8px 0", borderColor: "var(--border)" }} />
-          <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 16 }}>
-            <span>Total Paid</span><PriceTag amount={order.grandTotal || order.amount} size="sm" />
-          </div>
+          <div style={{ fontWeight: 700, marginBottom: 4 }}>Order Progress</div>
+          <OrderProgress status={order.status} />
         </div>
 
-        {/* Escrow */}
-        {escrow && (
-          <div className="card" style={{ marginBottom: 20 }}>
-            <h3 style={{ fontWeight: 700, marginBottom: 12 }}>🔒 Escrow Status</h3>
-            <StatusBadge status={escrow.status} />
-            <p style={{ fontSize: 14, color: "var(--text-secondary)", marginTop: 10 }}>
-              {escrow.status === "held" ? "Funds are held in escrow and will be released when you confirm delivery." : escrow.status === "released" ? "Funds have been released to the seller." : "Funds have been refunded to the buyer."}
-            </p>
+        {/* ── SELLER ACTION CARDS ──────────────────────── */}
+        {isSellerUser && (
+          <div style={{ marginBottom: 20 }}>
+            {/* Paid — seller must accept */}
+            {order.status === "paid" && (
+              <div style={{
+                border: "2px solid var(--accent)", borderRadius: "var(--radius-lg)",
+                overflow: "hidden",
+              }}>
+                <div style={{
+                  padding: "14px 18px", background: "var(--accent)",
+                  color: "#fff", fontWeight: 700, fontSize: 15,
+                  display: "flex", alignItems: "center", gap: 8,
+                }}>
+                  ⚡ New Order — Payment Verified
+                </div>
+                <div style={{ padding: "18px 18px 20px" }}>
+                  <p style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 18, lineHeight: 1.7 }}>
+                    A buyer has paid <strong>GHS {(order.grandTotal || order.amount)?.toFixed(2)}</strong> for <strong>"{order.itemTitle}"</strong>.
+                    Payment is held securely in escrow. Accept this order to begin fulfilling it.
+                  </p>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    <Button variant="primary" loading={acting === "accept"} onClick={handleAccept}>
+                      ✅ Accept Order
+                    </Button>
+                    <Button variant="secondary" onClick={() => navigate(`/chat?with=${order.buyerId}`)}>
+                      💬 Message Buyer First
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Accepted — seller must deliver */}
+            {order.status === "accepted" && (
+              <div style={{
+                border: "2px solid var(--success)", borderRadius: "var(--radius-lg)",
+                overflow: "hidden",
+              }}>
+                <div style={{
+                  padding: "14px 18px", background: "rgba(5,150,105,0.08)",
+                  borderBottom: "1px solid rgba(5,150,105,0.2)",
+                  fontWeight: 700, fontSize: 15, color: "var(--success)",
+                  display: "flex", alignItems: "center", gap: 8,
+                }}>
+                  ✅ Order Accepted — Fulfil Now
+                </div>
+                <div style={{ padding: "18px 18px 20px" }}>
+                  <p style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 18, lineHeight: 1.7 }}>
+                    You accepted this order. Deliver the item or service to the buyer, then click
+                    <strong> "Mark as Delivered"</strong>. The buyer will confirm receipt and release your payment.
+                  </p>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    <Button variant="success" loading={acting === "deliver"} onClick={handleMarkDelivered}>
+                      🚚 Mark as Delivered
+                    </Button>
+                    <Button variant="secondary" onClick={() => navigate(`/chat?with=${order.buyerId}`)}>
+                      💬 Chat with Buyer
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Shipped — waiting for buyer */}
+            {order.status === "shipped" && (
+              <div style={{
+                border: "1.5px solid var(--border)", borderRadius: "var(--radius-lg)",
+                padding: "16px 18px", background: "rgba(124,58,237,0.06)",
+              }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "#7C3AED", marginBottom: 8 }}>
+                  🚚 Delivery marked — awaiting buyer confirmation
+                </div>
+                <p style={{ fontSize: 13, color: "var(--text-muted)", margin: 0, lineHeight: 1.6 }}>
+                  Once the buyer confirms receipt, GHS {(order.amount - (order.commission || 0)).toFixed(2)} will be released to your wallet automatically.
+                </p>
+              </div>
+            )}
+
+            {/* Completed */}
+            {order.status === "completed" && (
+              <div style={{
+                border: "1.5px solid rgba(5,150,105,0.3)", borderRadius: "var(--radius-lg)",
+                padding: "16px 18px", background: "rgba(5,150,105,0.06)",
+              }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "var(--success)", marginBottom: 4 }}>
+                  🎉 Order completed — payment released to your wallet
+                </div>
+                <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
+                  You received GHS {(order.amount - (order.commission || 0)).toFixed(2)}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Parties */}
-        <div className="card" style={{ marginBottom: 20 }}>
-          <h3 style={{ fontWeight: 700, marginBottom: 16 }}>Order Parties</h3>
-          <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-            {buyer && (
-              <div>
-                <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 6 }}>BUYER</div>
-                <div style={{ fontWeight: 600 }}>{buyer.displayName}</div>
-                <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{buyer.email}</div>
+        {/* ── BUYER ACTION CARDS ───────────────────────── */}
+        {isBuyer && (
+          <div style={{ marginBottom: 20 }}>
+            {order.status === "awaiting_payment" && (
+              <div style={{
+                border: "2px solid var(--warning)", borderRadius: "var(--radius-lg)",
+                padding: "16px 18px", background: "rgba(217,119,6,0.06)",
+              }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "var(--warning)", marginBottom: 8 }}>
+                  ⏳ Payment verification in progress
+                </div>
+                <p style={{ fontSize: 13, color: "var(--text-muted)", margin: 0, lineHeight: 1.6 }}>
+                  Your MoMo payment is being verified by our admin. This usually takes just a few minutes. You will receive an email and notification once confirmed.
+                </p>
+                <div style={{ marginTop: 12, fontFamily: "monospace", fontWeight: 700, fontSize: 15, letterSpacing: "1px", color: "var(--text)" }}>
+                  Ref: {order.momoReference || "—"}
+                </div>
               </div>
             )}
-            {seller && (
-              <div>
-                <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 6 }}>SELLER</div>
-                <div style={{ fontWeight: 600 }}>{seller.displayName}</div>
-                <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{seller.email}</div>
+
+            {(order.status === "paid" || order.status === "accepted") && (
+              <div style={{
+                border: "1.5px solid var(--border)", borderRadius: "var(--radius-lg)",
+                padding: "16px 18px", background: "var(--surface-2)",
+              }}>
+                <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>
+                  {order.status === "paid" ? "💳 Payment confirmed — seller is reviewing" : "✅ Seller accepted — delivery in progress"}
+                </div>
+                <p style={{ fontSize: 13, color: "var(--text-muted)", margin: 0, lineHeight: 1.6 }}>
+                  Your payment is safely held in escrow. You will be notified when the seller marks it delivered.
+                </p>
+              </div>
+            )}
+
+            {order.status === "shipped" && (
+              <div style={{
+                border: "2px solid var(--success)", borderRadius: "var(--radius-lg)",
+                overflow: "hidden",
+              }}>
+                <div style={{
+                  padding: "14px 18px", background: "var(--success)",
+                  color: "#fff", fontWeight: 700, fontSize: 15,
+                  display: "flex", alignItems: "center", gap: 8,
+                }}>
+                  📦 Item Delivered — Confirm to Release Payment
+                </div>
+                <div style={{ padding: "18px 18px 20px" }}>
+                  <p style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 18, lineHeight: 1.7 }}>
+                    The seller has marked this order as delivered. Only confirm if you have <strong>actually received</strong> the item or service in good condition.
+                  </p>
+                  <div style={{
+                    background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.15)",
+                    borderRadius: "var(--radius-sm)", padding: "10px 14px", marginBottom: 16, fontSize: 13,
+                    color: "#B91C1C", lineHeight: 1.6,
+                  }}>
+                    ⚠ <strong>Once confirmed, this cannot be undone.</strong> Payment will be permanently released to the seller.
+                  </div>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    <Button variant="success" loading={acting === "confirm"} onClick={handleConfirmDelivery}>
+                      ✓ Yes, I Received It — Release Payment
+                    </Button>
+                    <Button variant="secondary" onClick={() => navigate(`/chat?with=${order.sellerId}`)}>
+                      💬 Contact Seller First
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {(order.status === "paid" || order.status === "accepted") && (
+              <div style={{ marginTop: 12 }}>
+                <Button variant="danger" size="sm" loading={acting === "cancel"} onClick={handleCancel}>
+                  Cancel Order
+                </Button>
+              </div>
+            )}
+
+            {order.status === "completed" && !order.reviewed && (
+              <div style={{
+                border: "1.5px solid var(--border)", borderRadius: "var(--radius-lg)",
+                padding: "16px 18px", marginBottom: 12,
+                display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap",
+              }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>🎉 Order Complete!</div>
+                  <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Share your experience to help other buyers.</div>
+                </div>
+                <Button variant="outline" onClick={() => setShowReview(true)}>⭐ Leave Review</Button>
               </div>
             )}
           </div>
+        )}
+
+        {/* ── ORDER DETAILS ────────────────────────────── */}
+        <div className="card" style={{ marginBottom: 20 }}>
+          <h3 style={{ fontWeight: 700, marginBottom: 16, fontFamily: "var(--font-display)" }}>Order Details</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {[
+              ["Item",     order.itemTitle],
+              ["Type",     order.itemType],
+              ["Quantity", order.quantity > 1 ? `× ${order.quantity}` : "1"],
+              ["Payment",  order.paymentMethod === "wallet" ? "Wallet" : "MoMo"],
+              ["Subtotal", `GHS ${order.amount?.toFixed(2)}`],
+              ["Escrow Fee", `GHS ${(order.escrowFee || 0).toFixed(2)}`],
+              ...(isSellerUser ? [["Commission", `GHS ${(order.commission || 0).toFixed(2)}`]] : []),
+            ].map(([k, v]) => v ? (
+              <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 14, paddingBottom: 8, borderBottom: "1px solid var(--border)" }}>
+                <span style={{ color: "var(--text-muted)" }}>{k}</span>
+                <span style={{ fontWeight: 600 }}>{v}</span>
+              </div>
+            ) : null)}
+            <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800, fontSize: 16 }}>
+              <span>{isBuyer ? "Total Paid" : "You Receive"}</span>
+              <span style={{ color: "var(--accent)" }}>
+                GHS {isBuyer
+                  ? (order.grandTotal || order.amount)?.toFixed(2)
+                  : (order.amount - (order.commission || 0))?.toFixed(2)
+                }
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* Actions */}
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          {isBuyer && order.status === "paid" && (
-            <>
-              <Button variant="success" loading={confirming} onClick={handleConfirmDelivery}>✓ Confirm Delivery</Button>
-              <Button variant="danger" loading={cancelling} onClick={handleCancel}>✕ Cancel Order</Button>
-            </>
-          )}
-          {isBuyer && order.status === "completed" && !order.reviewed && (
-            <Button variant="outline" onClick={() => setShowReview(true)}>⭐ Leave Review</Button>
-          )}
-          <Button variant="secondary" onClick={() => navigate(`/chat?with=${isBuyer ? order.sellerId : order.buyerId}`)}>
+        {/* Parties + Chat */}
+        <div className="card" style={{ marginBottom: 20 }}>
+          <h3 style={{ fontWeight: 700, marginBottom: 14, fontFamily: "var(--font-display)" }}>Order Parties</h3>
+          <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginBottom: 16 }}>
+            {[
+              { label: "BUYER",  person: buyer },
+              { label: "SELLER", person: seller },
+            ].map(({ label, person }) => person ? (
+              <div key={label}>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 700, marginBottom: 4, letterSpacing: "0.5px" }}>{label}</div>
+                <div style={{ fontWeight: 700 }}>{person.displayName}</div>
+                <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{person.location || "Ghana"}</div>
+              </div>
+            ) : null)}
+          </div>
+          <Button variant="secondary" size="sm" onClick={() => navigate(`/chat?with=${isBuyer ? order.sellerId : order.buyerId}`)}>
             💬 Message {isBuyer ? "Seller" : "Buyer"}
           </Button>
         </div>
 
-        {/* Buyer Protection Notice */}
-        <div className="alert alert-info" style={{ marginTop: 20 }}>
-          <span>🛡️</span>
-          <div>
-            <strong>Buyer Protection Active</strong>
-            <p style={{ fontSize: 13, marginTop: 2 }}>Only confirm delivery after you've received and verified your order. Once confirmed, payment is released to the seller.</p>
+        {/* Buyer protection */}
+        {isBuyer && order.status !== "completed" && order.status !== "cancelled" && (
+          <div className="alert alert-info">
+            <span>🛡️</span>
+            <div>
+              <strong>Buyer Protection Active</strong>
+              <p style={{ fontSize: 13, marginTop: 4 }}>
+                Your payment is held in escrow. Only confirm delivery after you have received and verified the item. You can raise a dispute within 7 days if there's a problem.
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Review Modal */}
-      <Modal isOpen={showReview} onClose={() => setShowReview(false)} title="Leave a Review"
-        footer={<><Button variant="secondary" onClick={() => setShowReview(false)}>Skip</Button><Button variant="primary" loading={submittingReview} onClick={handleReview}>Submit Review</Button></>}
+      <Modal
+        isOpen={showReview}
+        onClose={() => setShowReview(false)}
+        title="Leave a Review"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setShowReview(false)}>Skip</Button>
+            <Button variant="primary" loading={acting === "review"} onClick={handleReview}>Submit Review</Button>
+          </>
+        }
       >
-        <p style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 16 }}>How was your experience with {order.itemTitle}?</p>
+        <p style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 16 }}>
+          How was your experience with <strong>{order.itemTitle}</strong>?
+        </p>
         <div className="form-group">
           <label className="form-label">Rating</label>
           <StarRating value={review.rating} onChange={r => setReview(p => ({ ...p, rating: r }))} />
         </div>
-        <FormTextarea label="Comment" value={review.comment} onChange={e => setReview(p => ({ ...p, comment: e.target.value }))} placeholder="Share your experience..." />
+        <FormTextarea
+          label="Your Review"
+          value={review.comment}
+          onChange={e => setReview(p => ({ ...p, comment: e.target.value }))}
+          placeholder="Was it as described? Was delivery prompt? Would you recommend this seller?"
+          rows={4}
+        />
       </Modal>
     </div>
   );
