@@ -230,20 +230,33 @@ export const PriceTag = ({ amount, currency = "GHS", size = "md" }) => {
 // ─── STATUS BADGE ────────────────────────────────────────
 export const StatusBadge = ({ status }) => {
   const map = {
-    pending: ["warning", "⏳ Pending"],
-    approved: ["success", "✓ Approved"],
-    rejected: ["danger", "✕ Rejected"],
-    active: ["success", "● Active"],
-    completed: ["success", "✓ Completed"],
-    cancelled: ["danger", "✕ Cancelled"],
-    held: ["warning", "🔒 Held"],
-    released: ["success", "✓ Released"],
-    open: ["primary", "● Open"],
-    closed: ["muted", "Closed"],
-    suspended: ["danger", "⚠ Suspended"],
-    banned: ["danger", "⛔ Banned"],
+    // Order statuses
+    pending:          ["warning", "⏳ Pending"],
+    awaiting_payment: ["warning", "💳 Awaiting Payment"],
+    paid:             ["primary", "💰 Paid"],
+    accepted:         ["primary", "✓ Accepted"],
+    processing:       ["primary", "⚙ Processing"],
+    shipped:          ["primary", "🚚 Shipped"],
+    delivered:        ["success", "📦 Delivered"],
+    completed:        ["success", "✓ Completed"],
+    cancelled:        ["danger",  "✕ Cancelled"],
+    disputed:         ["danger",  "⚠ Disputed"],
+    refunded:         ["warning", "↩ Refunded"],
+    // Listing statuses
+    approved:         ["success", "✓ Approved"],
+    rejected:         ["danger",  "✕ Rejected"],
+    active:           ["success", "● Active"],
+    // Escrow
+    held:             ["warning", "🔒 In Escrow"],
+    released:         ["success", "✓ Released"],
+    // General
+    open:             ["primary", "● Open"],
+    closed:           ["muted",   "Closed"],
+    suspended:        ["danger",  "⚠ Suspended"],
+    banned:           ["danger",  "⛔ Banned"],
+    verified:         ["success", "✓ Verified"],
   };
-  const [type, label] = map[status] || ["muted", status];
+  const [type, label] = map[status] || ["muted", status || "Unknown"];
   return <Badge type={type}>{label}</Badge>;
 };
 
