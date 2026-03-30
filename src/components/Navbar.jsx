@@ -62,12 +62,11 @@ export const Navbar = () => {
         {/* Logo */}
         <Link to="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
           <div style={{
-            width: 36, height: 36, backgroundImage: "url('/logo.png')",backgroundSize: "cover",    
-  backgroundRepeat: "no-repeat",   // prevents tiling
-  backgroundPosition: "center",    // centers image
+            width: 36, height: 36, background: "var(--accent)",
             borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
-          }}></div>
-          <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 20, color: "var(--text)" }}>AlEcom</span>
+            fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: 16
+          }}>A</div>
+          <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 20, color: "var(--text)" }}>ASVAN</span>
         </Link>
 
         {/* Desktop Nav Links */}
@@ -150,6 +149,7 @@ export const Navbar = () => {
                     {userDoc?.isSeller && <NavMenuItem icon="🎁" label="Subscription" path="/subscriptions" />}
                     {isAdmin && <NavMenuItem icon="⚙️" label="Admin Panel" path="/admin" />}
                     <NavMenuItem icon="📚" label="User Manual" path="/manual" />
+                    <NavMenuItem icon="📋" label="Platform Policy" path="/policy" />
                     <hr style={{ margin: "8px 0", border: "none", borderTop: "1px solid var(--border)" }} />
                     <button
                       onClick={handleLogout}
