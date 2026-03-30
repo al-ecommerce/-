@@ -249,7 +249,14 @@ export const updateOrder = async (id, data) =>
   updateDoc(doc(db, "orders", id), { ...data, updatedAt: serverTimestamp() });
 
 export const listenToOrder = (id, cb) =>
-  onSnapshot(doc(db, "orders", id), snap => cb(snap.exists() ? { id: snap.id, ...snap.data() } : null));
+  onSnapshot(
+    doc(db, "orders", id),
+    snap => cb(snap.exists() ? { id: snap.id, ...snap.data() } : null),
+    err => {
+      console.error("listenToOrder error:", err.code, err.message);
+      cb(null); // triggers navigate("/orders") in the component
+    }
+  );
 
 // ─── MESSAGES / CHAT ─────────────────────────────────────
 export const getChatId = (uid1, uid2) => [uid1, uid2].sort().join("_");
