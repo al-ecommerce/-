@@ -251,20 +251,52 @@ export function OrderDetail() {
   const [seller,    setSeller]     = useState(null);
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser) { navigate("/login"); return; }
+    if (!id) { navigate("/orders"); return; }
+
+    let unsubscribed = false;
+
+    const loadSupporting = async (o) => {
+      if (unsubscribed) return;
+      try {
+        const [e, s, bu, se] = await Promise.all([
+          getEscrowByOrder(id),
+          getPlatformSettings(),
+          getUserDoc(o.buyerId),
+          getUserDoc(o.sellerId),
+        ]);
+        if (!unsubscribed) {
+          setEscrow(e); setSettings(s); setBuyer(bu); setSeller(se);
+          setLoading(false);
+        }
+      } catch (e) {
+        console.error("Error loading order supporting data:", e.message);
+        if (!unsubscribed) setLoading(false);
+      }
+    };
+
+    // Try real-time listener first
     const unsub = listenToOrder(id, async o => {
-      if (!o) { navigate("/orders"); return; }
+      if (unsubscribed) return;
+      if (!o) {
+        // Listener returned null — either doc doesn't exist or permission denied
+        // Try a one-time fetch as fallback
+        try {
+          const fetched = await getOrderById(id);
+          if (!fetched) { navigate("/orders"); return; }
+          setOrder(fetched);
+          await loadSupporting(fetched);
+        } catch (e) {
+          console.error("Fallback fetch failed:", e.message);
+          navigate("/orders");
+        }
+        return;
+      }
       setOrder(o);
-      const [e, s, bu, se] = await Promise.all([
-        getEscrowByOrder(id),
-        getPlatformSettings(),
-        getUserDoc(o.buyerId),
-        getUserDoc(o.sellerId),
-      ]);
-      setEscrow(e); setSettings(s); setBuyer(bu); setSeller(se);
-      setLoading(false);
+      await loadSupporting(o);
     });
-    return unsub;
+
+    return () => { unsubscribed = true; unsub(); };
   }, [id, currentUser]);
 
   if (loading) return <Spinner center />;
@@ -619,24 +651,171 @@ export function OrderDetail() {
           </div>
         </div>
 
-        {/* Parties + Chat */}
-        <div className="card" style={{ marginBottom: 20 }}>
-          <h3 style={{ fontWeight: 700, marginBottom: 14, fontFamily: "var(--font-display)" }}>Order Parties</h3>
-          <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginBottom: 16 }}>
-            {[
-              { label: "BUYER",  person: buyer },
-              { label: "SELLER", person: seller },
-            ].map(({ label, person }) => person ? (
-              <div key={label}>
-                <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 700, marginBottom: 4, letterSpacing: "0.5px" }}>{label}</div>
-                <div style={{ fontWeight: 700 }}>{person.displayName}</div>
-                <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{person.location || "Ghana"}</div>
+        {/* ── CONTACT CARDS ────────────────────────────── */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+
+          {/* Buyer card — seller sees buyer's contacts */}
+          {buyer && (
+            <div className="card" style={{ padding: 18 }}>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 700, letterSpacing: "0.5px", marginBottom: 10 }}>
+                👤 BUYER
               </div>
-            ) : null)}
-          </div>
-          <Button variant="secondary" size="sm" onClick={() => navigate(`/chat?with=${isBuyer ? order.sellerId : order.buyerId}`)}>
-            💬 Message {isBuyer ? "Seller" : "Buyer"}
-          </Button>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                <div style={{
+                  width: 40, height: 40, borderRadius: "50%", flexShrink: 0,
+                  background: "var(--accent-glow)", color: "var(--accent)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontWeight: 800, fontSize: 16,
+                }}>
+                  {buyer.displayName?.[0] || "B"}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 15 }}>{buyer.displayName}</div>
+                  <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{buyer.location || "Ghana"}</div>
+                </div>
+              </div>
+
+              {/* Contact details — shown to seller after order is accepted */}
+              {isSellerUser && !["awaiting_payment", "cancelled"].includes(order.status) ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {buyer.email && (
+                    <a href={`mailto:${buyer.email}`} style={{
+                      display: "flex", alignItems: "center", gap: 8,
+                      padding: "8px 12px", background: "var(--surface-2)",
+                      borderRadius: "var(--radius-sm)", border: "1px solid var(--border)",
+                      textDecoration: "none", color: "var(--text)",
+                      fontSize: 13, fontWeight: 500,
+                    }}>
+                      <span>✉️</span>
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {buyer.email}
+                      </span>
+                    </a>
+                  )}
+                  {buyer.phone && (
+                    <a href={`tel:${buyer.phone}`} style={{
+                      display: "flex", alignItems: "center", gap: 8,
+                      padding: "8px 12px", background: "var(--surface-2)",
+                      borderRadius: "var(--radius-sm)", border: "1px solid var(--border)",
+                      textDecoration: "none", color: "var(--text)",
+                      fontSize: 13, fontWeight: 500,
+                    }}>
+                      <span>📞</span>
+                      <span>{buyer.phone}</span>
+                    </a>
+                  )}
+                  {!buyer.phone && (
+                    <div style={{ fontSize: 12, color: "var(--text-muted)", fontStyle: "italic" }}>
+                      No phone number on profile
+                    </div>
+                  )}
+                  <button
+                    onClick={() => navigate(`/chat?with=${order.buyerId}`)}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 6,
+                      padding: "8px 12px", background: "var(--accent-glow)",
+                      borderRadius: "var(--radius-sm)", border: "1px solid rgba(26,86,219,0.2)",
+                      cursor: "pointer", fontSize: 13, fontWeight: 600,
+                      color: "var(--accent)", fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    💬 Chat with Buyer
+                  </button>
+                </div>
+              ) : isSellerUser ? (
+                <div style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
+                  Contact details will be visible after you accept the order.
+                </div>
+              ) : (
+                /* Buyer sees own info label */
+                <div style={{ fontSize: 12, color: "var(--success)", fontWeight: 600 }}>
+                  ✓ This is you
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Seller card — buyer sees seller's contacts */}
+          {seller && (
+            <div className="card" style={{ padding: 18 }}>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 700, letterSpacing: "0.5px", marginBottom: 10 }}>
+                🏪 SELLER
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                <div style={{
+                  width: 40, height: 40, borderRadius: "50%", flexShrink: 0,
+                  background: "rgba(5,150,105,0.12)", color: "var(--success)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontWeight: 800, fontSize: 16,
+                }}>
+                  {seller.displayName?.[0] || "S"}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 15 }}>{seller.displayName}</div>
+                  <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{seller.location || "Ghana"}</div>
+                </div>
+              </div>
+
+              {isBuyer ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {seller.email && (
+                    <a href={`mailto:${seller.email}`} style={{
+                      display: "flex", alignItems: "center", gap: 8,
+                      padding: "8px 12px", background: "var(--surface-2)",
+                      borderRadius: "var(--radius-sm)", border: "1px solid var(--border)",
+                      textDecoration: "none", color: "var(--text)",
+                      fontSize: 13, fontWeight: 500,
+                    }}>
+                      <span>✉️</span>
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {seller.email}
+                      </span>
+                    </a>
+                  )}
+                  {seller.phone && (
+                    <a href={`tel:${seller.phone}`} style={{
+                      display: "flex", alignItems: "center", gap: 8,
+                      padding: "8px 12px", background: "var(--surface-2)",
+                      borderRadius: "var(--radius-sm)", border: "1px solid var(--border)",
+                      textDecoration: "none", color: "var(--text)",
+                      fontSize: 13, fontWeight: 500,
+                    }}>
+                      <span>📞</span>
+                      <span>{seller.phone}</span>
+                    </a>
+                  )}
+                  <button
+                    onClick={() => navigate(`/chat?with=${order.sellerId}`)}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 6,
+                      padding: "8px 12px", background: "var(--accent-glow)",
+                      borderRadius: "var(--radius-sm)", border: "1px solid rgba(26,86,219,0.2)",
+                      cursor: "pointer", fontSize: 13, fontWeight: 600,
+                      color: "var(--accent)", fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    💬 Chat with Seller
+                  </button>
+                  <button
+                    onClick={() => navigate(`/store/${order.sellerId}`)}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 6,
+                      padding: "8px 12px", background: "var(--surface-2)",
+                      borderRadius: "var(--radius-sm)", border: "1px solid var(--border)",
+                      cursor: "pointer", fontSize: 13, fontWeight: 500,
+                      color: "var(--text-secondary)", fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    🏪 View Store
+                  </button>
+                </div>
+              ) : (
+                <div style={{ fontSize: 12, color: "var(--success)", fontWeight: 600 }}>
+                  ✓ This is you
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Buyer protection */}
