@@ -20,6 +20,7 @@ import SellerDashboard from "./pages/SellerDashboard";
 import MyListings from "./pages/MyListings";
 import MomoPayment from "./pages/MomoPayment";
 import Manual from "./pages/Manual";
+import Policy from "./pages/Policy";
 import { AdsPage, FeaturedPage } from "./pages/Ads";
 import Subscriptions from "./pages/Subscriptions";
 import StorePage from "./pages/Store";
@@ -68,6 +69,7 @@ function AppContent() {
         <Route path="/requests" element={<RequestsPage />} />
         <Route path="/requests/:id" element={<RequestDetail />} />
         <Route path="/manual" element={<Manual />} />
+        <Route path="/policy" element={<Policy />} />
         <Route path="/search" element={<Search />} />
         <Route path="/store/:uid" element={<StorePage />} />
 
