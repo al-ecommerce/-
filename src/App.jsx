@@ -5,7 +5,7 @@ import { ToastContainer, Spinner } from "./components/UI";
 
 // Pages
 import Home from "./pages/Home";
-import { LoginPage, RegisterPage } from "./pages/Auth";
+import { LoginPage, RegisterPage, ForgotPasswordPage } from "./pages/Auth";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
 import { ServicesPage, ServiceDetail } from "./pages/Services";
@@ -62,6 +62,7 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetail />} />
         <Route path="/services" element={<ServicesPage />} />
