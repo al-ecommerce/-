@@ -599,3 +599,36 @@ export const deleteUserData = async (uid) => {
 
   await Promise.allSettled(deletePromises);
 };
+
+// ─── AUTO-RELEASE DELIVERY ───────────────────────────────
+// Called when seller marks delivered. Stores deadline for auto-release.
+// Auto-release fires after 7 days if buyer doesn't confirm.
+export const setDeliveryDeadline = async (orderId, days = 7) => {
+  const deadline = new Date();
+  deadline.setDate(deadline.getDate() + days);
+  return updateDoc(doc(db, "orders", orderId), {
+    deliveredAt:     new Date(),
+    releaseDeadline: deadline,
+    status:          "shipped",
+    updatedAt:       serverTimestamp(),
+  });
+};
+
+// Check all delivered orders whose deadline has passed and auto-release them
+export const processAutoReleases = async () => {
+  const now  = new Date();
+  const snap = await getDocs(query(
+    collection(db, "orders"),
+    where("status", "==", "shipped")
+  ));
+  const overdue = snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .filter(o => {
+      if (!o.releaseDeadline) return false;
+      const dl = o.releaseDeadline?.seconds
+        ? new Date(o.releaseDeadline.seconds * 1000)
+        : new Date(o.releaseDeadline);
+      return dl < now;
+    });
+  return overdue;
+};
