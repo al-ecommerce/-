@@ -5,6 +5,7 @@ import { getAllUsers, getAllProducts, getAllOrders, getAllTransactions, getAllRe
 import { Spinner, StatCard, PageHeader, Badge, StatusBadge } from "../../components/UI";
 import { onSnapshot, collection, query, orderBy, limit } from "firebase/firestore";
 import { db } from "../../firebase/config";
+import { startEscalationService } from "../../services/paymentEscalation";
 
 const ADMIN_NAV = [
   { path: "/admin", label: "Dashboard", icon: "📊" },
@@ -154,6 +155,10 @@ export default function AdminDashboard() {
       setLoading(false);
     };
     load();
+
+    // Start payment escalation checker while admin is logged in
+    const stopEscalation = startEscalationService();
+    return stopEscalation;
   }, []);
 
   if (loading) return <Spinner center />;
