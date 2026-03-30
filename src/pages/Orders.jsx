@@ -4,9 +4,10 @@ import { useAuth } from "../context/AuthContext";
 import {
   getUserOrders, getSellerOrders, getOrderById, updateOrder,
   updateEscrow, getEscrowByOrder, creditWallet, getPlatformSettings,
-  createNotification, getUserDoc, createReview, listenToOrder
+  createNotification, getUserDoc, createReview, listenToOrder,
+  setDeliveryDeadline, processAutoReleases
 } from "../firebase/db";
-import { sendOrderCompletedEmail } from "../services/emailService";
+import { sendOrderCompletedEmail, sendAnnouncementEmail } from "../services/emailService";
 import { Spinner, Button, Badge, Alert, Modal, PageHeader, EmptyState, StatusBadge, PriceTag, StarRating, FormTextarea, toast, Tabs } from "../components/UI";
 
 // ─── STATUS CONFIG ────────────────────────────────────────
@@ -323,13 +324,49 @@ export function OrderDetail() {
   const handleMarkDelivered = async () => {
     setActing("deliver");
     try {
-      await updateOrder(id, { status: "shipped", shippedAt: new Date() });
+      // Set 7-day auto-release deadline
+      await setDeliveryDeadline(id, 7);
+      // Notify buyer with clear instructions
       await createNotification(order.buyerId, {
-        title: "📦 Order Delivered!",
-        body:  `"${order.itemTitle}" has been marked as delivered. Please confirm receipt to release payment to the seller.`,
+        title: "📦 Your order has been delivered!",
+        body:  `"${order.itemTitle}" has been marked as delivered by the seller. Please open the order and click "Confirm Delivery" to release payment. If you have not received it, do NOT confirm and raise a dispute instead.`,
         type:  "order", link: `/orders/${id}`,
       });
-      toast.success("Marked as delivered. Waiting for buyer to confirm receipt.");
+      // Email buyer
+      try {
+        await sendAnnouncementEmail(
+          buyer?.email, buyer?.displayName,
+          `Action Required: Confirm Delivery — "${order.itemTitle}"`,
+          `Your order for "${order.itemTitle}" has been marked as delivered by the seller.\n\n` +
+          `Please log in to ASVAN and go to your Orders to confirm receipt.\n\n` +
+          `✅ If you received the item: Click "Confirm Delivery" to release payment to the seller.\n` +
+          `⚠ If you did NOT receive it: Do NOT confirm. Click "Raise Dispute" instead.\n\n` +
+          `If you do not respond within 7 days, payment will be automatically released to the seller.\n\n` +
+          `Order: #${id.slice(0, 8).toUpperCase()}`
+        );
+      } catch (e) {}
+      toast.success("Marked as delivered. Buyer notified by email and app notification.");
+    } catch (e) { toast.error(e.message); }
+    setActing("");
+  };
+
+  // Seller requests admin to release funds (if buyer is unresponsive)
+  const handleRequestRelease = async () => {
+    setActing("request_release");
+    try {
+      await updateOrder(id, { releaseRequested: true, releaseRequestedAt: new Date() });
+      await createNotification(order.buyerId, {
+        title: "⚠ Reminder: Please confirm your delivery",
+        body:  `The seller has requested payment release for "${order.itemTitle}". Please confirm or dispute your order within 48 hours.`,
+        type:  "alert", link: `/orders/${id}`,
+      });
+      // Notify admin
+      await createNotification("admin", {
+        title: "Seller Requested Payment Release",
+        body:  `Seller requested release for order #${id.slice(0,8).toUpperCase()} — "${order.itemTitle}". Buyer may be unresponsive.`,
+        type:  "alert", link: `/admin/orders`,
+      });
+      toast.success("Request sent. Buyer notified. Admin will review if buyer remains unresponsive after 48 hours.");
     } catch (e) { toast.error(e.message); }
     setActing("");
   };
@@ -498,16 +535,55 @@ export function OrderDetail() {
 
             {/* Shipped — waiting for buyer */}
             {order.status === "shipped" && (
-              <div style={{
-                border: "1.5px solid var(--border)", borderRadius: "var(--radius-lg)",
-                padding: "16px 18px", background: "rgba(124,58,237,0.06)",
-              }}>
-                <div style={{ fontWeight: 700, fontSize: 14, color: "#7C3AED", marginBottom: 8 }}>
-                  🚚 Delivery marked — awaiting buyer confirmation
+              <div style={{ border: "1.5px solid rgba(124,58,237,0.3)", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
+                <div style={{ padding: "14px 18px", background: "rgba(124,58,237,0.08)", borderBottom: "1px solid rgba(124,58,237,0.15)", fontWeight: 700, fontSize: 14, color: "#7C3AED" }}>
+                  🚚 Delivered — Awaiting Buyer Confirmation
                 </div>
-                <p style={{ fontSize: 13, color: "var(--text-muted)", margin: 0, lineHeight: 1.6 }}>
-                  Once the buyer confirms receipt, GHS {(order.amount - (order.commission || 0)).toFixed(2)} will be released to your wallet automatically.
-                </p>
+                <div style={{ padding: "16px 18px" }}>
+                  {/* Auto-release deadline */}
+                  {order.releaseDeadline && (() => {
+                    const dl = order.releaseDeadline?.seconds
+                      ? new Date(order.releaseDeadline.seconds * 1000)
+                      : new Date(order.releaseDeadline);
+                    const daysLeft = Math.max(0, Math.ceil((dl - Date.now()) / 86400000));
+                    return (
+                      <div style={{ padding: "10px 14px", background: daysLeft <= 1 ? "rgba(220,38,38,0.07)" : "rgba(26,86,219,0.07)", border: `1px solid ${daysLeft <= 1 ? "rgba(220,38,38,0.2)" : "rgba(26,86,219,0.15)"}`, borderRadius: "var(--radius-sm)", marginBottom: 14, fontSize: 13 }}>
+                        {daysLeft > 0 ? (
+                          <span style={{ color: daysLeft <= 1 ? "var(--danger)" : "var(--accent)" }}>
+                            ⏱ Auto-release in <strong>{daysLeft} day{daysLeft !== 1 ? "s" : ""}</strong> if buyer does not respond
+                          </span>
+                        ) : (
+                          <span style={{ color: "var(--success)", fontWeight: 700 }}>
+                            ✓ Auto-release deadline reached — admin will process payment shortly
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })()}
+                  <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 14, lineHeight: 1.6 }}>
+                    The buyer has been notified by email and app notification to confirm receipt. Payment of <strong>GHS {(order.amount - (order.commission || 0)).toFixed(2)}</strong> will be released when they confirm — or automatically after 7 days.
+                  </p>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    <Button variant="secondary" size="sm" onClick={() => navigate(`/chat?with=${order.buyerId}`)}>
+                      💬 Message Buyer
+                    </Button>
+                    {!order.releaseRequested && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        loading={acting === "request_release"}
+                        onClick={handleRequestRelease}
+                      >
+                        ⚡ Request Payment Release
+                      </Button>
+                    )}
+                    {order.releaseRequested && (
+                      <span style={{ fontSize: 12, color: "var(--text-muted)", padding: "6px 0", fontStyle: "italic" }}>
+                        ✓ Release request sent — admin will review
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
 
@@ -563,36 +639,57 @@ export function OrderDetail() {
             )}
 
             {order.status === "shipped" && (
-              <div style={{
-                border: "2px solid var(--success)", borderRadius: "var(--radius-lg)",
-                overflow: "hidden",
-              }}>
-                <div style={{
-                  padding: "14px 18px", background: "var(--success)",
-                  color: "#fff", fontWeight: 700, fontSize: 15,
-                  display: "flex", alignItems: "center", gap: 8,
-                }}>
-                  📦 Item Delivered — Confirm to Release Payment
+              <div style={{ border: "2px solid var(--success)", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
+                <div style={{ padding: "14px 18px", background: "var(--success)", color: "#fff", fontWeight: 700, fontSize: 15, display: "flex", alignItems: "center", gap: 8 }}>
+                  📦 Action Required — Confirm Your Delivery
                 </div>
                 <div style={{ padding: "18px 18px 20px" }}>
-                  <p style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 18, lineHeight: 1.7 }}>
-                    The seller has marked this order as delivered. Only confirm if you have <strong>actually received</strong> the item or service in good condition.
+                  <p style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 14, lineHeight: 1.7 }}>
+                    The seller has marked this order as <strong>delivered</strong>. Please check your item carefully, then take one of the two actions below.
                   </p>
-                  <div style={{
-                    background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.15)",
-                    borderRadius: "var(--radius-sm)", padding: "10px 14px", marginBottom: 16, fontSize: 13,
-                    color: "#B91C1C", lineHeight: 1.6,
-                  }}>
-                    ⚠ <strong>Once confirmed, this cannot be undone.</strong> Payment will be permanently released to the seller.
+
+                  {/* Auto-release countdown */}
+                  {order.releaseDeadline && (() => {
+                    const dl = order.releaseDeadline?.seconds
+                      ? new Date(order.releaseDeadline.seconds * 1000)
+                      : new Date(order.releaseDeadline);
+                    const daysLeft = Math.max(0, Math.ceil((dl - Date.now()) / 86400000));
+                    return (
+                      <div style={{ padding: "10px 14px", background: "rgba(217,119,6,0.08)", border: "1px solid rgba(217,119,6,0.25)", borderRadius: "var(--radius-sm)", marginBottom: 16, fontSize: 13, color: "#92400e" }}>
+                        ⏱ If you take no action, payment will be <strong>automatically released</strong> to the seller in <strong>{daysLeft} day{daysLeft !== 1 ? "s" : ""}</strong>.
+                      </div>
+                    );
+                  })()}
+
+                  {/* Two clear options */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+                    <div style={{ border: "1.5px solid rgba(5,150,105,0.3)", borderRadius: "var(--radius-sm)", padding: "14px", background: "rgba(5,150,105,0.04)" }}>
+                      <div style={{ fontWeight: 700, fontSize: 13, color: "var(--success)", marginBottom: 8 }}>
+                        ✅ Received the item?
+                      </div>
+                      <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 12, lineHeight: 1.5 }}>
+                        Click confirm to release payment to the seller. This cannot be undone.
+                      </p>
+                      <Button variant="success" full size="sm" loading={acting === "confirm"} onClick={handleConfirmDelivery}>
+                        Confirm Delivery
+                      </Button>
+                    </div>
+                    <div style={{ border: "1.5px solid rgba(220,38,38,0.3)", borderRadius: "var(--radius-sm)", padding: "14px", background: "rgba(220,38,38,0.04)" }}>
+                      <div style={{ fontWeight: 700, fontSize: 13, color: "var(--danger)", marginBottom: 8 }}>
+                        ❌ Problem with order?
+                      </div>
+                      <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 12, lineHeight: 1.5 }}>
+                        Not received, wrong item, or damaged? Raise a dispute to freeze payment.
+                      </p>
+                      <Button variant="danger" full size="sm" onClick={() => navigate(`/escrow`)}>
+                        Raise Dispute
+                      </Button>
+                    </div>
                   </div>
-                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                    <Button variant="success" loading={acting === "confirm"} onClick={handleConfirmDelivery}>
-                      ✓ Yes, I Received It — Release Payment
-                    </Button>
-                    <Button variant="secondary" onClick={() => navigate(`/chat?with=${order.sellerId}`)}>
-                      💬 Contact Seller First
-                    </Button>
-                  </div>
+
+                  <Button variant="secondary" size="sm" full onClick={() => navigate(`/chat?with=${order.sellerId}`)}>
+                    💬 Chat with Seller First
+                  </Button>
                 </div>
               </div>
             )}
