@@ -62,10 +62,9 @@ export const Navbar = () => {
         {/* Logo */}
         <Link to="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
           <div style={{
-            width: 36, height: 36, background: "var(--accent)",
+            width: 36, height: 36, backgroundImage: "url('https://lh3.googleusercontent.com/pw/AP1GczOaygY1s_p72qJv_mid-mxndAnjEU832uBx1LqDBuG8PuAtAWi5QIV1nkoDW2B6Toky6ZjVroY5wAXtK33gQojGWPSQ_dy_DQcpCti6B9LGuzPOqrk')",
             borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
-            fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: 16
-          }}>A</div>
+           }}></div>
           <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 20, color: "var(--text)" }}>AlEcom</span>
         </Link>
 
