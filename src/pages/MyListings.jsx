@@ -3,7 +3,6 @@ import { db } from "./../firebase/config";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import ImageGalleryField from "../components/ImageGalleryField";
 import {
   getProducts, getServices,
   updateProduct, updateService,
@@ -15,6 +14,7 @@ import {
   Tabs, EmptyState, PriceTag, toast,
 } from "../components/UI";
 import ImageURLField from "../components/ImageURLField";
+import CloudinaryUpload from "../components/CloudinaryUpload";
 
 const PRODUCT_CATS = ["Electronics","Fashion","Food","Auto","Property","Health","Education","Other"];
 const SERVICE_CATS = ["Design","Development","Writing","Marketing","Tutoring","Legal","Finance","Health","Other"];
@@ -199,32 +199,33 @@ export default function MyListings() {
 
 // ── Edit Modal ──────────────────────────────────────────────
 function EditListingModal({ item, type, categories, onClose, onSaved }) {
-  // Build images array from existing data
   const existingImages = item.images?.filter(i => i.url)?.length > 0
     ? item.images.filter(i => i.url)
     : item.imageURL
       ? [{ url: item.imageURL, label: "" }]
-      : [{ url: "", label: "" }];
+      : [];
 
-  const [form, setForm] = useState({
+  const [form,      setForm]      = useState({
     title:        item.title        || "",
     description:  item.description  || "",
-    price:        item.price        || "",
+    price:        String(item.price || ""),
     category:     item.category     || categories[0],
     condition:    item.condition    || "New",
-    stock:        item.stock        || "",
+    stock:        String(item.stock || ""),
     location:     item.location     || "",
     imageURL:     item.imageURL     || "",
     images:       existingImages,
     videoURL:     item.videoURL     || "",
     deliveryTime: item.deliveryTime || "",
   });
-  const [loading, setLoading] = useState(false);
+  const [saving,    setSaving]    = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const handleSave = async () => {
+    if (uploading) return toast.error("Please wait for photo upload to finish");
     if (!form.title || !form.description || !form.price) return toast.error("Title, description and price are required");
     const validImages = (form.images || []).filter(i => i.url?.trim());
-    setLoading(true);
+    setSaving(true);
     try {
       const data = {
         ...form,
@@ -232,42 +233,51 @@ function EditListingModal({ item, type, categories, onClose, onSaved }) {
         stock:    form.stock ? parseInt(form.stock) : null,
         imageURL: validImages[0]?.url || form.imageURL || "",
         images:   validImages,
+        // Re-submit for approval when editing rejected listings
         ...(item.status === "rejected" ? { status: "pending" } : {}),
       };
       if (type === "product") await updateProduct(item.id, data);
-      else await updateService(item.id, data);
+      else                    await updateService(item.id, data);
       toast.success("Listing updated successfully!");
       onSaved();
     } catch (e) { toast.error("Update failed — " + e.message); }
-    setLoading(false);
+    setSaving(false);
   };
+
+  const busy = saving || uploading;
+  const f = k => ({ value: form[k], onChange: e => setForm(p => ({ ...p, [k]: e.target.value })) });
 
   const f = k => ({ value: form[k], onChange: e => setForm(p => ({ ...p, [k]: e.target.value })) });
 
   return (
     <Modal
       isOpen
-      onClose={onClose}
+      onClose={() => { if (!busy) onClose(); }}
       title={`Edit ${type === "product" ? "Product" : "Service"}`}
       footer={
         <>
-          <Button variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" loading={loading} onClick={handleSave}>Save Changes</Button>
+          <Button variant="secondary" onClick={onClose} disabled={busy}>Cancel</Button>
+          <Button variant="primary" loading={saving} disabled={busy} onClick={handleSave}>
+            {uploading ? "Waiting for upload…" : "Save Changes"}
+          </Button>
         </>
       }
     >
       {item.status === "rejected" && (
         <Alert type="warning">This listing was rejected. Fix the issues and save to resubmit for approval.</Alert>
       )}
+      {uploading && (
+        <Alert type="warning" style={{ marginBottom: 8 }}>Photo uploading — please wait before saving.</Alert>
+      )}
 
-      <FormInput label="Title *" {...f("title")} />
-      <FormTextarea label="Description *" {...f("description")} rows={4} />
+      <FormInput label="Title *" {...f("title")} disabled={busy} />
+      <FormTextarea label="Description *" {...f("description")} rows={4} disabled={busy} />
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        <FormInput label="Price (GHS) *" type="number" {...f("price")} />
+        <FormInput label="Price (GHS) *" type="number" {...f("price")} disabled={busy} />
         <div className="form-group">
           <label className="form-label">Category</label>
-          <select className="form-select" value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))}>
+          <select className="form-select" value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} disabled={busy}>
             {categories.map(c => <option key={c}>{c}</option>)}
           </select>
         </div>
@@ -277,30 +287,35 @@ function EditListingModal({ item, type, categories, onClose, onSaved }) {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           <div className="form-group">
             <label className="form-label">Condition</label>
-            <select className="form-select" value={form.condition} onChange={e => setForm(p => ({ ...p, condition: e.target.value }))}>
+            <select className="form-select" value={form.condition} onChange={e => setForm(p => ({ ...p, condition: e.target.value }))} disabled={busy}>
               {["New","Used - Like New","Used - Good","Used - Fair"].map(c => <option key={c}>{c}</option>)}
             </select>
           </div>
-          <FormInput label="Stock" type="number" placeholder="Blank = unlimited" {...f("stock")} />
+          <FormInput label="Stock" type="number" placeholder="Blank = unlimited" {...f("stock")} disabled={busy} />
         </div>
       )}
 
-      {type === "service" && <FormInput label="Delivery Time" placeholder="e.g. 2-3 days" {...f("deliveryTime")} />}
-
-      <FormInput label="Location" placeholder="e.g. Accra, Ghana" {...f("location")} />
+      {type === "service" && <FormInput label="Delivery Time" placeholder="e.g. 2-3 days" {...f("deliveryTime")} disabled={busy} />}
+      <FormInput label="Location" placeholder="e.g. Accra, Ghana" {...f("location")} disabled={busy} />
 
       {type === "product" ? (
-        <ImageGalleryField
-          images={form.images}
-          videoURL={form.videoURL}
-          onChange={imgs => setForm(p => ({ ...p, images: imgs }))}
-          onVideoChange={url => setForm(p => ({ ...p, videoURL: url }))}
-        />
+        <div style={{ marginTop: 8 }}>
+          <CloudinaryUpload
+            images={form.images}
+            onChange={imgs => setForm(p => ({ ...p, images: imgs }))}
+            maxImages={5}
+            disabled={saving}
+            folder="products"
+            onUploadStart={() => setUploading(true)}
+            onUploadEnd={() => setUploading(false)}
+          />
+        </div>
       ) : (
         <ImageURLField
           label="Service Image"
           value={form.imageURL}
           onChange={url => setForm(p => ({ ...p, imageURL: url }))}
+          disabled={busy}
         />
       )}
     </Modal>

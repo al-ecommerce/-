@@ -8,13 +8,14 @@ import {
   getWallet, getSellerVerification, applyForSellerVerification,
   getUserSubscription, createNotification, getPlatformSettings, debitWallet
 } from "../firebase/db";
+import { sendAnnouncementEmail } from "../services/emailService";
 import {
   Spinner, Button, Alert, Badge, PageHeader, StatusBadge,
-  PriceTag, Modal, FormInput, FormTextarea, FormSelect,
+  PriceTag, Modal, FormInput, FormTextarea,
   StatCard, Tabs, EmptyState, ConfirmDialog, toast
 } from "../components/UI";
+import CloudinaryUpload from "../components/CloudinaryUpload";
 import ImageURLField from "../components/ImageURLField";
-import ImageGalleryField from "../components/ImageGalleryField";
 
 const PRODUCT_CATS = ["Electronics", "Fashion", "Food", "Auto", "Property", "Health", "Education", "Other"];
 const SERVICE_CATS = ["Design", "Development", "Writing", "Marketing", "Tutoring", "Legal", "Finance", "Health", "Other"];
@@ -392,126 +393,187 @@ export default function SellerDashboard() {
 }
 
 const ListingFormModal = ({ isOpen, onClose, type, categories, editItem, uid, userDoc, onSaved }) => {
+  const ADMIN_EMAIL = "alecommerce123@gmail.com";
+
   const defaultForm = {
     title: "", description: "", price: "", category: categories[0],
     condition: "New", stock: "", location: "",
+    images:   [],
     imageURL: "",
-    images: [{ url: "", label: "" }],
     videoURL: "",
-    deliveryTime: "", tags: ""
+    deliveryTime: "",
+    deliveryFee:  "",
   };
-  const [form,    setForm]    = useState(defaultForm);
-  const [loading, setLoading] = useState(false);
+
+  const [form,      setForm]      = useState(defaultForm);
+  const [saving,    setSaving]    = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
+    if (!isOpen) return;
     if (editItem) {
-      // Migrate old imageURL to images array if no images array exists
-      const existingImages = editItem.images?.length
-        ? editItem.images
-        : editItem.imageURL
-          ? [{ url: editItem.imageURL, label: "" }]
-          : [{ url: "", label: "" }];
+      const existingImages =
+        editItem.images?.filter(i => i.url).length > 0
+          ? editItem.images.filter(i => i.url)
+          : editItem.imageURL
+            ? [{ url: editItem.imageURL, label: "" }]
+            : [];
       setForm({
         ...defaultForm, ...editItem,
-        price: editItem.price || "",
-        stock: editItem.stock || "",
-        images: existingImages,
+        price:       String(editItem.price  || ""),
+        stock:       String(editItem.stock  || ""),
+        images:      existingImages,
+        videoURL:    editItem.videoURL    || "",
+        deliveryFee: String(editItem.deliveryFee || ""),
       });
     } else {
       setForm(defaultForm);
     }
   }, [editItem, isOpen]);
 
-  const handleSubmit = async () => {
-    if (!form.title || !form.description || !form.price) return toast.error("Please fill required fields");
-
-    // Validate at least one image has a URL
-    const validImages = (form.images || []).filter(img => img.url?.trim());
-    if (type === "product" && validImages.length === 0) return toast.error("Please add at least one product image");
-
-    setLoading(true);
-    try {
-      const data = {
-        ...form,
-        price: parseFloat(form.price),
-        stock: parseInt(form.stock) || null,
-        // Set imageURL to first valid image for backward compatibility
-        imageURL: validImages[0]?.url || form.imageURL || "",
-        images: type === "product" ? validImages : [],
-        sellerId: uid, sellerName: userDoc?.displayName,
-        isSellerVerified: userDoc?.isSellerVerified || false,
-      };
-      if (editItem) {
-        if (type === "product") await updateProduct(editItem.id, data);
-        else await updateService(editItem.id, data);
-        toast.success("Listing updated!");
-      } else {
-        if (type === "product") await createProduct(data);
-        else await createService(data);
-        toast.success("Listing created! Awaiting admin approval.");
-      }
-      onSaved();
-    } catch (e) { toast.error("Failed to save listing: " + e.message); }
-    setLoading(false);
+  const validate = () => {
+    if (!form.title.trim())       return "Product title is required";
+    if (!form.description.trim()) return "Description is required";
+    const price = parseFloat(form.price);
+    if (!form.price || isNaN(price) || price <= 0) return "A valid price is required";
+    if (type === "product" && form.images.filter(i => i.url).length === 0)
+      return "At least one product photo is required. Please upload a photo before submitting.";
+    return null;
   };
 
-  const f = (k) => ({ value: form[k], onChange: e => setForm(p => ({ ...p, [k]: e.target.value })) });
+  const handleSubmit = async () => {
+    if (uploading) { toast.error("Please wait for the photo upload to finish before submitting."); return; }
+    const err = validate();
+    if (err) { toast.error(err); return; }
+
+    setSaving(true);
+    try {
+      const validImages = form.images.filter(i => i.url);
+      const data = {
+        title:            form.title.trim(),
+        description:      form.description.trim(),
+        price:            parseFloat(form.price),
+        category:         form.category,
+        condition:        form.condition,
+        stock:            parseInt(form.stock) || null,
+        location:         form.location.trim(),
+        videoURL:         form.videoURL.trim(),
+        deliveryTime:     form.deliveryTime.trim(),
+        deliveryFee:      parseFloat(form.deliveryFee) || 0,
+        images:           validImages,
+        imageURL:         validImages[0]?.url || "",
+        sellerId:         uid,
+        sellerName:       userDoc?.displayName || "",
+        isSellerVerified: userDoc?.isSellerVerified || false,
+        status:           editItem ? (editItem.status || "pending") : "pending",
+      };
+
+      if (editItem) {
+        if (type === "product") await updateProduct(editItem.id, data);
+        else                    await updateService(editItem.id, data);
+        toast.success("Listing updated and resubmitted for review.");
+      } else {
+        if (type === "product") {
+          await createProduct(data);
+          try {
+            await sendAnnouncementEmail(
+              ADMIN_EMAIL, "ASVAN Admin",
+              `New Product Awaiting Approval — "${data.title}"`,
+              `Seller: ${userDoc?.displayName}\nProduct: ${data.title}\nCategory: ${data.category}\nPrice: GHS ${data.price.toFixed(2)}\nPhotos: ${validImages.length}\n\nLog in to /admin to approve or reject.`
+            );
+          } catch (emailErr) { console.warn("Admin email failed:", emailErr.message); }
+          toast.success("Product submitted! Goes live once admin approves.");
+        } else {
+          await createService(data);
+          toast.success("Service submitted for admin approval.");
+        }
+      }
+      onSaved();
+    } catch (e) { toast.error("Failed to save: " + e.message); }
+    setSaving(false);
+  };
+
+  const f = k => ({ value: form[k], onChange: e => setForm(p => ({ ...p, [k]: e.target.value })) });
+  const busy = saving || uploading;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}
+    <Modal
+      isOpen={isOpen}
+      onClose={() => { if (!busy) onClose(); }}
       title={`${editItem ? "Edit" : "Create"} ${type === "product" ? "Product" : "Service"}`}
       footer={
         <>
-          <Button variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" loading={loading} onClick={handleSubmit}>
-            {editItem ? "Save Changes" : "Create Listing"}
+          <Button variant="secondary" onClick={onClose} disabled={busy}>Cancel</Button>
+          <Button variant="primary" loading={saving} disabled={busy} onClick={handleSubmit}>
+            {uploading ? "Waiting for upload…" : saving ? "Saving…" : editItem ? "Save Changes" : "Submit for Approval"}
           </Button>
         </>
       }
     >
-      {!editItem && <Alert type="info">Your listing will be reviewed by admin before going live.</Alert>}
-      <FormInput label="Title *" placeholder={`${type === "product" ? "Product" : "Service"} name`} {...f("title")} />
-      <FormTextarea label="Description *" placeholder="Detailed description..." {...f("description")} />
+      {!editItem && <Alert type="info">Your listing is reviewed by admin before going live. Photos are stored securely in the cloud.</Alert>}
+      {uploading && <Alert type="warning" style={{ marginTop: 8 }}>Photo uploading — please wait before submitting.</Alert>}
+
+      <FormInput label="Title *" placeholder={type === "product" ? "e.g. Samsung Galaxy A54" : "e.g. Logo Design"} {...f("title")} disabled={busy} />
+      <FormTextarea label="Description *" placeholder="Describe the item clearly..." rows={4} {...f("description")} disabled={busy} />
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        <FormInput label="Price (GHS) *" type="number" placeholder="0.00" {...f("price")} />
+        <FormInput label="Price (GHS) *" type="number" placeholder="0.00" {...f("price")} disabled={busy} />
         <div className="form-group">
           <label className="form-label">Category</label>
-          <select className="form-select" value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))}>
+          <select className="form-select" value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} disabled={busy}>
             {categories.map(c => <option key={c}>{c}</option>)}
           </select>
         </div>
       </div>
+
       {type === "product" && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           <div className="form-group">
             <label className="form-label">Condition</label>
-            <select className="form-select" value={form.condition} onChange={e => setForm(p => ({ ...p, condition: e.target.value }))}>
+            <select className="form-select" value={form.condition} onChange={e => setForm(p => ({ ...p, condition: e.target.value }))} disabled={busy}>
               {["New", "Used - Like New", "Used - Good", "Used - Fair"].map(c => <option key={c}>{c}</option>)}
             </select>
           </div>
-          <FormInput label="Stock Quantity" type="number" placeholder="Leave blank if unlimited" {...f("stock")} />
+          <FormInput label="Stock" type="number" placeholder="Blank = unlimited" {...f("stock")} disabled={busy} />
         </div>
       )}
-      {type === "service" && (
-        <FormInput label="Delivery Time" placeholder="e.g. 3-5 days" {...f("deliveryTime")} />
-      )}
-      <FormInput label="Location" placeholder="e.g. Accra, Kumasi..." {...f("location")} />
 
-      {/* Multi-image gallery for products */}
-      {type === "product" ? (
-        <ImageGalleryField
-          images={form.images}
-          videoURL={form.videoURL}
-          onChange={imgs => setForm(p => ({ ...p, images: imgs }))}
-          onVideoChange={url => setForm(p => ({ ...p, videoURL: url }))}
-        />
-      ) : (
-        <ImageURLField
-          label="Service Image"
-          value={form.imageURL}
-          onChange={url => setForm(p => ({ ...p, imageURL: url }))}
-        />
+      {type === "service" && (
+        <FormInput label="Delivery Time" placeholder="e.g. 3-5 days" {...f("deliveryTime")} disabled={busy} />
       )}
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <FormInput label="Location" placeholder="e.g. Accra" {...f("location")} disabled={busy} />
+        <FormInput label="Delivery Fee (GHS)" type="number" placeholder="0 = free" {...f("deliveryFee")} disabled={busy} />
+      </div>
+
+      <div style={{ marginTop: 8 }}>
+        {type === "product" ? (
+          <CloudinaryUpload
+            images={form.images}
+            onChange={imgs => setForm(p => ({ ...p, images: imgs }))}
+            maxImages={5}
+            disabled={saving}
+            folder="products"
+            onUploadStart={() => setUploading(true)}
+            onUploadEnd={() => setUploading(false)}
+          />
+        ) : (
+          <ImageURLField
+            label="Service Image"
+            value={form.imageURL}
+            onChange={url => setForm(p => ({ ...p, imageURL: url }))}
+            disabled={busy}
+          />
+        )}
+      </div>
+
+      <div className="form-group" style={{ marginTop: 12 }}>
+        <label className="form-label">Product Video <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>(optional)</span></label>
+        <input className="form-input" type="url" value={form.videoURL} onChange={e => setForm(p => ({ ...p, videoURL: e.target.value }))} placeholder="https://youtube.com/watch?v=..." disabled={busy} />
+        <span className="form-hint">Buyers see a Watch Video button on your product page</span>
+      </div>
     </Modal>
   );
 };
+
