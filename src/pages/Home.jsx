@@ -30,7 +30,7 @@ const HERO_SLIDES = [
   {
     headline: "Sell to Thousands of Buyers",
     sub: "List your products and services for free. Admin-verified. Escrow-secured payments.",
-    image: "linear-gradient(135deg, #0f1f12 0%, #1a3a1f 60%, #0f2a1a 100%)",
+    image: "https://lh3.googleusercontent.com/pw/AP1GczMSCvo4xoh8piU_LjEp_1Ccc7euCwxBv0mttD1KOipMEhJwvl7wO-P9nTVDNn2aNjMqmCAFBObOJC520b9SfMIbHJW8oLwYMYrlePdtGDp6cER_rHQ",
     accent: "#34D399",
   },
   {
