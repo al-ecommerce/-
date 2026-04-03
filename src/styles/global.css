@@ -633,3 +633,7 @@ h4, h5, h6 { letter-spacing: 0; }
   font-weight: 700;
   letter-spacing: -0.5px;
 }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
