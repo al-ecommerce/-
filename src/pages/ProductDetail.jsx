@@ -12,11 +12,14 @@ import {
   PriceTag, StatusBadge, ReportButton, VerifiedBadge, toast, FormInput
 } from "../components/UI";
 import { ReportModal } from "../components/ReportModal";
+import ProductGallery from "../components/ProductGallery";
+import { ShareProductButton } from "../components/ShareProduct";
+import { SellerBadgeList } from "../components/SellerBadges";
 
 // Generate a unique reference code for this payment
 const generateRef = () => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let ref = "AlEcom-";
+  let ref = "ASVAN-";
   for (let i = 0; i < 6; i++) ref += chars[Math.floor(Math.random() * chars.length)];
   return ref;
 };
@@ -55,145 +58,6 @@ const Countdown = ({ seconds, onExpire }) => {
   );
 };
 
-// ─── PRODUCT IMAGE GALLERY ───────────────────────────────
-const ProductImageGallery = ({ product }) => {
-  // Build image list from new images array or fall back to single imageURL
-  const images = (product.images?.filter(i => i.url) || []).length > 0
-    ? product.images.filter(i => i.url)
-    : product.imageURL
-      ? [{ url: product.imageURL, label: "" }]
-      : [];
-
-  const [active, setActive] = useState(0);
-
-  if (images.length === 0) {
-    return (
-      <div style={{
-        width: "100%", height: 380, background: "var(--surface-3)",
-        borderRadius: "var(--radius-xl)", display: "flex",
-        alignItems: "center", justifyContent: "center", fontSize: 64,
-        border: "1px solid var(--border)",
-      }}>📦</div>
-    );
-  }
-
-  return (
-    <div>
-      {/* Main image */}
-      <div style={{
-        width: "100%", height: 380, background: "var(--surface-3)",
-        borderRadius: "var(--radius-xl)", overflow: "hidden",
-        border: "1px solid var(--border)", position: "relative",
-      }}>
-        <img
-          key={active}
-          src={images[active].url}
-          alt={images[active].label || product.title}
-          style={{ width: "100%", height: "100%", objectFit: "cover", transition: "opacity 0.25s" }}
-          onError={e => { e.target.style.display = "none"; }}
-        />
-        {images[active].label && (
-          <div style={{
-            position: "absolute", bottom: 14, left: 14,
-            background: "rgba(0,0,0,0.65)", color: "#fff",
-            padding: "4px 12px", borderRadius: 20,
-            fontSize: 13, fontWeight: 600, backdropFilter: "blur(4px)",
-          }}>
-            {images[active].label}
-          </div>
-        )}
-        {images.length > 1 && (
-          <>
-            <button
-              onClick={() => setActive(a => (a - 1 + images.length) % images.length)}
-              style={{
-                position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)",
-                width: 36, height: 36, borderRadius: "50%",
-                background: "rgba(255,255,255,0.9)", border: "none",
-                cursor: "pointer", fontSize: 16, display: "flex",
-                alignItems: "center", justifyContent: "center",
-                boxShadow: "var(--shadow)",
-              }}
-            >‹</button>
-            <button
-              onClick={() => setActive(a => (a + 1) % images.length)}
-              style={{
-                position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-                width: 36, height: 36, borderRadius: "50%",
-                background: "rgba(255,255,255,0.9)", border: "none",
-                cursor: "pointer", fontSize: 16, display: "flex",
-                alignItems: "center", justifyContent: "center",
-                boxShadow: "var(--shadow)",
-              }}
-            >›</button>
-          </>
-        )}
-      </div>
-
-      {/* Thumbnails + colour buttons */}
-      {images.length > 1 && (
-        <div style={{ marginTop: 12, display: "flex", gap: 10, flexWrap: "wrap" }}>
-          {images.map((img, i) => (
-            <button
-              key={i}
-              onClick={() => setActive(i)}
-              style={{
-                padding: 0, border: `2.5px solid ${i === active ? "var(--accent)" : "var(--border)"}`,
-                borderRadius: "var(--radius-sm)", overflow: "hidden",
-                cursor: "pointer", background: "var(--surface-3)",
-                width: 72, height: 72, flexShrink: 0,
-                transition: "border-color 0.2s",
-                position: "relative",
-              }}
-            >
-              <img
-                src={img.url}
-                alt={img.label || `View ${i + 1}`}
-                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                onError={e => { e.target.style.display = "none"; }}
-              />
-              {img.label && (
-                <div style={{
-                  position: "absolute", bottom: 0, left: 0, right: 0,
-                  background: "rgba(0,0,0,0.55)", color: "#fff",
-                  fontSize: 9, fontWeight: 700, textAlign: "center",
-                  padding: "2px 2px", letterSpacing: "0.2px",
-                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                }}>
-                  {img.label}
-                </div>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Label chips — only show if any images have labels */}
-      {images.some(i => i.label) && (
-        <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <span style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 500 }}>Views:</span>
-          {images.map((img, i) => (
-            <button
-              key={i}
-              onClick={() => setActive(i)}
-              style={{
-                padding: "5px 14px", borderRadius: 20, border: "1.5px solid",
-                borderColor: i === active ? "var(--accent)" : "var(--border)",
-                background: i === active ? "var(--accent-glow)" : "var(--surface)",
-                color: i === active ? "var(--accent)" : "var(--text-secondary)",
-                fontSize: 13, fontWeight: i === active ? 700 : 500,
-                cursor: "pointer", fontFamily: "var(--font-body)",
-                transition: "all 0.15s",
-              }}
-            >
-              {img.label || `Photo ${i + 1}`}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -210,13 +74,20 @@ export default function ProductDetail() {
   const [qty,          setQty]          = useState(1);
 
   // Payment flow state
-  const [payStep,      setPayStep]      = useState("choose");  // "choose" | "momo" | "submitted"
-  const [payMethod,    setPayMethod]    = useState("momo");    // "momo" | "wallet"
+  const [payStep,      setPayStep]      = useState("delivery"); // "delivery" | "choose" | "momo" | "submitted"
+  const [payMethod,    setPayMethod]    = useState("momo");
   const [processing,   setProcessing]   = useState(false);
   const [momoRef,      setMomoRef]      = useState("");
-  const [userRef,      setUserRef]      = useState("");        // reference user confirms they used
+  const [userRef,      setUserRef]      = useState("");
   const [senderPhone,  setSenderPhone]  = useState("");
   const [expired,      setExpired]      = useState(false);
+
+  // Delivery details
+  const [deliveryType,     setDeliveryType]     = useState("delivery"); // "delivery" | "meetup"
+  const [deliveryAddress,  setDeliveryAddress]  = useState(userDoc?.location || "");
+  const [deliveryLandmark, setDeliveryLandmark] = useState(userDoc?.deliveryLandmark || "");
+  const [preferredTime,    setPreferredTime]     = useState("");
+  const [deliveryNote,     setDeliveryNote]      = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -238,42 +109,65 @@ export default function ProductDetail() {
 
   const total        = (product?.price || 0) * qty;
   const escrowFeeAmt = (total * (settings.escrowFee || 2)) / 100;
-  const grandTotal   = total + escrowFeeAmt;
-  const isLarge      = grandTotal >= 500;  // orders ≥ GHS 500 get extra notice
+  const grandTotal   = total + escrowFeeAmt; // deliveryFee added after delivery step
+  const isLarge      = grandTotal >= 500;
 
   const openBuy = () => {
-    if (!currentUser) {
-      setShowGuestPrompt(true);
-      return;
-    }
+    if (!currentUser) { setShowGuestPrompt(true); return; }
     if (!currentUser.emailVerified) return toast.error("Please verify your email address first");
-    setPayStep("choose");
+    setPayStep("delivery");
     setPayMethod("momo");
     setMomoRef(generateRef());
-    setUserRef("");
-    setSenderPhone("");
-    setExpired(false);
+    setUserRef(""); setSenderPhone(""); setExpired(false);
+    // Pre-fill buyer's saved location
+    setDeliveryAddress(userDoc?.location || "");
+    setDeliveryLandmark(userDoc?.deliveryLandmark || "");
+    setPreferredTime(""); setDeliveryNote("");
     setShowBuyModal(true);
   };
 
+  // Delivery fee calculation
+  const deliveryFee = (() => {
+    if (deliveryType === "meetup") return 0;
+    if (product?.deliveryFee > 0) return product.deliveryFee;
+    const sellerTown = (seller?.town || seller?.location || "").split(",")[0].toLowerCase().trim();
+    const buyerTown  = (deliveryAddress || userDoc?.town || "").split(",")[0].toLowerCase().trim();
+    if (!sellerTown || !buyerTown) return 10;
+    return sellerTown === buyerTown ? 5 : 20;
+  })();
+
   // ── WALLET PAYMENT ───────────────────────────────────────
+  const deliveryData = {
+    deliveryType,
+    deliveryAddress: deliveryAddress.trim(),
+    deliveryLandmark: deliveryLandmark.trim(),
+    preferredTime,
+    deliveryNote: deliveryNote.trim(),
+    deliveryFee,
+    buyerPhone: userDoc?.phone || "",
+    buyerTown:  userDoc?.town  || "",
+  };
+
   const handleWalletPay = async () => {
     setProcessing(true);
+    const finalTotal = total + deliveryFee + escrowFeeAmt;
     try {
       const wallet = await getWallet(currentUser.uid);
-      if (wallet.balance < grandTotal) {
-        toast.error(`Insufficient wallet balance. You need GHS ${grandTotal.toFixed(2)}. Top up via MoMo first.`);
+      if (wallet.balance < finalTotal) {
+        toast.error(`Insufficient balance. You need GHS ${finalTotal.toFixed(2)}. Top up via MoMo first.`);
         setProcessing(false);
         return;
       }
-      await debitWallet(currentUser.uid, grandTotal, `Purchase: ${product.title}`);
+      await debitWallet(currentUser.uid, finalTotal, `Purchase: ${product.title}`);
       const order = await createOrder({
         buyerId: currentUser.uid, buyerName: userDoc?.displayName,
+        buyerPhone: userDoc?.phone || "",
         sellerId: product.sellerId, itemId: id, itemTitle: product.title,
         itemType: "product", quantity: qty, amount: total,
         commission: (total * (settings.commissionRate || 10)) / 100,
-        escrowFee: escrowFeeAmt, grandTotal,
+        escrowFee: escrowFeeAmt, grandTotal: finalTotal,
         status: "paid", paymentMethod: "wallet",
+        ...deliveryData,
       });
       await createEscrow({
         orderId: order.id, buyerId: currentUser.uid, sellerId: product.sellerId,
@@ -281,8 +175,8 @@ export default function ProductDetail() {
         escrowFee: escrowFeeAmt, status: "held", itemTitle: product.title,
       });
       await createNotification(product.sellerId, {
-        title: "New Order Received!",
-        body: `${userDoc?.displayName} ordered "${product.title}"`,
+        title: "🛒 New Order Received!",
+        body: `${userDoc?.displayName} ordered "${product.title}" — ${deliveryType === "meetup" ? "Meet-up" : `Delivery to: ${deliveryAddress}`}`,
         type: "order", link: `/orders/${order.id}`,
       });
       try { await sendOrderPlacedEmail(currentUser.email, userDoc?.displayName, order.id, total, product.title); } catch (e) {}
@@ -379,7 +273,7 @@ export default function ProductDetail() {
           {/* ── LEFT ── */}
           <div>
             {/* Image Gallery with variant switcher */}
-            <ProductImageGallery product={product} />
+            <ProductGallery product={product} />
 
             {/* Title + rating */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginTop: 24 }}>
@@ -391,7 +285,10 @@ export default function ProductDetail() {
                   {product.featured && <Badge type="warning">⭐ Featured</Badge>}
                 </div>
               </div>
-              <ReportButton onReport={() => setShowReport(true)} />
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <ShareProductButton product={product} />
+                <ReportButton onReport={() => setShowReport(true)} />
+              </div>
             </div>
 
             <p style={{ color: "var(--text-secondary)", lineHeight: 1.8, margin: "20px 0" }}>{product.description}</p>
@@ -440,6 +337,9 @@ export default function ProductDetail() {
                       {seller.isSellerVerified && <VerifiedBadge />}
                     </div>
                     <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{seller.location || "Ghana"}</div>
+                    <div style={{ marginTop: 6 }}>
+                      <SellerBadgeList userDoc={seller} size="sm" />
+                    </div>
                   </div>
                   <div style={{ display: "flex", gap: 8 }}>
                     <Button variant="secondary" size="sm" onClick={() => navigate(`/store/${product.sellerId}`)}>🏪 Store</Button>
@@ -581,20 +481,124 @@ export default function ProductDetail() {
         isOpen={showBuyModal}
         onClose={() => { if (payStep !== "momo" || expired) setShowBuyModal(false); }}
         title={
-          payStep === "choose"    ? "Choose Payment Method" :
-          payStep === "momo"      ? "Complete MoMo Payment" :
+          payStep === "delivery" ? "Delivery Details"      :
+          payStep === "choose"   ? "Choose Payment Method" :
+          payStep === "momo"     ? "Complete MoMo Payment" :
           "Payment Submitted!"
         }
       >
+        {/* ── STEP 0: Delivery details ── */}
+        {payStep === "delivery" && (
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 4 }}>{product.title} × {qty}</div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 20, color: "var(--accent)", marginBottom: 18 }}>
+              GHS {total.toFixed(2)} + delivery
+            </div>
+
+            {/* Delivery type */}
+            <div className="form-group">
+              <label className="form-label">How do you want to receive this item?</label>
+              <div style={{ display: "flex", gap: 10 }}>
+                {[
+                  { key: "delivery", icon: "🚚", label: "Home Delivery", sub: "Seller delivers to your location" },
+                  { key: "meetup",   icon: "🤝", label: "Meet-up",       sub: "Meet the seller in person" },
+                ].map(opt => (
+                  <div key={opt.key} onClick={() => setDeliveryType(opt.key)} style={{
+                    flex: 1, padding: "12px 14px", border: `2px solid ${deliveryType === opt.key ? "var(--accent)" : "var(--border)"}`,
+                    borderRadius: "var(--radius)", cursor: "pointer",
+                    background: deliveryType === opt.key ? "var(--accent-glow)" : "var(--surface)",
+                    transition: "all 0.15s",
+                  }}>
+                    <div style={{ fontSize: 24, marginBottom: 4 }}>{opt.icon}</div>
+                    <div style={{ fontWeight: 700, fontSize: 13 }}>{opt.label}</div>
+                    <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{opt.sub}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {deliveryType === "delivery" ? (
+              <>
+                <div className="form-group">
+                  <label className="form-label">Delivery Address *</label>
+                  <input className="form-input" value={deliveryAddress} onChange={e => setDeliveryAddress(e.target.value)} placeholder="e.g. Adum, Kumasi" required />
+                  <span className="form-hint">Town and area where you want it delivered</span>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Landmark / Description</label>
+                  <input className="form-input" value={deliveryLandmark} onChange={e => setDeliveryLandmark(e.target.value)} placeholder="e.g. Near Melcom, opposite Presby church" />
+                  <span className="form-hint">Helps the seller find your location easily</span>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Preferred Delivery Time</label>
+                  <select className="form-select" value={preferredTime} onChange={e => setPreferredTime(e.target.value)}>
+                    <option value="">Any time</option>
+                    <option value="Morning (8am–12pm)">Morning (8am–12pm)</option>
+                    <option value="Afternoon (12pm–5pm)">Afternoon (12pm–5pm)</option>
+                    <option value="Evening (5pm–8pm)">Evening (5pm–8pm)</option>
+                    <option value="Weekend only">Weekend only</option>
+                  </select>
+                </div>
+                {/* Delivery fee estimate */}
+                <div style={{ padding: "12px 14px", background: "var(--surface-2)", borderRadius: "var(--radius-sm)", marginBottom: 12, fontSize: 13 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                    <span style={{ color: "var(--text-muted)" }}>Item subtotal</span>
+                    <span>GHS {total.toFixed(2)}</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                    <span style={{ color: "var(--text-muted)" }}>Delivery fee (estimated)</span>
+                    <span>GHS {deliveryFee.toFixed(2)}</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                    <span style={{ color: "var(--text-muted)" }}>Escrow fee ({settings.escrowFee || 2}%)</span>
+                    <span>GHS {escrowFeeAmt.toFixed(2)}</span>
+                  </div>
+                  <hr style={{ margin: "6px 0", borderColor: "var(--border)" }} />
+                  <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 15 }}>
+                    <span>Estimated Total</span>
+                    <span style={{ color: "var(--accent)" }}>GHS {(total + deliveryFee + escrowFeeAmt).toFixed(2)}</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
+                    Final delivery fee confirmed by seller after order accepted
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="form-group">
+                  <label className="form-label">Meetup Location</label>
+                  <input className="form-input" value={deliveryAddress} onChange={e => setDeliveryAddress(e.target.value)} placeholder="e.g. Kejetia, Kumasi or suggest a location" />
+                </div>
+                <div style={{ padding: "12px 14px", background: "rgba(5,150,105,0.07)", border: "1px solid rgba(5,150,105,0.2)", borderRadius: "var(--radius-sm)", marginBottom: 12, fontSize: 13, color: "#065f46" }}>
+                  🤝 Meet-up has no delivery fee. You and the seller will coordinate the meeting location and time via chat after the order is placed.
+                </div>
+              </>
+            )}
+
+            <div className="form-group">
+              <label className="form-label">Additional Note to Seller</label>
+              <textarea className="form-textarea" rows={2} value={deliveryNote} onChange={e => setDeliveryNote(e.target.value)} placeholder="Any special instructions for the seller..." />
+            </div>
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <Button variant="secondary" full onClick={() => setShowBuyModal(false)}>Cancel</Button>
+              <Button variant="primary" full onClick={() => {
+                if (deliveryType === "delivery" && !deliveryAddress.trim()) return toast.error("Please enter your delivery address");
+                setPayStep("choose");
+              }}>
+                Continue to Payment →
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* ── STEP 1: Choose method ── */}
         {payStep === "choose" && (
           <div>
             <div style={{ fontWeight: 600, marginBottom: 6, fontSize: 15 }}>{product.title} × {qty}</div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 22, color: "var(--accent)", marginBottom: 20 }}>
-              GHS {grandTotal.toFixed(2)}
+              GHS {(total + deliveryFee + escrowFeeAmt).toFixed(2)}
             </div>
-
-            {/* Method cards */}
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
               {/* MoMo Direct */}
               <div
@@ -630,7 +634,7 @@ export default function ProductDetail() {
                   <div style={{ fontSize: 28 }}>💰</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: 15 }}>Pay from Wallet</div>
-                    <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Use your AlEcom wallet balance — instant, no verification needed</div>
+                    <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Use your ASVAN wallet balance — instant, no verification needed</div>
                   </div>
                   {payMethod === "wallet" && <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 700 }}>✓</div>}
                 </div>
@@ -689,7 +693,7 @@ export default function ProductDetail() {
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
               {[
                 { n: "1", text: `Dial *170# on your phone or open your MoMo app`, icon: "📱" },
-                { n: "2", text: `Send GHS ${grandTotal.toFixed(2)} to 0549548274 (AlEcom)`, icon: "💸" },
+                { n: "2", text: `Send GHS ${grandTotal.toFixed(2)} to 0549548274 (ASVAN)`, icon: "💸" },
                 { n: "3", text: `In the narration/reference field, type: ${momoRef}`, icon: "✏️", highlight: true },
                 { n: "4", text: `Copy the transaction ID from your confirmation SMS and paste below`, icon: "📋" },
               ].map(s => (

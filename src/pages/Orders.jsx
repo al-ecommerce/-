@@ -4,11 +4,13 @@ import { useAuth } from "../context/AuthContext";
 import {
   getUserOrders, getSellerOrders, getOrderById, updateOrder,
   updateEscrow, getEscrowByOrder, creditWallet, getPlatformSettings,
-  createNotification, getUserDoc, createReview, listenToOrder,
-  setDeliveryDeadline, processAutoReleases
+  createNotification, getUserDoc, createReview, createBuyerReview,
+  addBuyerStrike, submitDisputeEvidence,
+  listenToOrder, setDeliveryDeadline,
 } from "../firebase/db";
 import { sendOrderCompletedEmail, sendAnnouncementEmail } from "../services/emailService";
 import { Spinner, Button, Badge, Alert, Modal, PageHeader, EmptyState, StatusBadge, PriceTag, StarRating, FormTextarea, toast, Tabs } from "../components/UI";
+import { ShareReceipt } from "../components/ShareProduct";
 
 // ─── STATUS CONFIG ────────────────────────────────────────
 const STATUS = {
@@ -241,15 +243,20 @@ export function OrderDetail() {
   const { id }      = useParams();
   const navigate    = useNavigate();
   const { currentUser, userDoc } = useAuth();
-  const [order,     setOrder]     = useState(null);
-  const [escrow,    setEscrow]    = useState(null);
-  const [settings,  setSettings]  = useState({});
-  const [loading,   setLoading]   = useState(true);
-  const [acting,    setActing]     = useState("");   // which action is loading
-  const [showReview,setShowReview] = useState(false);
-  const [review,    setReview]     = useState({ rating: 5, comment: "" });
-  const [buyer,     setBuyer]      = useState(null);
-  const [seller,    setSeller]     = useState(null);
+  const [order,          setOrder]          = useState(null);
+  const [escrow,         setEscrow]         = useState(null);
+  const [settings,       setSettings]       = useState({});
+  const [loading,        setLoading]        = useState(true);
+  const [acting,         setActing]         = useState("");
+  const [showReview,     setShowReview]     = useState(false);  // buyer reviews seller
+  const [showSellerRate, setShowSellerRate] = useState(false);  // seller rates buyer
+  const [showDispute,    setShowDispute]    = useState(false);  // dispute evidence
+  const [review,         setReview]         = useState({ rating: 5, comment: "" });
+  const [sellerReview,   setSellerReview]   = useState({ rating: 5, comment: "" });
+  const [disputeEvidence,setDisputeEvidence]= useState({ description: "", photoURL: "", videoURL: "", chatSummary: "" });
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [buyer,   setBuyer]   = useState(null);
+  const [seller,  setSeller]  = useState(null);
 
   useEffect(() => {
     if (!currentUser) { navigate("/login"); return; }
@@ -338,7 +345,7 @@ export function OrderDetail() {
           buyer?.email, buyer?.displayName,
           `Action Required: Confirm Delivery — "${order.itemTitle}"`,
           `Your order for "${order.itemTitle}" has been marked as delivered by the seller.\n\n` +
-          `Please log in to AlEcom and go to your Orders to confirm receipt.\n\n` +
+          `Please log in to ASVAN and go to your Orders to confirm receipt.\n\n` +
           `✅ If you received the item: Click "Confirm Delivery" to release payment to the seller.\n` +
           `⚠ If you did NOT receive it: Do NOT confirm. Click "Raise Dispute" instead.\n\n` +
           `If you do not respond within 7 days, payment will be automatically released to the seller.\n\n` +
@@ -414,6 +421,56 @@ export function OrderDetail() {
       });
       toast.success("Order cancelled and refunded.");
     } catch (e) { toast.error("Cancellation failed"); }
+    setActing("");
+  };
+
+  const handleSellerReview = async () => {
+    setActing("seller_review");
+    try {
+      await createBuyerReview({
+        buyerId:    order.buyerId,
+        buyerName:  buyer?.displayName,
+        sellerId:   currentUser.uid,
+        sellerName: userDoc?.displayName,
+        orderId:    id,
+        rating:     sellerReview.rating,
+        comment:    sellerReview.comment,
+      });
+      await updateOrder(id, { sellerReviewed: true });
+      toast.success("Buyer rating submitted!");
+      setShowSellerRate(false);
+    } catch (e) { toast.error("Failed to submit rating"); }
+    setActing("");
+  };
+
+  const handleSubmitDispute = async () => {
+    if (!disputeEvidence.description.trim()) return toast.error("Please describe the problem");
+    setActing("dispute");
+    try {
+      await submitDisputeEvidence(id, currentUser.uid, {
+        description:  disputeEvidence.description,
+        photoURL:     disputeEvidence.photoURL,
+        videoURL:     disputeEvidence.videoURL,
+        buyerId:      order.buyerId,
+        sellerId:     order.sellerId,
+        itemTitle:    order.itemTitle,
+        orderRef:     id.slice(0, 8).toUpperCase(),
+      });
+      await updateOrder(id, { status: "disputed", disputedAt: new Date() });
+      if (escrow) await updateEscrow(escrow.id, { status: "disputed" });
+      await createNotification(order.sellerId, {
+        title: "⚠ Dispute Raised",
+        body:  `The buyer has raised a dispute on order #${id.slice(0,8).toUpperCase()} for "${order.itemTitle}". Admin is reviewing.`,
+        type:  "alert",
+      });
+      await createNotification("admin", {
+        title: "⚠ New Dispute Filed",
+        body:  `Order #${id.slice(0,8).toUpperCase()} — "${order.itemTitle}". Evidence submitted. Review required.`,
+        type:  "alert", link: `/admin/orders`,
+      });
+      toast.success("Dispute submitted. Admin will review within 48 hours.");
+      setShowDispute(false);
+    } catch (e) { toast.error("Failed to submit dispute: " + e.message); }
     setActing("");
   };
 
@@ -715,6 +772,76 @@ export function OrderDetail() {
                 <Button variant="outline" onClick={() => setShowReview(true)}>⭐ Leave Review</Button>
               </div>
             )}
+            {order.status === "completed" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {/* Digital receipt */}
+                <div style={{ padding: "14px 16px", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", background: "var(--surface-2)" }}>
+                  <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>🧾 Share your purchase</div>
+                  <ShareReceipt order={order} buyer={buyer} seller={seller} />
+                </div>
+                {/* Resell */}
+                {isBuyer && (
+                  <div style={{ padding: "14px 16px", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", background: "var(--surface-2)" }}>
+                    <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 4 }}>🔄 Want to resell this item?</div>
+                    <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 10 }}>List it on ASVAN and reach thousands of buyers.</div>
+                    <Button variant="secondary" size="sm" onClick={() => navigate("/seller-dashboard?tab=products&resell=" + order.itemId)}>
+                      Resell on ASVAN →
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── DELIVERY DETAILS ─────────────────────────── */}
+        {(order.deliveryType || order.deliveryAddress) && (
+          <div className="card" style={{ marginBottom: 20 }}>
+            <h3 style={{ fontWeight: 700, marginBottom: 14, fontFamily: "var(--font-display)" }}>
+              {order.deliveryType === "meetup" ? "🤝 Meet-up Details" : "🚚 Delivery Details"}
+            </h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {order.deliveryType && (
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
+                  <span style={{ color: "var(--text-muted)" }}>Type</span>
+                  <span style={{ fontWeight: 600 }}>{order.deliveryType === "meetup" ? "🤝 Meet-up" : "🚚 Home Delivery"}</span>
+                </div>
+              )}
+              {order.deliveryAddress && (
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
+                  <span style={{ color: "var(--text-muted)" }}>Location</span>
+                  <span style={{ fontWeight: 600, textAlign: "right", maxWidth: "60%" }}>{order.deliveryAddress}</span>
+                </div>
+              )}
+              {order.deliveryLandmark && (
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
+                  <span style={{ color: "var(--text-muted)" }}>Landmark</span>
+                  <span style={{ textAlign: "right", maxWidth: "60%" }}>{order.deliveryLandmark}</span>
+                </div>
+              )}
+              {order.preferredTime && (
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
+                  <span style={{ color: "var(--text-muted)" }}>Preferred Time</span>
+                  <span>{order.preferredTime}</span>
+                </div>
+              )}
+              {order.deliveryFee > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
+                  <span style={{ color: "var(--text-muted)" }}>Delivery Fee</span>
+                  <span style={{ fontWeight: 600 }}>GHS {Number(order.deliveryFee).toFixed(2)}</span>
+                </div>
+              )}
+              {order.deliveryNote && (
+                <div style={{ padding: "10px 12px", background: "var(--surface-2)", borderRadius: "var(--radius-sm)", fontSize: 13, color: "var(--text-secondary)", borderLeft: "3px solid var(--accent)" }}>
+                  📝 Note: {order.deliveryNote}
+                </div>
+              )}
+            </div>
+            {isSellerUser && order.deliveryType === "delivery" && (
+              <div style={{ marginTop: 12, padding: "10px 14px", background: "rgba(26,86,219,0.07)", borderRadius: "var(--radius-sm)", fontSize: 13, color: "var(--accent)" }}>
+                💡 Contact the buyer via chat to confirm delivery arrangements.
+              </div>
+            )}
           </div>
         )}
 
@@ -929,11 +1056,11 @@ export function OrderDetail() {
         )}
       </div>
 
-      {/* Review Modal */}
+      {/* ── BUYER RATES SELLER ── */}
       <Modal
         isOpen={showReview}
         onClose={() => setShowReview(false)}
-        title="Leave a Review"
+        title="⭐ Rate the Seller"
         footer={
           <>
             <Button variant="secondary" onClick={() => setShowReview(false)}>Skip</Button>
@@ -952,9 +1079,83 @@ export function OrderDetail() {
           label="Your Review"
           value={review.comment}
           onChange={e => setReview(p => ({ ...p, comment: e.target.value }))}
-          placeholder="Was it as described? Was delivery prompt? Would you recommend this seller?"
+          placeholder="Was the item as described? Was delivery prompt? Would you recommend this seller?"
           rows={4}
         />
+      </Modal>
+
+      {/* ── SELLER RATES BUYER ── */}
+      <Modal
+        isOpen={showSellerRate}
+        onClose={() => setShowSellerRate(false)}
+        title="⭐ Rate this Buyer"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setShowSellerRate(false)}>Skip</Button>
+            <Button variant="primary" loading={acting === "seller_review"} onClick={handleSellerReview}>Submit Rating</Button>
+          </>
+        }
+      >
+        <p style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 16 }}>
+          How was <strong>{buyer?.displayName || "this buyer"}</strong> to deal with?
+        </p>
+        <div className="form-group">
+          <label className="form-label">Rating</label>
+          <StarRating value={sellerReview.rating} onChange={r => setSellerReview(p => ({ ...p, rating: r }))} />
+        </div>
+        <FormTextarea
+          label="Comments"
+          value={sellerReview.comment}
+          onChange={e => setSellerReview(p => ({ ...p, comment: e.target.value }))}
+          placeholder="Was the buyer responsive? Did they confirm delivery promptly? Any issues?"
+          rows={3}
+        />
+      </Modal>
+
+      {/* ── DISPUTE EVIDENCE MODAL ── */}
+      <Modal
+        isOpen={showDispute}
+        onClose={() => setShowDispute(false)}
+        title="⚠ Submit Dispute Evidence"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setShowDispute(false)}>Cancel</Button>
+            <Button variant="danger" loading={acting === "dispute"} onClick={handleSubmitDispute}>Submit Dispute</Button>
+          </>
+        }
+      >
+        <div style={{ padding: "10px 14px", background: "rgba(217,119,6,0.08)", border: "1px solid rgba(217,119,6,0.2)", borderRadius: "var(--radius-sm)", marginBottom: 16, fontSize: 13, color: "#92400e", lineHeight: 1.6 }}>
+          ⚖️ <strong>Disputes are evidence-based.</strong> Without evidence (photos, video, or proof), refunds cannot be issued. Upload clear photos or a video of the issue.
+        </div>
+        <div className="form-group">
+          <label className="form-label">Describe the Problem *</label>
+          <textarea className="form-textarea" rows={3}
+            value={disputeEvidence.description}
+            onChange={e => setDisputeEvidence(p => ({ ...p, description: e.target.value }))}
+            placeholder="What exactly is wrong? Be specific — wrong item, damaged, not received, etc."
+          />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Evidence Photo URL</label>
+          <input className="form-input" type="url"
+            value={disputeEvidence.photoURL}
+            onChange={e => setDisputeEvidence(p => ({ ...p, photoURL: e.target.value }))}
+            placeholder="Upload photo to Imgur/rjke.com and paste the link"
+          />
+          <span className="form-hint">Upload your evidence photo to imgur.com or rjke.com, then paste the link here</span>
+        </div>
+        <div className="form-group">
+          <label className="form-label">Unboxing / Evidence Video URL <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>(strongly recommended)</span></label>
+          <input className="form-input" type="url"
+            value={disputeEvidence.videoURL}
+            onChange={e => setDisputeEvidence(p => ({ ...p, videoURL: e.target.value }))}
+            placeholder="Upload video to YouTube (Unlisted) and paste the link"
+          />
+          <span className="form-hint">An unboxing video is the strongest evidence you can provide. Without video, it is harder to prove damage or wrong item.</span>
+        </div>
+        <div style={{ padding: "10px 14px", background: "var(--surface-2)", borderRadius: "var(--radius-sm)", fontSize: 12, color: "var(--text-muted)", lineHeight: 1.6 }}>
+          📋 Admin will review your evidence alongside the seller's response within 48 hours. Both parties will be contacted.
+        </div>
       </Modal>
     </div>
   );
