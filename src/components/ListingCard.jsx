@@ -5,19 +5,32 @@ export const ListingCard = ({ item, type = "product" }) => {
   const navigate = useNavigate();
   const path = `/${type}s/${item.id}`;
 
+  // Resolve thumbnail: prefer images[0].url, fallback to imageURL, fallback to placeholder
+  const thumbnail = item.images?.find(i => i.url)?.url || item.imageURL || null;
+
   return (
     <div className="listing-card card-hover" onClick={() => navigate(path)}>
       <div style={{
         width: "100%", height: 180,
-        background: item.imageURL ? "transparent" : "linear-gradient(135deg, var(--surface-3), var(--border))",
+        background: thumbnail ? "transparent" : "linear-gradient(135deg, var(--surface-3), var(--border))",
         position: "relative", overflow: "hidden"
       }}>
-        {item.imageURL
-          ? <img src={item.imageURL} alt={item.title} className="listing-card-img" />
+        {thumbnail
+          ? <img src={thumbnail} alt={item.title} className="listing-card-img" onError={e => { e.target.style.display="none"; }} />
           : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40 }}>
               {type === "product" ? "📦" : "🛠"}
             </div>
         }
+        {/* Multi-image indicator */}
+        {item.images?.filter(i => i.url).length > 1 && (
+          <div style={{
+            position: "absolute", bottom: 8, right: 8,
+            background: "rgba(0,0,0,0.55)", color: "#fff",
+            padding: "2px 8px", borderRadius: 10, fontSize: 11, fontWeight: 600,
+          }}>
+            1/{item.images.filter(i => i.url).length}
+          </div>
+        )}
         {item.featured && (
           <div style={{
             position: "absolute", top: 10, left: 10,
