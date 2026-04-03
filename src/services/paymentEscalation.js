@@ -50,7 +50,7 @@ export const checkPendingPayments = async () => {
             `If you are unable to verify right now, the buyer has been notified of the delay.\n` +
             `Their payment is safe in escrow and will not be lost.`;
 
-          await sendAnnouncementEmail(ADMIN_EMAIL, "ASVAN Admin", subject, message);
+          await sendAnnouncementEmail(ADMIN_EMAIL, "AlEcom Admin", subject, message);
 
           console.log(`[Escalation] Sent ${threshold.label} alert for payment ${payment.id}`);
         }

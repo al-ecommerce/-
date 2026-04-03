@@ -1,5 +1,5 @@
 /**
- * ASVAN Abuse & Fraud Protection
+ * AlEcom Abuse & Fraud Protection
  *
  * Protects against:
  * 1. Repeated invalid MoMo submissions (fake references)

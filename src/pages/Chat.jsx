@@ -247,7 +247,7 @@ export default function Chat() {
                   {activeOther.displayName}
                 </div>
                 <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                  {activeOther.location || "ASVAN Member"}
+                  {activeOther.location || "AlEcom Member"}
                 </div>
               </div>
               {activeOther.isSeller && (

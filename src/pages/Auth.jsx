@@ -164,7 +164,7 @@ export const LoginPage = () => {
   };
 
   return (
-    <AuthCard title="Welcome Back" subtitle="Sign in to your ASVAN account">
+    <AuthCard title="Welcome Back" subtitle="Sign in to your AlEcom account">
       {error && <Alert type="danger">{error}</Alert>}
       <form onSubmit={handleLogin}>
         <FormInput label="Email Address" type="email" value={form.email}
@@ -247,7 +247,7 @@ export const RegisterPage = () => {
   );
 
   return (
-    <AuthCard title="Create Account" subtitle="Join ASVAN — Ghana's trusted marketplace">
+    <AuthCard title="Create Account" subtitle="Join AlEcom — Ghana's trusted marketplace">
       {error && <Alert type="danger">{error}</Alert>}
       <form onSubmit={handleRegister}>
         <FormInput label="Full Name *" value={form.displayName}
@@ -288,7 +288,7 @@ export const RegisterPage = () => {
           )}
         </div>
         <div style={{ margin: "12px 0 16px", fontSize: 12, color: "var(--text-muted)", lineHeight: 1.6 }}>
-          By creating an account you agree to ASVAN's <Link to="/policy" style={{ color: "var(--accent)" }}>Terms of Service</Link> and Platform Policy.
+          By creating an account you agree to AlEcom's <Link to="/policy" style={{ color: "var(--accent)" }}>Terms of Service</Link> and Platform Policy.
         </div>
         <Button type="submit" variant="primary" full loading={loading}>Create Account</Button>
       </form>

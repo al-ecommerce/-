@@ -7,7 +7,7 @@ import { validateMomoSubmission, sanitizeText, logSuspiciousActivity } from "../
 import { Spinner, Button, Alert, FormInput, PageHeader, StatusBadge, Badge, Modal, toast } from "../components/UI";
 
 const ADMIN_MOMO = "0549548274";
-const ADMIN_NAME = "ASVAN Marketplace";
+const ADMIN_NAME = "AlEcom Marketplace";
 const NETWORK    = "MTN MoMo";          // change if different
 
 export default function MomoPayment() {
@@ -54,7 +54,7 @@ export default function MomoPayment() {
               {
                 step: "1",
                 title: "Send MoMo Payment",
-                desc: `Dial *170# on your phone and send any amount to the ASVAN admin number.`,
+                desc: `Dial *170# on your phone and send any amount to the AlEcom admin number.`,
                 highlight: true,
               },
               {

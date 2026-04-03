@@ -338,7 +338,7 @@ export function OrderDetail() {
           buyer?.email, buyer?.displayName,
           `Action Required: Confirm Delivery — "${order.itemTitle}"`,
           `Your order for "${order.itemTitle}" has been marked as delivered by the seller.\n\n` +
-          `Please log in to ASVAN and go to your Orders to confirm receipt.\n\n` +
+          `Please log in to AlEcom and go to your Orders to confirm receipt.\n\n` +
           `✅ If you received the item: Click "Confirm Delivery" to release payment to the seller.\n` +
           `⚠ If you did NOT receive it: Do NOT confirm. Click "Raise Dispute" instead.\n\n` +
           `If you do not respond within 7 days, payment will be automatically released to the seller.\n\n` +

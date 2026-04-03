@@ -16,7 +16,7 @@ import { ReportModal } from "../components/ReportModal";
 // Generate a unique reference code for this payment
 const generateRef = () => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let ref = "ASVAN-";
+  let ref = "AlEcom-";
   for (let i = 0; i < 6; i++) ref += chars[Math.floor(Math.random() * chars.length)];
   return ref;
 };
@@ -630,7 +630,7 @@ export default function ProductDetail() {
                   <div style={{ fontSize: 28 }}>💰</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: 15 }}>Pay from Wallet</div>
-                    <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Use your ASVAN wallet balance — instant, no verification needed</div>
+                    <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Use your AlEcom wallet balance — instant, no verification needed</div>
                   </div>
                   {payMethod === "wallet" && <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 700 }}>✓</div>}
                 </div>
@@ -689,7 +689,7 @@ export default function ProductDetail() {
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
               {[
                 { n: "1", text: `Dial *170# on your phone or open your MoMo app`, icon: "📱" },
-                { n: "2", text: `Send GHS ${grandTotal.toFixed(2)} to 0549548274 (ASVAN)`, icon: "💸" },
+                { n: "2", text: `Send GHS ${grandTotal.toFixed(2)} to 0549548274 (AlEcom)`, icon: "💸" },
                 { n: "3", text: `In the narration/reference field, type: ${momoRef}`, icon: "✏️", highlight: true },
                 { n: "4", text: `Copy the transaction ID from your confirmation SMS and paste below`, icon: "📋" },
               ].map(s => (

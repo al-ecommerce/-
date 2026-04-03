@@ -15,7 +15,7 @@ import { toast } from "../components/UI";
 
 const generateRef = () => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let ref = "ASVAN-";
+  let ref = "AlEcom-";
   for (let i = 0; i < 6; i++) ref += chars[Math.floor(Math.random() * chars.length)];
   return ref;
 };
@@ -372,7 +372,7 @@ export function ServiceDetail() {
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
               {[
                 { key: "momo",   icon: "📱", title: "Pay via MoMo",     desc: "MTN · Vodafone · AirtelTigo — pay now, no pre-loading" },
-                { key: "wallet", icon: "💰", title: "Pay from Wallet",   desc: "Use your ASVAN wallet balance — instant confirmation" },
+                { key: "wallet", icon: "💰", title: "Pay from Wallet",   desc: "Use your AlEcom wallet balance — instant confirmation" },
               ].map(m => (
                 <div key={m.key} onClick={() => setPayMethod(m.key)} style={{
                   border: `2px solid ${payMethod === m.key ? "var(--accent)" : "var(--border)"}`,
@@ -414,7 +414,7 @@ export function ServiceDetail() {
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
               {[
                 { n: "1", t: `Dial *170# or open your MoMo app` },
-                { n: "2", t: `Send GHS ${grandTotal.toFixed(2)} to 0549548274 (ASVAN)` },
+                { n: "2", t: `Send GHS ${grandTotal.toFixed(2)} to 0549548274 (AlEcom)` },
                 { n: "3", t: `Type ${momoRef} in the narration/reference field`, highlight: true },
                 { n: "4", t: "Copy the transaction ID from your confirmation SMS and paste below" },
               ].map(s => (
