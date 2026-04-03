@@ -136,13 +136,14 @@ export default function Home() {
             }}>
               <div style={{
                 width: 52, height: 52,
-                background: `linear-gradient(135deg, ${slide.accent}, ${slide.accent}99)`,
+                backgroundImage: "url('/logo.png')",backgroundSize: "cover",
+        backgroundPosition: "center",
                 borderRadius: 14,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontFamily: "var(--font-display)", fontWeight: 700,
                 color: "#fff", fontSize: 22,
                 boxShadow: `0 8px 24px ${slide.accent}44`,
-              }}>A</div>
+              }}></div>
               <span style={{
                 fontFamily: "var(--font-display)", fontWeight: 700,
                 fontSize: 28, color: "#fff", letterSpacing: "-0.5px",
