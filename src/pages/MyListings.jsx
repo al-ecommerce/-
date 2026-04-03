@@ -20,55 +20,62 @@ const PRODUCT_CATS = ["Electronics","Fashion","Food","Auto","Property","Health",
 const SERVICE_CATS = ["Design","Development","Writing","Marketing","Tutoring","Legal","Finance","Health","Other"];
 
 export default function MyListings() {
-  const { currentUser, userDoc, isSeller } = useAuth();
+  const { currentUser, isSeller } = useAuth();
   const navigate = useNavigate();
+
   const [tab, setTab] = useState("products");
   const [products, setProducts] = useState([]);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editItem, setEditItem] = useState(null);   // item being edited
-  const [editType, setEditType] = useState("");      // "product" | "service"
+  const [editItem, setEditItem] = useState(null);
+  const [editType, setEditType] = useState("");
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   useEffect(() => {
     if (!currentUser) return navigate("/login");
-    if (!isSeller)    return navigate("/seller-dashboard");
+    if (!isSeller) return navigate("/seller-dashboard");
     load();
   }, [currentUser, isSeller]);
 
   const load = async () => {
     setLoading(true);
     try {
-      const [p, s] = await Promise.all([
-        getProducts({ sellerId: currentUser.uid }),
-        getServices({ sellerId: currentUser.uid }),
-      ]);
-      // Also get pending ones (getProducts only returns approved, so fetch all)
-      const pAll = await getDocs(query(collection(db, "products"), where("sellerId","==", currentUser.uid)));
-      const sAll = await getDocs(query(collection(db, "services"), where("sellerId","==", currentUser.uid)));
+      const pAll = await getDocs(query(
+        collection(db, "products"),
+        where("sellerId", "==", currentUser.uid)
+      ));
+
+      const sAll = await getDocs(query(
+        collection(db, "services"),
+        where("sellerId", "==", currentUser.uid)
+      ));
+
       setProducts(pAll.docs.map(d => ({ id: d.id, ...d.data() })));
       setServices(sAll.docs.map(d => ({ id: d.id, ...d.data() })));
-    } catch (e) { console.error(e); }
+
+    } catch (e) {
+      console.error(e);
+    }
     setLoading(false);
   };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
-      if (deleteTarget.type === "product") await deleteProduct(deleteTarget.id);
-      else await deleteService(deleteTarget.id);
+      if (deleteTarget.type === "product") {
+        await deleteProduct(deleteTarget.id);
+      } else {
+        await deleteService(deleteTarget.id);
+      }
       toast.success("Listing deleted");
       load();
-    } catch (e) { toast.error("Delete failed"); }
+    } catch {
+      toast.error("Delete failed");
+    }
     setDeleteTarget(null);
   };
 
   if (!isSeller) return null;
-
-  const TABS = [
-    { value: "products", label: `Products (${products.length})` },
-    { value: "services", label: `Services (${services.length})` },
-  ];
 
   const list = tab === "products" ? products : services;
 
@@ -79,100 +86,85 @@ export default function MyListings() {
           title="My Listings"
           subtitle="Edit, update, or delete your products and services"
           action={
-            <Button variant="primary" onClick={() => navigate("/seller-dashboard")}>
+            <Button onClick={() => navigate("/seller-dashboard")}>
               + Add New Listing
             </Button>
           }
         />
 
-        <Tabs tabs={TABS} active={tab} onChange={setTab} />
+        <Tabs
+          tabs={[
+            { value: "products", label: `Products (${products.length})` },
+            { value: "services", label: `Services (${services.length})` },
+          ]}
+          active={tab}
+          onChange={setTab}
+        />
 
         {loading ? <Spinner center /> : list.length === 0 ? (
           <EmptyState
-            icon={tab === "products" ? "📦" : "🛠"}
             title={`No ${tab} yet`}
-            description="Create your first listing from the Seller Dashboard"
-            action={<Button variant="primary" onClick={() => navigate("/seller-dashboard")}>Go to Dashboard</Button>}
+            description="Create your first listing"
           />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {list.map(item => (
-              <div key={item.id} className="card" style={{ padding: 0, overflow: "hidden" }}>
-                <div style={{ display: "flex", gap: 0 }}>
-                  {/* Image thumbnail */}
-                  <div style={{
-                    width: 100, flexShrink: 0,
-                    background: item.imageURL ? "transparent" : "var(--surface-3)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 28,
-                  }}>
-                    {item.imageURL
-                      ? <img src={item.imageURL} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={e => { e.target.style.display="none"; }} />
-                      : (tab === "products" ? "📦" : "🛠")
-                    }
-                  </div>
+            {list.map(item => {
+              const thumbnail = item.images?.[0]?.url || item.imageURL;
 
-                  {/* Info */}
-                  <div style={{ flex: 1, padding: "14px 16px", minWidth: 0 }}>
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 700, fontSize: 15, fontFamily: "var(--font-display)" }} className="truncate">
-                          {item.title}
-                        </div>
-                        <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }} className="truncate">
-                          {item.description}
-                        </div>
-                      </div>
+              return (
+                <div key={item.id} className="card">
+                  <div style={{ display: "flex" }}>
+                    
+                    {/* Image */}
+                    <div style={{ width: 100 }}>
+                      {thumbnail ? (
+                        <img
+                          src={thumbnail}
+                          alt={item.title}
+                          style={{ width: "100%", height: 100, objectFit: "cover" }}
+                        />
+                      ) : "📦"}
+                    </div>
+
+                    {/* Info */}
+                    <div style={{ flex: 1, padding: 12 }}>
+                      <strong>{item.title}</strong>
+                      <div>{item.description}</div>
+
+                      <PriceTag amount={item.price} size="sm" />
+
                       <StatusBadge status={item.status} />
                     </div>
 
-                    <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 10, flexWrap: "wrap" }}>
-                      <PriceTag amount={item.price} size="sm" />
-                      {item.category && <Badge type="muted">{item.category}</Badge>}
-                      {item.condition && <Badge type="muted">{item.condition}</Badge>}
-                      {item.location && <span style={{ fontSize: 12, color: "var(--text-muted)" }}>📍 {item.location}</span>}
+                    {/* Actions */}
+                    <div style={{ padding: 12 }}>
+                      <Button onClick={() => {
+                        setEditItem(item);
+                        setEditType(tab === "products" ? "product" : "service");
+                      }}>
+                        Edit
+                      </Button>
+
+                      <Button
+                        variant="danger"
+                        onClick={() => setDeleteTarget({
+                          id: item.id,
+                          type: tab === "products" ? "product" : "service",
+                          title: item.title
+                        })}
+                      >
+                        Delete
+                      </Button>
                     </div>
 
-                    {item.status === "pending" && (
-                      <div style={{ fontSize: 12, color: "var(--warning)", marginTop: 8, fontWeight: 600 }}>
-                        ⏳ Awaiting admin approval before going live
-                      </div>
-                    )}
-                    {item.status === "rejected" && (
-                      <div style={{ fontSize: 12, color: "var(--danger)", marginTop: 8, fontWeight: 600 }}>
-                        ✕ Rejected by admin — edit and resubmit
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Actions */}
-                  <div style={{
-                    display: "flex", flexDirection: "column", gap: 8,
-                    padding: "14px 14px 14px 0", flexShrink: 0, justifyContent: "center",
-                  }}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => { setEditItem(item); setEditType(tab === "products" ? "product" : "service"); }}
-                    >
-                      ✏️ Edit
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => setDeleteTarget({ id: item.id, type: tab === "products" ? "product" : "service", title: item.title })}
-                    >
-                      🗑 Delete
-                    </Button>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
 
-      {/* Edit Modal */}
       {editItem && (
         <EditListingModal
           item={editItem}
@@ -183,141 +175,106 @@ export default function MyListings() {
         />
       )}
 
-      {/* Delete Confirm */}
       <ConfirmDialog
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
-        danger
         title="Delete Listing"
-        message={`Are you sure you want to permanently delete "${deleteTarget?.title}"? This cannot be undone.`}
-        confirmText="Yes, Delete"
+        message={`Delete "${deleteTarget?.title}"?`}
       />
     </div>
   );
 }
 
-// ── Edit Modal ──────────────────────────────────────────────
+
+// ================= EDIT MODAL =================
+
 function EditListingModal({ item, type, categories, onClose, onSaved }) {
-  const existingImages = item.images?.filter(i => i.url)?.length > 0
-    ? item.images.filter(i => i.url)
+
+  const existingImages = item.images?.length
+    ? item.images
     : item.imageURL
-      ? [{ url: item.imageURL, label: "" }]
+      ? [{ url: item.imageURL }]
       : [];
 
-  const [form,      setForm]      = useState({
-    title:        item.title        || "",
-    description:  item.description  || "",
-    price:        String(item.price || ""),
-    category:     item.category     || categories[0],
-    condition:    item.condition    || "New",
-    stock:        String(item.stock || ""),
-    location:     item.location     || "",
-    imageURL:     item.imageURL     || "",
-    images:       existingImages,
-    videoURL:     item.videoURL     || "",
-    deliveryTime: item.deliveryTime || "",
+  const [form, setForm] = useState({
+    title: item.title || "",
+    description: item.description || "",
+    price: String(item.price || ""),
+    category: item.category || categories[0],
+    condition: item.condition || "New",
+    stock: String(item.stock || ""),
+    location: item.location || "",
+    images: existingImages,
   });
-  const [saving,    setSaving]    = useState(false);
+
+  const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
+  const busy = saving || uploading;
+
+  const f = k => ({
+    value: form[k],
+    onChange: e => setForm(p => ({ ...p, [k]: e.target.value }))
+  });
+
   const handleSave = async () => {
-    if (uploading) return toast.error("Please wait for photo upload to finish");
-    if (!form.title || !form.description || !form.price) return toast.error("Title, description and price are required");
-    const validImages = (form.images || []).filter(i => i.url?.trim());
+    if (uploading) return toast.error("Wait for upload");
+
+    const validImages = form.images.filter(i => i.url);
+
+    const data = {
+      ...form,
+      price: parseFloat(form.price),
+      stock: form.stock ? parseInt(form.stock) : null,
+      imageURL: validImages[0]?.url || "",
+      images: validImages,
+      updatedAt: new Date(),
+      ...(item.status === "rejected" ? { status: "pending" } : {})
+    };
+
     setSaving(true);
+
     try {
-      const data = {
-        ...form,
-        price:    parseFloat(form.price),
-        stock:    form.stock ? parseInt(form.stock) : null,
-        imageURL: validImages[0]?.url || form.imageURL || "",
-        images:   validImages,
-        // Re-submit for approval when editing rejected listings
-        ...(item.status === "rejected" ? { status: "pending" } : {}),
-      };
-      if (type === "product") await updateProduct(item.id, data);
-      else                    await updateService(item.id, data);
-      toast.success("Listing updated successfully!");
+      if (type === "product") {
+        await updateProduct(item.id, data);
+      } else {
+        await updateService(item.id, data);
+      }
+
+      toast.success("Updated");
       onSaved();
-    } catch (e) { toast.error("Update failed — " + e.message); }
+
+    } catch (e) {
+      toast.error("Failed");
+    }
+
     setSaving(false);
   };
-
-  const busy = saving || uploading;
-  const f = k => ({ value: form[k], onChange: e => setForm(p => ({ ...p, [k]: e.target.value })) });
-
-  const f = k => ({ value: form[k], onChange: e => setForm(p => ({ ...p, [k]: e.target.value })) });
 
   return (
     <Modal
       isOpen
-      onClose={() => { if (!busy) onClose(); }}
-      title={`Edit ${type === "product" ? "Product" : "Service"}`}
-      footer={
-        <>
-          <Button variant="secondary" onClick={onClose} disabled={busy}>Cancel</Button>
-          <Button variant="primary" loading={saving} disabled={busy} onClick={handleSave}>
-            {uploading ? "Waiting for upload…" : "Save Changes"}
-          </Button>
-        </>
-      }
+      onClose={() => !busy && onClose()}
+      title="Edit Listing"
     >
-      {item.status === "rejected" && (
-        <Alert type="warning">This listing was rejected. Fix the issues and save to resubmit for approval.</Alert>
-      )}
-      {uploading && (
-        <Alert type="warning" style={{ marginBottom: 8 }}>Photo uploading — please wait before saving.</Alert>
-      )}
 
-      <FormInput label="Title *" {...f("title")} disabled={busy} />
-      <FormTextarea label="Description *" {...f("description")} rows={4} disabled={busy} />
+      <FormInput label="Title" {...f("title")} />
+      <FormTextarea label="Description" {...f("description")} />
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        <FormInput label="Price (GHS) *" type="number" {...f("price")} disabled={busy} />
-        <div className="form-group">
-          <label className="form-label">Category</label>
-          <select className="form-select" value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} disabled={busy}>
-            {categories.map(c => <option key={c}>{c}</option>)}
-          </select>
-        </div>
-      </div>
+      <FormInput label="Price" type="number" {...f("price")} />
 
-      {type === "product" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          <div className="form-group">
-            <label className="form-label">Condition</label>
-            <select className="form-select" value={form.condition} onChange={e => setForm(p => ({ ...p, condition: e.target.value }))} disabled={busy}>
-              {["New","Used - Like New","Used - Good","Used - Fair"].map(c => <option key={c}>{c}</option>)}
-            </select>
-          </div>
-          <FormInput label="Stock" type="number" placeholder="Blank = unlimited" {...f("stock")} disabled={busy} />
-        </div>
-      )}
+      <CloudinaryUpload
+        images={form.images}
+        onChange={imgs => setForm(p => ({ ...p, images: imgs }))}
+        onUploadStart={() => setUploading(true)}
+        onUploadEnd={() => setUploading(false)}
+      />
 
-      {type === "service" && <FormInput label="Delivery Time" placeholder="e.g. 2-3 days" {...f("deliveryTime")} disabled={busy} />}
-      <FormInput label="Location" placeholder="e.g. Accra, Ghana" {...f("location")} disabled={busy} />
+      <Button onClick={handleSave} disabled={busy}>
+        Save
+      </Button>
 
-      {type === "product" ? (
-        <div style={{ marginTop: 8 }}>
-          <CloudinaryUpload
-            images={form.images}
-            onChange={imgs => setForm(p => ({ ...p, images: imgs }))}
-            maxImages={5}
-            disabled={saving}
-            folder="products"
-            onUploadStart={() => setUploading(true)}
-            onUploadEnd={() => setUploading(false)}
-          />
-        </div>
-      ) : (
-        <ImageURLField
-          label="Service Image"
-          value={form.imageURL}
-          onChange={url => setForm(p => ({ ...p, imageURL: url }))}
-          disabled={busy}
-        />
-      )}
     </Modal>
   );
 }
