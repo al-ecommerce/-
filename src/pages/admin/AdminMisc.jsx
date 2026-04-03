@@ -433,3 +433,62 @@ export function AdminSuspiciousActivity() {
     </div>
   );
 }
+
+// ─── DISPUTE CENTER ───────────────────────────────────────
+export function AdminDisputeCenter() {
+  const [disputes, setDisputes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const snap = await getDocs(collection(db, "disputes"));
+        setDisputes(
+          snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        );
+      } catch (e) {
+        console.error(e);
+      }
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  return (
+    <div>
+      <PageHeader title="Dispute Center" subtitle="Resolve buyer and seller disputes" />
+      {loading ? <Spinner center /> : disputes.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-icon">⚖️</div>
+          <h3>No disputes</h3>
+          <p>All transactions are clean.</p>
+        </div>
+      ) : (
+        <div className="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Buyer</th>
+                <th>Seller</th>
+                <th>Reason</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {disputes.map(d => (
+                <tr key={d.id}>
+                  <td>{d.orderId}</td>
+                  <td style={{ fontSize: 12 }}>{d.buyerId?.slice(0, 10)}...</td>
+                  <td style={{ fontSize: 12 }}>{d.sellerId?.slice(0, 10)}...</td>
+                  <td>{d.reason}</td>
+                  <td><StatusBadge status={d.status || "pending"} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
