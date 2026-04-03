@@ -13,8 +13,8 @@
  *     VITE_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
  */
 
-const CLOUD_NAME    = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+const CLOUD_NAME    = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+const UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 const UPLOAD_URL    = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
 
 // ─── VALIDATION ───────────────────────────────────────────
