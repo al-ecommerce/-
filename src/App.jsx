@@ -21,6 +21,7 @@ import MyListings from "./pages/MyListings";
 import MomoPayment from "./pages/MomoPayment";
 import Manual from "./pages/Manual";
 import Policy from "./pages/Policy";
+import Community from "./pages/Community";
 import { AdsPage, FeaturedPage } from "./pages/Ads";
 import Subscriptions from "./pages/Subscriptions";
 import StorePage from "./pages/Store";
@@ -31,7 +32,7 @@ import NotFound from "./pages/NotFound";
 import AdminDashboard, { AdminLayout } from "./pages/admin/AdminDashboard";
 import { AdminUsers, AdminSellers, AdminProducts, AdminServices, AdminVerification } from "./pages/admin/AdminManage";
 import { AdminOrders, AdminPayments, AdminEscrow, AdminWithdrawals, AdminReports } from "./pages/admin/AdminTransactions";
-import { AdminSettings, AdminAnalytics, AdminLogs, AdminAnnounce, AdminAds, AdminFeatured, AdminSuspiciousActivity } from "./pages/admin/AdminMisc";
+import { AdminSettings, AdminAnalytics, AdminLogs, AdminAnnounce, AdminAds, AdminFeatured, AdminSuspiciousActivity, AdminDisputeCenter } from "./pages/admin/AdminMisc";
 import AdminMomo from "./pages/admin/AdminMomo";
 
 import { AdminRequests } from "./pages/admin/AdminRequests";
@@ -69,8 +70,9 @@ function AppContent() {
         <Route path="/services/:id" element={<ServiceDetail />} />
         <Route path="/requests" element={<RequestsPage />} />
         <Route path="/requests/:id" element={<RequestDetail />} />
-        <Route path="/manual" element={<Manual />} />
-        <Route path="/policy" element={<Policy />} />
+        <Route path="/manual"    element={<Manual />} />
+        <Route path="/policy"    element={<Policy />} />
+        <Route path="/community" element={<Community />} />
         <Route path="/search" element={<Search />} />
         <Route path="/store/:uid" element={<StorePage />} />
 
@@ -111,6 +113,7 @@ function AppContent() {
         <Route path="/admin/announce" element={<AdminRoute><AdminAnnounce /></AdminRoute>} />
         <Route path="/admin/momo" element={<AdminRoute><AdminMomo /></AdminRoute>} />
         <Route path="/admin/suspicious" element={<AdminRoute><AdminSuspiciousActivity /></AdminRoute>} />
+        <Route path="/admin/disputes" element={<AdminRoute><AdminDisputeCenter /></AdminRoute>} />
 
         {/* Fallback */}
         <Route path="*" element={<NotFound />} />
