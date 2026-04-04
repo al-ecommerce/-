@@ -413,12 +413,6 @@ const ListingFormModal = ({ isOpen, onClose, type, categories, editItem, uid, us
   deliveryType: "pickup", // pickup | seller | third_party | meetup | digital | none
   deliveryTime: "",
   deliveryFee: "",
-
-priceType: "fixed", // fixed | per_unit | negotiable | range
-unit: "",
-minPrice: "",
-maxPrice: "",
-minQty: "",
 };
 
   const [form,      setForm]      = useState(defaultForm);
@@ -470,24 +464,17 @@ minQty: "",
       const data = {
   title: form.title.trim(),
   description: form.description.trim(),
+  price: parseFloat(form.price),
   category: form.category,
-
-  priceType: form.priceType,
-  price:
-    form.priceType === "fixed" || form.priceType === "per_unit"
-      ? parseFloat(form.price) || 0
-      : 0,
-
-  minPrice: form.priceType === "range" ? parseFloat(form.minPrice) || 0 : 0,
-  maxPrice: form.priceType === "range" ? parseFloat(form.maxPrice) || 0 : 0,
-  unit: form.priceType === "per_unit" ? form.unit : "",
-  minQty: form.priceType === "per_unit" ? parseInt(form.minQty) || 1 : 1,
 
   condition: form.condition,
   stock: parseInt(form.stock) || null,
+
   location: form.location.trim(),
+
   videoURL: form.videoURL.trim(),
 
+  // ✅ DELIVERY SYSTEM
   deliveryType: form.deliveryType,
   deliveryTime: form.deliveryTime.trim(),
   deliveryFee:
@@ -504,7 +491,6 @@ minQty: "",
 
   status: editItem ? (editItem.status || "pending") : "pending",
 };
-
 
       if (editItem) {
         if (type === "product") await updateProduct(editItem.id, data);
@@ -554,83 +540,15 @@ minQty: "",
       <FormInput label="Title *" placeholder={type === "product" ? "e.g. Samsung Galaxy A54" : "e.g. Logo Design"} {...f("title")} disabled={busy} />
       <FormTextarea label="Description *" placeholder="Describe the item clearly..." rows={4} {...f("description")} disabled={busy} />
 
-<div className="form-group">
-  <label className="form-label">Pricing Type</label>
-  <select
-    className="form-select"
-    value={form.priceType}
-    onChange={e => setForm(p => ({ ...p, priceType: e.target.value }))}
-    disabled={busy}
-  >
-    <option value="fixed">Fixed Price</option>
-    <option value="per_unit">Price Per Unit</option>
-    <option value="range">Price Range</option>
-    <option value="negotiable">Negotiable</option>
-  </select>
-</div>
-{/* FIXED PRICE */}
-{form.priceType === "fixed" && (
-  <FormInput
-    label="Price (GHS)"
-    type="number"
-    placeholder="0.00"
-    {...f("price")}
-    disabled={busy}
-  />
-)}
-
-{/* PRICE PER UNIT */}
-{form.priceType === "per_unit" && (
-  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-    <FormInput
-      label="Price Per Unit (GHS)"
-      type="number"
-      placeholder="0.00"
-      {...f("price")}
-      disabled={busy}
-    />
-    <FormInput
-      label="Unit (e.g. kg, piece, box)"
-      placeholder="kg"
-      {...f("unit")}
-      disabled={busy}
-    />
-  </div>
-)}
-
-{/* PRICE RANGE */}
-{form.priceType === "range" && (
-  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-    <FormInput
-      label="Minimum Price (GHS)"
-      type="number"
-      {...f("minPrice")}
-      disabled={busy}
-    />
-    <FormInput
-      label="Maximum Price (GHS)"
-      type="number"
-      {...f("maxPrice")}
-      disabled={busy}
-    />
-  </div>
-)}
-
-{/* NEGOTIABLE */}
-{form.priceType === "negotiable" && (
-  <Alert type="info">
-    Buyer will contact you to negotiate the price.
-  </Alert>
-)}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-               <div className="form-group">
+        <FormInput label="Price (GHS) *" type="number" placeholder="0.00" {...f("price")} disabled={busy} />
+        <div className="form-group">
           <label className="form-label">Category</label>
           <select className="form-select" value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} disabled={busy}>
             {categories.map(c => <option key={c}>{c}</option>)}
           </select>
         </div>
       </div>
-
 
       {type === "product" && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -724,4 +642,3 @@ minQty: "",
     </Modal>
   );
 };
-
