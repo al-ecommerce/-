@@ -229,14 +229,13 @@ export const RegisterPage = () => {
     displayName:     "",
     email:           "",
     phone:           "",
+    whatsapp:        "",   // sellers only; auto-filled from phone on blur
     password:        "",
     confirmPassword: "",
     region:          "",
     city:            "",
     address:         "",
-    accountType:     "buyer",   // "buyer" | "seller"
-    idType:          "",        // Ghana Card | Passport | Voter ID | NHIS
-    idNumber:        "",
+    accountType:     "buyer",
     agreedToTerms:   false,
   });
   const [error,       setError]       = useState("");
@@ -248,34 +247,39 @@ export const RegisterPage = () => {
   const strength = checkPasswordStrength(form.password);
   const set = (key) => (e) => setForm(p => ({ ...p, [key]: e.target.value }));
 
+  // Pre-fill WhatsApp with phone number on blur if still empty
+  const handlePhoneBlur = () => {
+    if (form.phone && !form.whatsapp) {
+      setForm(p => ({ ...p, whatsapp: p.phone }));
+    }
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
 
-    // ── Validation ──
     if (!form.displayName.trim())           return setError("Please enter your full name");
     if (form.displayName.trim().length < 2) return setError("Name must be at least 2 characters");
 
-    const phoneClean = form.phone.replace(/\s/g, "");
-    if (!phoneClean)                        return setError("Please enter your phone number");
-    if (!/^(\+233|0)[0-9]{9}$/.test(phoneClean))
-                                            return setError("Enter a valid Ghana phone number (e.g. 024XXXXXXX)");
+    const phoneClean    = form.phone.replace(/\s/g, "");
+    const whatsappClean = form.whatsapp.replace(/\s/g, "");
 
-    if (!form.region)                       return setError("Please select your region");
-    if (!form.city.trim())                  return setError("Please enter your city or town");
-    if (!form.address.trim())               return setError("Please enter your delivery address");
+    if (!phoneClean)                                   return setError("Please enter your phone number");
+    if (!/^(\+233|0)[0-9]{9}$/.test(phoneClean))      return setError("Enter a valid Ghana phone number (e.g. 024XXXXXXX)");
+    if (!form.region)                                  return setError("Please select your region");
+    if (!form.city.trim())                             return setError("Please enter your city or town");
+    if (!form.address.trim())                          return setError("Please enter your delivery address");
 
     if (form.accountType === "seller") {
-      if (!form.idType)                     return setError("Sellers must select an ID type");
-      if (!form.idNumber.trim())            return setError("Sellers must provide their ID number");
-      if (form.idNumber.trim().length < 6)  return setError("ID number appears too short");
+      if (!whatsappClean)                              return setError("Please enter your WhatsApp number");
+      if (!/^(\+233|0)[0-9]{9}$/.test(whatsappClean)) return setError("Enter a valid WhatsApp number (e.g. 024XXXXXXX)");
     }
 
-    if (form.password !== form.confirmPassword) return setError("Passwords do not match");
-    if (form.password.length < 8)           return setError("Password must be at least 8 characters");
-    if (!strength.checks.uppercase)         return setError("Password must contain at least one uppercase letter (A-Z)");
-    if (!strength.checks.number)            return setError("Password must contain at least one number (0-9)");
-    if (!form.agreedToTerms)                return setError("You must agree to the Terms of Service to continue");
+    if (form.password !== form.confirmPassword)        return setError("Passwords do not match");
+    if (form.password.length < 8)                      return setError("Password must be at least 8 characters");
+    if (!strength.checks.uppercase)                    return setError("Password must contain at least one uppercase letter (A-Z)");
+    if (!strength.checks.number)                       return setError("Password must contain at least one number (0-9)");
+    if (!form.agreedToTerms)                           return setError("You must agree to the Terms of Service to continue");
 
     setLoading(true);
     try {
@@ -285,10 +289,7 @@ export const RegisterPage = () => {
         city:        form.city.trim(),
         address:     form.address.trim(),
         accountType: form.accountType,
-        ...(form.accountType === "seller" && {
-          idType:   form.idType,
-          idNumber: form.idNumber.trim(),
-        }),
+        ...(form.accountType === "seller" && { whatsapp: whatsappClean }),
       });
       setSuccess(true);
     } catch (err) { setError(getAuthError(err.code)); }
@@ -357,10 +358,24 @@ export const RegisterPage = () => {
           type="tel"
           value={form.phone}
           onChange={set("phone")}
+          onBlur={handlePhoneBlur}
           placeholder="024XXXXXXX or +233XXXXXXXXX"
           hint="Used for order updates and delivery coordination"
           required
         />
+
+        {/* WhatsApp — sellers only */}
+        {form.accountType === "seller" && (
+          <FormInput
+            label="WhatsApp Number *"
+            type="tel"
+            value={form.whatsapp}
+            onChange={set("whatsapp")}
+            placeholder="024XXXXXXX or +233XXXXXXXXX"
+            hint="Buyers will contact you here to arrange orders"
+            required
+          />
+        )}
 
         {/* ── Location ── */}
         <SectionDivider label="Location & Delivery" />
@@ -377,39 +392,12 @@ export const RegisterPage = () => {
           <FormInput label="City / Town *" value={form.city}
             onChange={set("city")}
             placeholder="e.g. Kumasi" required />
-          <FormInput label="Area / Landmark" value={form.address}
+          <FormInput label="Area / Landmark *" value={form.address}
             onChange={set("address")}
             placeholder="e.g. Near Kejetia" required />
         </div>
 
-        {/* ── ID verification (sellers only) ── */}
-        {form.accountType === "seller" && (
-          <>
-            <SectionDivider label="Identity Verification (Sellers)" />
-            <Alert type="info" style={{ marginBottom: 14 }}>
-              Required for seller trust &amp; fraud prevention. Your ID is stored securely and never shared publicly.
-            </Alert>
-            <div className="form-group">
-              <label className="form-label">ID Type *</label>
-              <select className="form-select" value={form.idType} onChange={set("idType")} required>
-                <option value="">-- Select ID type --</option>
-                {["Ghana Card", "Passport", "Voter ID", "NHIS Card", "Driver's Licence"].map(t => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </select>
-            </div>
-            <FormInput
-              label="ID Number *"
-              value={form.idNumber}
-              onChange={set("idNumber")}
-              placeholder="Enter your ID number"
-              hint="Must match the selected ID exactly"
-              required
-            />
-          </>
-        )}
-
-        {/* ── Password ── */}
+        {/* ── Security ── */}
         <SectionDivider label="Security" />
 
         <div className="form-group">
