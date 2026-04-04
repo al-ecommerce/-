@@ -292,9 +292,10 @@ export default function ProductDetail() {
         <PriceTag amount={product.price} />
 
         <div>
-          <button onClick={() => setQty(q => Math.max(1, q - 1))}>-</button>
-          <span>{qty}</span>
-          <button onClick={() => setQty(q + 1)}>+</button>
+          
+<button onClick={() => setQty(prev => Math.max(1, prev - 1))}>-</button>
+<span>{qty}</span>
+<button onClick={() => setQty(prev => prev + 1)}>+</button>
         </div>
 
         <div>
