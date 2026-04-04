@@ -15,7 +15,7 @@ import {
   uploadImage,
   validateImageFile,
   isCloudinaryConfigured,
-} from "../utils/cloudinary"; // ← adjust path to match your project
+} from "../service/cloudinary"; // ← adjust path to match your project
 
 // ─── IMAGE UPLOADER ───────────────────────────────────────
 /**
