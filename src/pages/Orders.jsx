@@ -24,6 +24,25 @@ const STATUS = {
   refunded:         { label: "Refunded",           color: "#6B7280", icon: "↩",  bg: "rgba(107,114,128,0.08)" },
 };
 
+
+// ─── PRICING & DELIVERY HELPERS ──────────────────────────
+const pricingLabel = (type) => ({
+  fixed:      "Fixed Price",
+  negotiable: "Negotiable",
+  starting:   "Starting From",
+  per_hour:   "Per Hour",
+  per_day:    "Per Day",
+  per_unit:   "Per Unit",
+  free:       "Free",
+}[type] || "Fixed Price");
+
+const deliveryMethodLabel = (method) => ({
+  pickup:   "🤝 Pickup Only",
+  delivery: "🚚 Delivery",
+  both:     "🚚/🤝 Pickup or Delivery",
+  meetup:   "🤝 Meet-up",
+}[method] || method || "");
+
 const StatusPill = ({ status }) => {
   const s = STATUS[status] || { label: status, color: "var(--text-muted)", icon: "•", bg: "var(--surface-3)" };
   return (
@@ -232,6 +251,8 @@ const OrderListCard = ({ order, role, onClick }) => {
           </Badge>
           {order.paymentMethod === "momo_direct" && <Badge type="muted">📱 MoMo</Badge>}
           {order.paymentMethod === "wallet" && <Badge type="muted">💰 Wallet</Badge>}
+          {order.pricingType && order.pricingType !== "fixed" && <Badge type="muted">🏷 {pricingLabel(order.pricingType)}</Badge>}
+          {order.deliveryMethod && <Badge type="muted">{deliveryMethodLabel(order.deliveryMethod)}</Badge>}
         </div>
       </div>
     </div>
@@ -315,6 +336,9 @@ export function OrderDetail() {
 
   // ── Seller actions ──────────────────────────────────────
   const handleAccept = async () => {
+    // SECURITY: only the seller can accept
+    if (!isSellerUser) return toast.error("Only the seller can accept this order.");
+    if (order.status !== "paid") return toast.error("This order is not awaiting acceptance.");
     setActing("accept");
     try {
       await updateOrder(id, { status: "accepted", acceptedAt: new Date() });
@@ -329,6 +353,9 @@ export function OrderDetail() {
   };
 
   const handleMarkDelivered = async () => {
+    // SECURITY: only the seller can mark as delivered
+    if (!isSellerUser) return toast.error("Only the seller can mark this as delivered.");
+    if (order.status !== "accepted") return toast.error("Order must be accepted before marking as delivered.");
     setActing("deliver");
     try {
       // Set 7-day auto-release deadline
@@ -380,6 +407,9 @@ export function OrderDetail() {
 
   // ── Buyer actions ───────────────────────────────────────
   const handleConfirmDelivery = async () => {
+    // SECURITY: only the buyer can confirm delivery
+    if (!isBuyer) return toast.error("Only the buyer can confirm delivery.");
+    if (order.status !== "shipped") return toast.error("This order is not awaiting confirmation.");
     setActing("confirm");
     try {
       const commission   = escrow?.commission || (order.amount * (settings.commissionRate || 10)) / 100;
@@ -406,6 +436,9 @@ export function OrderDetail() {
   };
 
   const handleCancel = async () => {
+    // SECURITY: only the buyer can cancel, and only before shipping
+    if (!isBuyer) return toast.error("Only the buyer can cancel this order.");
+    if (!["paid", "accepted"].includes(order.status)) return toast.error("This order can no longer be cancelled.");
     if (!window.confirm("Cancel this order? Your payment will be refunded to your wallet.")) return;
     setActing("cancel");
     try {
@@ -444,6 +477,9 @@ export function OrderDetail() {
   };
 
   const handleSubmitDispute = async () => {
+    // SECURITY: only the buyer can raise a dispute
+    if (!isBuyer) return toast.error("Only the buyer can raise a dispute.");
+    if (!["shipped", "paid", "accepted"].includes(order.status)) return toast.error("A dispute cannot be raised at this stage.");
     if (!disputeEvidence.description.trim()) return toast.error("Please describe the problem");
     setActing("dispute");
     try {
@@ -856,6 +892,8 @@ export function OrderDetail() {
               ["Payment",  order.paymentMethod === "wallet" ? "Wallet" : "MoMo"],
               ["Subtotal", `GHS ${order.amount?.toFixed(2)}`],
               ["Escrow Fee", `GHS ${(order.escrowFee || 0).toFixed(2)}`],
+              ...(order.pricingType && order.pricingType !== "fixed" ? [["Pricing", pricingLabel(order.pricingType)]] : []),
+              ...(order.deliveryMethod ? [["Delivery Method", deliveryMethodLabel(order.deliveryMethod)]] : []),
               ...(isSellerUser ? [["Commission", `GHS ${(order.commission || 0).toFixed(2)}`]] : []),
             ].map(([k, v]) => v ? (
               <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 14, paddingBottom: 8, borderBottom: "1px solid var(--border)" }}>
