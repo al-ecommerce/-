@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -11,8 +11,214 @@ import {
   Spinner, Button, Alert, Badge, PageHeader,
   StatusBadge, FormInput, Modal, PriceTag, toast, EmptyState
 } from "../components/UI";
+import {
+  uploadImage,
+  validateImageFile,
+  isCloudinaryConfigured,
+} from "../utils/cloudinary"; // ← adjust path to match your project
 
-// ─── FEATURED LISTINGS PAGE ───────────────────────────────
+// ─── IMAGE UPLOADER ───────────────────────────────────────
+/**
+ * Reusable image-upload widget.
+ * Props:
+ *   value        {string}   – current URL (shows preview when set)
+ *   onChange     {fn}       – called with the uploaded URL (or "" on remove)
+ *   folder       {string}   – Cloudinary folder, e.g. "ads" | "featured"
+ *   label        {string}
+ *   hint         {string}
+ *   required     {bool}
+ */
+const ImageUploader = ({
+  value,
+  onChange,
+  folder = "ads",
+  label = "Image",
+  hint = "JPG, PNG, WEBP or GIF · max 10 MB",
+  required = false,
+}) => {
+  const inputRef            = useRef(null);
+  const [uploading, setUploading] = useState(false);
+  const [progress,  setProgress]  = useState(0);
+  const [dragOver,  setDragOver]  = useState(false);
+  const [error,     setError]     = useState("");
+
+  const handleFile = async (file) => {
+    if (!file) return;
+    setError("");
+
+    // Client-side validation (mirrors cloudinary.js)
+    const check = validateImageFile(file);
+    if (!check.valid) { setError(check.error); return; }
+
+    if (!isCloudinaryConfigured()) {
+      setError("Cloudinary is not configured. Check your .env file.");
+      return;
+    }
+
+    setUploading(true);
+    setProgress(0);
+    try {
+      const url = await uploadImage(file, {
+        folder,
+        onProgress: (pct) => setProgress(pct),
+      });
+      onChange(url);
+    } catch (e) {
+      setError(e.message || "Upload failed");
+    } finally {
+      setUploading(false);
+      setProgress(0);
+    }
+  };
+
+  const onInputChange = (e) => handleFile(e.target.files[0]);
+
+  const onDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    handleFile(e.dataTransfer.files[0]);
+  };
+
+  const remove = () => {
+    onChange("");
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
+  return (
+    <div className="form-group">
+      <label className="form-label">
+        {label}{required && <span style={{ color: "var(--danger)", marginLeft: 2 }}>*</span>}
+      </label>
+
+      {/* Preview */}
+      {value && !uploading && (
+        <div style={{ position: "relative", marginBottom: 10, display: "inline-block" }}>
+          <img
+            src={value}
+            alt="preview"
+            style={{
+              width: "100%",
+              maxHeight: 180,
+              objectFit: "cover",
+              borderRadius: "var(--radius-sm)",
+              border: "1px solid var(--border)",
+              display: "block",
+            }}
+          />
+          <button
+            type="button"
+            onClick={remove}
+            title="Remove image"
+            style={{
+              position: "absolute",
+              top: 6,
+              right: 6,
+              background: "rgba(0,0,0,0.65)",
+              color: "#fff",
+              border: "none",
+              borderRadius: "50%",
+              width: 26,
+              height: 26,
+              cursor: "pointer",
+              fontSize: 14,
+              lineHeight: "26px",
+              textAlign: "center",
+              padding: 0,
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Drop zone — hidden when a preview is already shown */}
+      {!value && (
+        <div
+          onClick={() => !uploading && inputRef.current?.click()}
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={onDrop}
+          style={{
+            border: `2px dashed ${dragOver ? "var(--accent)" : error ? "var(--danger)" : "var(--border)"}`,
+            borderRadius: "var(--radius-sm)",
+            padding: "24px 16px",
+            textAlign: "center",
+            cursor: uploading ? "not-allowed" : "pointer",
+            background: dragOver ? "var(--accent-glow)" : "var(--surface)",
+            transition: "border-color 0.2s, background 0.2s",
+          }}
+        >
+          {uploading ? (
+            <div>
+              <div style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 8 }}>
+                Uploading… {progress}%
+              </div>
+              <div style={{
+                height: 4,
+                background: "var(--border)",
+                borderRadius: 4,
+                overflow: "hidden",
+                maxWidth: 240,
+                margin: "0 auto",
+              }}>
+                <div style={{
+                  height: "100%",
+                  width: `${progress}%`,
+                  background: "var(--accent)",
+                  borderRadius: 4,
+                  transition: "width 0.2s",
+                }} />
+              </div>
+            </div>
+          ) : (
+            <>
+              <div style={{ fontSize: 28, marginBottom: 6 }}>🖼</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 4 }}>
+                Click to upload or drag &amp; drop
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{hint}</div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Hidden file input */}
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+        style={{ display: "none" }}
+        onChange={onInputChange}
+      />
+
+      {/* Swap image button when preview exists */}
+      {value && !uploading && (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          style={{
+            marginTop: 6,
+            fontSize: 12,
+            color: "var(--accent)",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: 0,
+            fontFamily: "var(--font-body)",
+          }}
+        >
+          ↺ Replace image
+        </button>
+      )}
+
+      {error && (
+        <div style={{ fontSize: 12, color: "var(--danger)", marginTop: 6 }}>{error}</div>
+      )}
+    </div>
+  );
+};
+
+// ─── FEATURED LISTINGS PAGE ───────────────────────────────────────────────────
 export function FeaturedPage() {
   const { currentUser, userDoc, isSeller } = useAuth();
   const navigate  = useNavigate();
@@ -134,6 +340,21 @@ export function FeaturedPage() {
                   display: "flex", justifyContent: "space-between", alignItems: "center",
                   flexWrap: "wrap", gap: 12,
                 }}>
+                  {/* Thumbnail */}
+                  {f.imageURL && (
+                    <img
+                      src={f.imageURL}
+                      alt={f.itemTitle}
+                      style={{
+                        width: 52,
+                        height: 52,
+                        objectFit: "cover",
+                        borderRadius: "var(--radius-sm)",
+                        border: "1px solid var(--border)",
+                        flexShrink: 0,
+                      }}
+                    />
+                  )}
                   <div style={{ flex: 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                       <span style={{ fontWeight: 700, fontSize: 15 }}>{f.itemTitle}</span>
@@ -171,11 +392,29 @@ export function FeaturedPage() {
   );
 }
 
+// ─── FEATURE LISTING MODAL ────────────────────────────────────────────────────
 const FeatureListingModal = ({ isOpen, onClose, products, services, fee, uid, userDoc, onCreated }) => {
   const [itemType,     setItemType]     = useState("product");
   const [selectedItem, setSelectedItem] = useState("");
+  const [imageURL,     setImageURL]     = useState(""); // ← Cloudinary URL
   const [loading,      setLoading]      = useState(false);
+
   const items = itemType === "product" ? products : services;
+
+  // When the user picks a listing, pre-fill its existing image (if any)
+  const handleSelectItem = (id) => {
+    setSelectedItem(id);
+    const item = items.find(i => i.id === id);
+    setImageURL(item?.imageURL || "");
+  };
+
+  // Reset state when modal closes
+  const handleClose = () => {
+    setSelectedItem("");
+    setImageURL("");
+    setItemType("product");
+    onClose();
+  };
 
   const handleSubmit = async () => {
     if (!selectedItem) return toast.error("Please select a listing to feature");
@@ -202,7 +441,9 @@ const FeatureListingModal = ({ isOpen, onClose, products, services, fee, uid, us
         sellerName:  userDoc?.displayName,
         feePaid:     fee,
         expiresAt,
-        imageURL:    item?.imageURL || "",
+        // Use the uploaded image if provided, otherwise fall back to the
+        // listing's own image or an empty string.
+        imageURL:    imageURL || item?.imageURL || "",
         price:       item?.price || 0,
       });
 
@@ -221,12 +462,15 @@ const FeatureListingModal = ({ isOpen, onClose, products, services, fee, uid, us
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Feature a Listing"
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Feature a Listing"
       footer={
         <>
-          <Button variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button variant="secondary" onClick={handleClose}>Cancel</Button>
           <Button variant="primary" loading={loading} onClick={handleSubmit}>
-            Pay GHS {fee} & Feature
+            Pay GHS {fee} &amp; Feature
           </Button>
         </>
       }
@@ -234,11 +478,13 @@ const FeatureListingModal = ({ isOpen, onClose, products, services, fee, uid, us
       <Alert type="info">
         GHS {fee} will be deducted from your wallet. Your listing will appear on the homepage for <strong>7 days</strong>.
       </Alert>
+
+      {/* Listing type picker */}
       <div className="form-group" style={{ marginTop: 16 }}>
         <label className="form-label">Listing Type</label>
         <div style={{ display: "flex", gap: 10 }}>
           {["product", "service"].map(t => (
-            <button key={t} onClick={() => { setItemType(t); setSelectedItem(""); }}
+            <button key={t} onClick={() => { setItemType(t); setSelectedItem(""); setImageURL(""); }}
               style={{
                 flex: 1, padding: "10px", border: `2px solid ${itemType === t ? "var(--accent)" : "var(--border)"}`,
                 borderRadius: "var(--radius-sm)", background: itemType === t ? "var(--accent-glow)" : "var(--surface)",
@@ -252,12 +498,20 @@ const FeatureListingModal = ({ isOpen, onClose, products, services, fee, uid, us
           ))}
         </div>
       </div>
+
+      {/* Listing selector */}
       <div className="form-group">
         <label className="form-label">Select Listing</label>
         {items.filter(i => i.status === "approved").length === 0 ? (
-          <div className="alert alert-warning">No approved {itemType}s found. You need an approved listing to feature.</div>
+          <div className="alert alert-warning">
+            No approved {itemType}s found. You need an approved listing to feature.
+          </div>
         ) : (
-          <select className="form-select" value={selectedItem} onChange={e => setSelectedItem(e.target.value)}>
+          <select
+            className="form-select"
+            value={selectedItem}
+            onChange={e => handleSelectItem(e.target.value)}
+          >
             <option value="">-- Select a {itemType} --</option>
             {items.filter(i => i.status === "approved").map(i => (
               <option key={i.id} value={i.id}>{i.title} — GHS {i.price}</option>
@@ -265,11 +519,20 @@ const FeatureListingModal = ({ isOpen, onClose, products, services, fee, uid, us
           </select>
         )}
       </div>
+
+      {/* ── IMAGE UPLOAD ── */}
+      <ImageUploader
+        value={imageURL}
+        onChange={setImageURL}
+        folder="featured"
+        label="Featured Image (optional)"
+        hint="Shown on the homepage featured section. JPG, PNG, WEBP · max 10 MB"
+      />
     </Modal>
   );
 };
 
-// ─── ADS PAGE ─────────────────────────────────────────────
+// ─── ADS PAGE ─────────────────────────────────────────────────────────────────
 export function AdsPage() {
   const { currentUser, userDoc } = useAuth();
   const navigate = useNavigate();
@@ -363,7 +626,7 @@ export function AdsPage() {
             <table>
               <thead>
                 <tr>
-                  <th>Ad Title</th><th>Duration</th><th>Budget</th>
+                  <th>Ad</th><th>Duration</th><th>Budget</th>
                   <th>Clicks</th><th>Impressions</th><th>Status</th><th>Created</th>
                 </tr>
               </thead>
@@ -371,8 +634,26 @@ export function AdsPage() {
                 {myAds.map(ad => (
                   <tr key={ad.id}>
                     <td>
-                      <div style={{ fontWeight: 600 }}>{ad.title}</div>
-                      <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{ad.description?.slice(0, 50)}</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        {ad.imageURL && (
+                          <img
+                            src={ad.imageURL}
+                            alt={ad.title}
+                            style={{
+                              width: 40,
+                              height: 40,
+                              objectFit: "cover",
+                              borderRadius: "var(--radius-sm)",
+                              border: "1px solid var(--border)",
+                              flexShrink: 0,
+                            }}
+                          />
+                        )}
+                        <div>
+                          <div style={{ fontWeight: 600 }}>{ad.title}</div>
+                          <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{ad.description?.slice(0, 50)}</div>
+                        </div>
+                      </div>
                     </td>
                     <td>{ad.duration} days</td>
                     <td style={{ fontWeight: 700, color: "var(--accent)" }}>GHS {Number(ad.budget).toFixed(2)}</td>
@@ -401,6 +682,7 @@ export function AdsPage() {
   );
 }
 
+// ─── CREATE AD MODAL ──────────────────────────────────────────────────────────
 const AD_TIERS = [
   { days: 3,  price: 30,  label: "Starter — 3 days (GHS 30)" },
   { days: 7,  price: 60,  label: "Standard — 7 days (GHS 60)" },
@@ -408,9 +690,19 @@ const AD_TIERS = [
 ];
 
 const CreateAdModal = ({ isOpen, onClose, uid, userDoc, onCreated }) => {
-  const [form,    setForm]    = useState({ title: "", description: "", ctaText: "Shop Now", ctaLink: "", tier: 0 });
-  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    title: "", description: "", ctaText: "Shop Now", ctaLink: "", tier: 0,
+  });
+  const [imageURL, setImageURL] = useState(""); // ← Cloudinary URL
+  const [loading,  setLoading]  = useState(false);
+
   const tier = AD_TIERS[form.tier] || AD_TIERS[0];
+
+  const handleClose = () => {
+    setForm({ title: "", description: "", ctaText: "Shop Now", ctaLink: "", tier: 0 });
+    setImageURL("");
+    onClose();
+  };
 
   const handleSubmit = async () => {
     if (!form.title || !form.description) return toast.error("Title and description are required");
@@ -432,6 +724,7 @@ const CreateAdModal = ({ isOpen, onClose, uid, userDoc, onCreated }) => {
         description:    form.description,
         ctaText:        form.ctaText || "Shop Now",
         ctaLink:        form.ctaLink,
+        imageURL,                          // ← persisted to Firestore
         budget:         tier.price,
         duration:       tier.days,
         advertiserId:   uid,
@@ -447,7 +740,7 @@ const CreateAdModal = ({ isOpen, onClose, uid, userDoc, onCreated }) => {
       });
 
       toast.success("Ad submitted for review! Goes live once admin approves.");
-      setForm({ title: "", description: "", ctaText: "Shop Now", ctaLink: "", tier: 0 });
+      handleClose();
       onCreated();
     } catch (e) {
       toast.error(e.message || "Failed to create ad");
@@ -458,12 +751,15 @@ const CreateAdModal = ({ isOpen, onClose, uid, userDoc, onCreated }) => {
   const f = k => ({ value: form[k], onChange: e => setForm(p => ({ ...p, [k]: e.target.value })) });
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create Advertisement"
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Create Advertisement"
       footer={
         <>
-          <Button variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button variant="secondary" onClick={handleClose}>Cancel</Button>
           <Button variant="primary" loading={loading} onClick={handleSubmit}>
-            Pay GHS {tier.price} & Submit
+            Pay GHS {tier.price} &amp; Submit
           </Button>
         </>
       }
@@ -496,6 +792,7 @@ const CreateAdModal = ({ isOpen, onClose, uid, userDoc, onCreated }) => {
       </div>
 
       <FormInput label="Ad Headline *" placeholder="Short, attention-grabbing title" {...f("title")} />
+
       <div className="form-group">
         <label className="form-label">Ad Description *</label>
         <textarea className="form-textarea" rows={3}
@@ -506,6 +803,16 @@ const CreateAdModal = ({ isOpen, onClose, uid, userDoc, onCreated }) => {
         />
         <span className="form-hint">{form.description.length}/150</span>
       </div>
+
+      {/* ── IMAGE UPLOAD ── */}
+      <ImageUploader
+        value={imageURL}
+        onChange={setImageURL}
+        folder="ads"
+        label="Ad Banner Image (optional)"
+        hint="Displayed alongside your ad on the homepage. JPG, PNG, WEBP · max 10 MB"
+      />
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <FormInput label="Button Text" placeholder="Shop Now" {...f("ctaText")} />
         <FormInput label="Link URL" placeholder="https://..." {...f("ctaLink")} />
