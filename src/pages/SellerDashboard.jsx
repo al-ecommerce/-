@@ -396,14 +396,24 @@ const ListingFormModal = ({ isOpen, onClose, type, categories, editItem, uid, us
   const ADMIN_EMAIL = "alecommerce123@gmail.com";
 
   const defaultForm = {
-    title: "", description: "", price: "", category: categories[0],
-    condition: "New", stock: "", location: "",
-    images:   [],
-    imageURL: "",
-    videoURL: "",
-    deliveryTime: "",
-    deliveryFee:  "",
-  };
+  title: "",
+  description: "",
+  price: "",
+  category: categories[0],
+
+  condition: "New",
+  stock: "",
+  location: "",
+
+  images: [],
+  imageURL: "",
+  videoURL: "",
+
+  // ✅ DELIVERY SYSTEM
+  deliveryType: "pickup", // pickup | seller | third_party | meetup | digital | none
+  deliveryTime: "",
+  deliveryFee: "",
+};
 
   const [form,      setForm]      = useState(defaultForm);
   const [saving,    setSaving]    = useState(false);
@@ -419,13 +429,15 @@ const ListingFormModal = ({ isOpen, onClose, type, categories, editItem, uid, us
             ? [{ url: editItem.imageURL, label: "" }]
             : [];
       setForm({
-        ...defaultForm, ...editItem,
-        price:       String(editItem.price  || ""),
-        stock:       String(editItem.stock  || ""),
-        images:      existingImages,
-        videoURL:    editItem.videoURL    || "",
-        deliveryFee: String(editItem.deliveryFee || ""),
-      });
+  ...defaultForm,
+  ...editItem,
+  price: String(editItem.price || ""),
+  stock: String(editItem.stock || ""),
+  images: existingImages,
+  videoURL: editItem.videoURL || "",
+  deliveryFee: String(editItem.deliveryFee || ""),
+  deliveryType: editItem.deliveryType || "pickup", // ✅ ADD THIS
+});
     } else {
       setForm(defaultForm);
     }
@@ -450,23 +462,35 @@ const ListingFormModal = ({ isOpen, onClose, type, categories, editItem, uid, us
     try {
       const validImages = form.images.filter(i => i.url);
       const data = {
-        title:            form.title.trim(),
-        description:      form.description.trim(),
-        price:            parseFloat(form.price),
-        category:         form.category,
-        condition:        form.condition,
-        stock:            parseInt(form.stock) || null,
-        location:         form.location.trim(),
-        videoURL:         form.videoURL.trim(),
-        deliveryTime:     form.deliveryTime.trim(),
-        deliveryFee:      parseFloat(form.deliveryFee) || 0,
-        images:           validImages,
-        imageURL:         validImages[0]?.url || "",
-        sellerId:         uid,
-        sellerName:       userDoc?.displayName || "",
-        isSellerVerified: userDoc?.isSellerVerified || false,
-        status:           editItem ? (editItem.status || "pending") : "pending",
-      };
+  title: form.title.trim(),
+  description: form.description.trim(),
+  price: parseFloat(form.price),
+  category: form.category,
+
+  condition: form.condition,
+  stock: parseInt(form.stock) || null,
+
+  location: form.location.trim(),
+
+  videoURL: form.videoURL.trim(),
+
+  // ✅ DELIVERY SYSTEM
+  deliveryType: form.deliveryType,
+  deliveryTime: form.deliveryTime.trim(),
+  deliveryFee:
+    ["seller", "third_party"].includes(form.deliveryType)
+      ? parseFloat(form.deliveryFee) || 0
+      : 0,
+
+  images: validImages,
+  imageURL: validImages[0]?.url || "",
+
+  sellerId: uid,
+  sellerName: userDoc?.displayName || "",
+  isSellerVerified: userDoc?.isSellerVerified || false,
+
+  status: editItem ? (editItem.status || "pending") : "pending",
+};
 
       if (editItem) {
         if (type === "product") await updateProduct(editItem.id, data);
@@ -538,15 +562,57 @@ const ListingFormModal = ({ isOpen, onClose, type, categories, editItem, uid, us
         </div>
       )}
 
-      {type === "service" && (
-        <FormInput label="Delivery Time" placeholder="e.g. 3-5 days" {...f("deliveryTime")} disabled={busy} />
-      )}
+      {type === "service" &&
+  !["none", "digital"].includes(form.deliveryType) && (
+    <FormInput
+      label="Delivery Time"
+      placeholder="e.g. 3-5 days"
+      {...f("deliveryTime")}
+      disabled={busy}
+    />
+)}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        <FormInput label="Location" placeholder="e.g. Accra" {...f("location")} disabled={busy} />
-        <FormInput label="Delivery Fee (GHS)" type="number" placeholder="0 = free" {...f("deliveryFee")} disabled={busy} />
-      </div>
+     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+  {/* Location only matters for physical interactions */}
+  {form.deliveryType !== "digital" && form.deliveryType !== "none" && (
+    <FormInput
+      label="Location"
+      placeholder="e.g. Accra"
+      {...f("location")}
+      disabled={busy}
+    />
+  )}
 
+  {/* Delivery fee only for actual delivery */}
+  {["seller", "third_party"].includes(form.deliveryType) && (
+    <FormInput
+      label="Delivery Fee (GHS)"
+      type="number"
+      placeholder="0 = free"
+      {...f("deliveryFee")}
+      disabled={busy}
+    />
+  )}
+</div>
+
+<div className="form-group">
+  <label className="form-label">Delivery Method</label>
+  <select
+    className="form-select"
+    value={form.deliveryType}
+    onChange={e =>
+      setForm(p => ({ ...p, deliveryType: e.target.value }))
+    }
+    disabled={busy}
+  >
+    <option value="pickup">Pickup Only</option>
+    <option value="seller">Seller Delivery</option>
+    <option value="third_party">Third-Party Delivery</option>
+    <option value="meetup">Meetup</option>
+    <option value="digital">Digital Delivery</option>
+    <option value="none">No Delivery Needed</option>
+  </select>
+</div>
       <div style={{ marginTop: 8 }}>
         {type === "product" ? (
           <CloudinaryUpload
