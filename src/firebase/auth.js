@@ -14,19 +14,42 @@ import { auth } from "./config";
 import { createUserDoc, getUserDoc, deleteUserData } from "./db";
 import { sendWelcomeEmail, sendAccountDeletedEmail } from "../services/emailService";
 
-export const register = async (email, password, displayName) => {
+/**
+ * register(email, password, displayName, profile)
+ *
+ * profile (all optional, collected from RegisterPage):
+ *   phone, region, city, address, accountType,
+ *   idType, idNumber  â† sellers only
+ */
+export const register = async (email, password, displayName, profile = {}) => {
   const { user } = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(user, { displayName });
   await sendEmailVerification(user);
+
   await createUserDoc(user.uid, {
-    uid: user.uid,
+    uid:         user.uid,
     email,
     displayName,
-    photoURL: "",
-    phone: "",
-    bio: "",
-    location: ""
+    photoURL:    "",
+    bio:         "",
+    // â”€â”€ contact & location â”€â”€
+    phone:       profile.phone       || "",
+    region:      profile.region      || "",
+    city:        profile.city        || "",
+    address:     profile.address     || "",
+    // â”€â”€ account type â”€â”€
+    accountType: profile.accountType || "buyer",
+    // â”€â”€ seller identity verification (only present when accountType === "seller") â”€â”€
+    ...(profile.accountType === "seller" && {
+      idType:   profile.idType   || "",
+      idNumber: profile.idNumber || "",
+      idVerified: false,          // admin flips this after manual review
+    }),
+    // â”€â”€ timestamps & status â”€â”€
+    createdAt:   new Date(),
+    isActive:    true,
   });
+
   try { await sendWelcomeEmail(email, displayName); } catch (e) { console.warn("Email error:", e); }
   return user;
 };
@@ -48,31 +71,26 @@ export const resendVerification = async () => {
 
 export const listenToAuthState = (cb) => onAuthStateChanged(auth, cb);
 
-// ─── ACCOUNT DELETION ────────────────────────────────────
+// â”€â”€â”€ ACCOUNT DELETION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Requires the user's current password to confirm (re-authentication)
 export const deleteAccount = async (password) => {
   const user = auth.currentUser;
   if (!user) throw new Error("Not logged in");
-
   // Re-authenticate first for security
   const credential = EmailAuthProvider.credential(user.email, password);
   await reauthenticateWithCredential(user, credential);
-
   const { email, displayName } = user;
   const uid = user.uid;
-
   // Delete all Firestore data
   await deleteUserData(uid);
-
   // Send goodbye email before account is gone
   try { await sendAccountDeletedEmail(email, displayName); } catch (e) { }
-
   // Delete Firebase Auth account
   await deleteUser(user);
 };
 
-// ─── ADMIN DELETE ACCOUNT ────────────────────────────────
-// Admin bypasses re-auth — directly deletes Firestore data
+// â”€â”€â”€ ADMIN DELETE ACCOUNT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Admin bypasses re-auth â€” directly deletes Firestore data
 // Firebase Auth deletion of another user requires Admin SDK (server-side)
 // So this marks the user as deleted in Firestore and disables their access
 export const adminDisableAccount = async (uid, userEmail, userName) => {
