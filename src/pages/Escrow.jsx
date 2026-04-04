@@ -87,14 +87,17 @@ const EscrowTimeline = ({ escrow, isBuyer }) => {
 const EscrowCard = ({ escrow, currentUser, onAction }) => {
   const navigate = useNavigate();
 
-  // ── SECURITY: ensure the viewer is actually a party to this escrow ──
+  // Compute role flags before hooks (no hook calls yet)
   const isBuyer  = escrow.buyerId  === currentUser.uid;
   const isSeller = escrow.sellerId === currentUser.uid;
-  if (!isBuyer && !isSeller) return null; // never render if not a party
 
+  // Hooks must always be called — guard fires after them
   const [showDispute, setShowDispute] = useState(false);
   const [disputeText, setDisputeText] = useState("");
   const [acting, setActing] = useState(false);
+
+  // SECURITY: ensure the viewer is actually a party to this escrow
+  if (!isBuyer && !isSeller) return null;
 
   const handleRelease = async () => {
     // SECURITY: only buyer can release
