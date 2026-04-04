@@ -294,6 +294,25 @@ export const getReviewsForTarget = async (targetId) => {
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
+// ─── BUYER REVIEWS (Seller rates Buyer) ───────────────────
+export const createBuyerReview = async (data) => {
+  try {
+    const docRef = await addDoc(collection(db, "buyerReviews"), {
+      buyerId: data.buyerId,
+      buyerName: data.buyerName || "",
+      sellerId: data.sellerId,
+      sellerName: data.sellerName || "",
+      orderId: data.orderId,
+      rating: data.rating,
+      comment: data.comment || "",
+      createdAt: serverTimestamp(),
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error("Error creating buyer review:", error);
+    throw error;
+  }
+};
 // ─── NOTIFICATIONS ───────────────────────────────────────
 export const createNotification = async (uid, data) =>
   addDoc(collection(db, "notifications"), {
