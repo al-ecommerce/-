@@ -62,10 +62,9 @@ export const Navbar = () => {
         {/* Logo */}
         <Link to="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
           <div style={{
-            width: 36, height: 36, background: "var(--accent)",
-            borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
+            width: 36, height: 36, backgroundImage: "url('/logo.png')",        backgroundSize: "cover", backgroundPosition: "center", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
             fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: 16
-          }}>A</div>
+          }}></div>
           <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 20, color: "var(--text)" }}>ASVAN</span>
         </Link>
 
