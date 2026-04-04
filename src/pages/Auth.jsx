@@ -60,7 +60,7 @@ const AuthCard = ({ children, title, subtitle }) => (
   <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, background: "linear-gradient(135deg, var(--surface-2) 0%, var(--surface-3) 100%)" }}>
     <div style={{ width: "100%", maxWidth: 440 }}>
       <div style={{ textAlign: "center", marginBottom: 28 }}>
-        <div style={{ width: 52, height: 52, backgroundImage: "url('/logo.png')",        backgroundSize: "cover",backgroundPosition: "center", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontWeight: 700, color: "#fff", fontSize: 22, margin: "0 auto 14px" }}></div>
+        <div style={{ width: 52, height: 52, backgroundImage: "url('/logo.png')",   backgroundSize: "cover",backgroundPosition: "center", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center"}}></div>
         <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 26, letterSpacing: "-0.3px" }}>{title}</h1>
         <p style={{ color: "var(--text-muted)", fontSize: 14, marginTop: 4 }}>{subtitle}</p>
       </div>
