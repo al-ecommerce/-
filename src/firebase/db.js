@@ -457,6 +457,36 @@ export const getAllEscrow = async () => {
 export const updateEscrow = async (id, data) =>
   updateDoc(doc(db, "escrow", id), { ...data, updatedAt: serverTimestamp() });
 
+// ─── DISPUTE EVIDENCE ────────────────────────────────────
+export const submitDisputeEvidence = async (orderId, userId, data) => {
+  try {
+    const docRef = await addDoc(collection(db, "disputes"), {
+      orderId,
+      submittedBy: userId,
+
+      // Core evidence
+      description: data.description || "",
+      photoURL: data.photoURL || "",
+      videoURL: data.videoURL || "",
+      chatSummary: data.chatSummary || "",
+
+      // Context (VERY important for admin)
+      buyerId: data.buyerId,
+      sellerId: data.sellerId,
+      itemTitle: data.itemTitle,
+      orderRef: data.orderRef,
+
+      status: "pending", // pending | reviewing | resolved
+      createdAt: serverTimestamp(),
+    });
+
+    return docRef.id;
+  } catch (error) {
+    console.error("Error submitting dispute evidence:", error);
+    throw error;
+  }
+};
+
 // ─── SUBSCRIPTIONS ───────────────────────────────────────
 export const createSubscription = async (data) =>
   addDoc(collection(db, "subscriptions"), { ...data, createdAt: serverTimestamp() });
