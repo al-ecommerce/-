@@ -10,6 +10,25 @@ import {
 import { sendOrderCompletedEmail } from "../services/emailService";
 import { Spinner, PageHeader, EmptyState, StatusBadge, Badge, Button, Alert, Modal, FormTextarea, toast } from "../components/UI";
 
+// ─── PRICING TYPE LABEL ───────────────────────────────────
+const pricingLabel = (type) => ({
+  fixed:      "Fixed Price",
+  negotiable: "Negotiable",
+  starting:   "Starting From",
+  per_hour:   "Per Hour",
+  per_day:    "Per Day",
+  per_unit:   "Per Unit",
+  free:       "Free",
+}[type] || "Fixed Price");
+
+// ─── DELIVERY METHOD LABEL ────────────────────────────────
+const deliveryLabel = (method) => ({
+  pickup:   "🤝 Pickup Only",
+  delivery: "🚚 Delivery",
+  both:     "🚚 Pickup or Delivery",
+  meetup:   "🤝 Meet-up",
+}[method] || method || "—");
+
 // ─── STATUS TIMELINE ──────────────────────────────────────
 const EscrowTimeline = ({ escrow, isBuyer }) => {
   const steps = [
@@ -67,13 +86,20 @@ const EscrowTimeline = ({ escrow, isBuyer }) => {
 // ─── ESCROW CARD ──────────────────────────────────────────
 const EscrowCard = ({ escrow, currentUser, onAction }) => {
   const navigate = useNavigate();
+
+  // ── SECURITY: ensure the viewer is actually a party to this escrow ──
   const isBuyer  = escrow.buyerId  === currentUser.uid;
   const isSeller = escrow.sellerId === currentUser.uid;
+  if (!isBuyer && !isSeller) return null; // never render if not a party
+
   const [showDispute, setShowDispute] = useState(false);
   const [disputeText, setDisputeText] = useState("");
   const [acting, setActing] = useState(false);
 
   const handleRelease = async () => {
+    // SECURITY: only buyer can release
+    if (!isBuyer) return toast.error("Only the buyer can release payment.");
+    if (escrow.status !== "held") return toast.error("This escrow is no longer active.");
     setActing(true);
     try { await onAction("release", escrow); toast.success("Payment released!"); }
     catch (e) { toast.error(e.message); }
@@ -81,6 +107,9 @@ const EscrowCard = ({ escrow, currentUser, onAction }) => {
   };
 
   const handleDispute = async () => {
+    // SECURITY: only buyer can raise a dispute
+    if (!isBuyer) return toast.error("Only the buyer can raise a dispute.");
+    if (escrow.status !== "held") return toast.error("This escrow is no longer active.");
     if (!disputeText.trim()) return toast.error("Please describe the issue");
     setActing(true);
     try { await onAction("dispute", escrow, disputeText); setShowDispute(false); toast.success("Dispute raised. Admin will review."); }
@@ -130,12 +159,20 @@ const EscrowCard = ({ escrow, currentUser, onAction }) => {
 
       {/* Body */}
       <div style={{ padding: "20px" }}>
-        {/* Role badge */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        {/* Role badge + item meta */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
           <Badge type={isBuyer ? "primary" : "success"}>
             {isBuyer ? "👤 You are the Buyer" : "🏪 You are the Seller"}
           </Badge>
           {escrow.itemTitle && <Badge type="muted">{escrow.itemTitle}</Badge>}
+          {/* Show pricing type if available */}
+          {escrow.pricingType && escrow.pricingType !== "fixed" && (
+            <Badge type="muted">🏷 {pricingLabel(escrow.pricingType)}</Badge>
+          )}
+          {/* Show delivery method if available */}
+          {escrow.deliveryMethod && (
+            <Badge type="muted">{deliveryLabel(escrow.deliveryMethod)}</Badge>
+          )}
         </div>
 
         {/* Timeline */}
@@ -156,6 +193,13 @@ const EscrowCard = ({ escrow, currentUser, onAction }) => {
               <span>GHS {Number(escrow.escrowFee).toFixed(2)}</span>
             </div>
           )}
+          {/* Show delivery fee if applicable */}
+          {escrow.deliveryFee > 0 && (
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 6 }}>
+              <span style={{ color: "var(--text-muted)" }}>Delivery Fee</span>
+              <span>GHS {Number(escrow.deliveryFee).toFixed(2)}</span>
+            </div>
+          )}
           {escrow.commission > 0 && isSeller && (
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 6 }}>
               <span style={{ color: "var(--text-muted)" }}>Platform Commission</span>
@@ -167,7 +211,7 @@ const EscrowCard = ({ escrow, currentUser, onAction }) => {
             <span>{isBuyer ? "Total Paid" : "You Receive"}</span>
             <span style={{ color: "var(--accent)" }}>
               GHS {isBuyer
-                ? (Number(escrow.amount) + Number(escrow.escrowFee || 0)).toFixed(2)
+                ? (Number(escrow.amount) + Number(escrow.escrowFee || 0) + Number(escrow.deliveryFee || 0)).toFixed(2)
                 : (Number(escrow.amount) - Number(escrow.commission || 0)).toFixed(2)
               }
             </span>
@@ -185,7 +229,7 @@ const EscrowCard = ({ escrow, currentUser, onAction }) => {
           </div>
         )}
 
-        {/* Seller info */}
+        {/* Seller waiting info */}
         {isSeller && escrow.status === "held" && (
           <div style={{
             background: "rgba(26,86,219,0.06)", border: "1px solid rgba(26,86,219,0.2)",
@@ -196,7 +240,7 @@ const EscrowCard = ({ escrow, currentUser, onAction }) => {
           </div>
         )}
 
-        {/* Actions */}
+        {/* Actions — only buyer can release or dispute */}
         {escrow.status === "held" && (
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Button variant="secondary" size="sm" onClick={() => navigate(`/orders/${escrow.orderId}`)}>
@@ -238,10 +282,10 @@ const EscrowCard = ({ escrow, currentUser, onAction }) => {
         }
       >
         <Alert type="warning">
-          Only raise a dispute if there is a genuine problem. False disputes may result in account action.
+          Only raise a dispute if there is a genuine problem. False disputes may result in account suspension.
         </Alert>
         <div style={{ fontSize: 14, color: "var(--text-secondary)", margin: "12px 0" }}>
-          Describe the issue clearly. An admin will review and resolve within 24 hours.
+          Describe the issue clearly. An admin will review and resolve within 24 hours. Providing evidence (photos, video) speeds up resolution significantly.
         </div>
         <FormTextarea
           label="Describe the Problem *"
@@ -250,6 +294,9 @@ const EscrowCard = ({ escrow, currentUser, onAction }) => {
           placeholder="e.g. Item not received, wrong item sent, item damaged..."
           rows={4}
         />
+        <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 8, lineHeight: 1.6, padding: "8px 12px", background: "var(--surface-2)", borderRadius: "var(--radius-sm)" }}>
+          💡 You can upload photo/video evidence on the full dispute form via the Orders page.
+        </div>
       </Modal>
     </div>
   );
@@ -275,7 +322,9 @@ export function EscrowPage() {
         ...snap1.docs.map(d => ({ id: d.id, ...d.data() })),
         ...snap2.docs.map(d => ({ id: d.id, ...d.data() })),
       ];
-      const unique = Array.from(new Map(all.map(e => [e.id, e])).values())
+      // SECURITY: double-filter — ensure only records where user is buyer or seller
+      const owned = all.filter(e => e.buyerId === currentUser.uid || e.sellerId === currentUser.uid);
+      const unique = Array.from(new Map(owned.map(e => [e.id, e])).values())
         .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
       setEscrows(unique);
     } catch (e) { console.error(e); }
@@ -285,7 +334,18 @@ export function EscrowPage() {
   useEffect(() => { load(); }, [currentUser]);
 
   const handleAction = async (action, escrow, disputeText = "") => {
+    // SECURITY: re-verify caller is the buyer before any mutation
+    if (escrow.buyerId !== currentUser.uid) {
+      toast.error("Unauthorised action.");
+      return;
+    }
+
     if (action === "release") {
+      // SECURITY: only release if status is still "held"
+      if (escrow.status !== "held") {
+        toast.error("This escrow is no longer active.");
+        return;
+      }
       const settings = await getPlatformSettings();
       const commission   = escrow.commission  || (escrow.amount * (settings.commissionRate || 10)) / 100;
       const sellerAmount = escrow.amount - commission;
@@ -308,12 +368,23 @@ export function EscrowPage() {
     }
 
     if (action === "dispute") {
+      // SECURITY: only dispute if status is still "held"
+      if (escrow.status !== "held") {
+        toast.error("This escrow is no longer active.");
+        return;
+      }
       await updateEscrow(escrow.id, { status: "disputed", disputeReason: disputeText, disputedAt: new Date() });
       await updateOrder(escrow.orderId, { status: "disputed" });
       await createNotification(escrow.sellerId, {
         title: "⚠ Dispute Raised",
         body:  `The buyer has raised a dispute on Order #${escrow.orderId?.slice(0, 8)?.toUpperCase()}. Admin is reviewing.`,
         type:  "alert",
+      });
+      // Also notify admin
+      await createNotification("admin", {
+        title: "⚠ New Escrow Dispute",
+        body:  `Order #${escrow.orderId?.slice(0, 8)?.toUpperCase()} — "${escrow.itemTitle}". Buyer raised a dispute. Review required.`,
+        type:  "alert", link: "/admin/orders",
       });
       setEscrows(prev => prev.map(e => e.id === escrow.id ? { ...e, status: "disputed" } : e));
     }
@@ -359,9 +430,9 @@ export function EscrowPage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }}>
             {[
               { icon: "💳", n: "1", t: "Buyer Pays",         d: "Funds locked, never touched" },
-              { icon: "📦", n: "2", t: "Seller Delivers",     d: "Fulfil the order fully" },
-              { icon: "✅", n: "3", t: "Buyer Confirms",      d: "Release when satisfied" },
-              { icon: "💰", n: "4", t: "Seller Gets Paid",    d: "Instant wallet credit" },
+              { icon: "📦", n: "2", t: "Seller Delivers",    d: "Fulfil the order fully" },
+              { icon: "✅", n: "3", t: "Buyer Confirms",     d: "Release when satisfied" },
+              { icon: "💰", n: "4", t: "Seller Gets Paid",   d: "Instant wallet credit" },
             ].map(s => (
               <div key={s.n} style={{ textAlign: "center" }}>
                 <div style={{ fontSize: 24, marginBottom: 6 }}>{s.icon}</div>
