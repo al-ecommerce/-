@@ -65,7 +65,7 @@ export const Navbar = () => {
             width: 36, height: 36, backgroundImage: "url('/logo.png')",        backgroundSize: "cover", backgroundPosition: "center", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
             fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: 16
           }}></div>
-          <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 20, color: "var(--text)" }}>ASVAN</span>
+          <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 20, color: "var(--text)" }}>AlEcom</span>
         </Link>
 
         {/* Desktop Nav Links */}
