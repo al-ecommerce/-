@@ -17,9 +17,9 @@ import { sendWelcomeEmail, sendAccountDeletedEmail } from "../services/emailServ
 /**
  * register(email, password, displayName, profile)
  *
- * profile (all optional, collected from RegisterPage):
- *   phone, region, city, address, accountType,
- *   idType, idNumber  â† sellers only
+ * profile fields (all collected from RegisterPage):
+ *   phone, region, city, address, accountType
+ *   whatsapp  â† sellers only
  */
 export const register = async (email, password, displayName, profile = {}) => {
   const { user } = await createUserWithEmailAndPassword(auth, email, password);
@@ -39,15 +39,13 @@ export const register = async (email, password, displayName, profile = {}) => {
     address:     profile.address     || "",
     // â”€â”€ account type â”€â”€
     accountType: profile.accountType || "buyer",
-    // â”€â”€ seller identity verification (only present when accountType === "seller") â”€â”€
+    // â”€â”€ sellers: WhatsApp for buyer contact â”€â”€
     ...(profile.accountType === "seller" && {
-      idType:   profile.idType   || "",
-      idNumber: profile.idNumber || "",
-      idVerified: false,          // admin flips this after manual review
+      whatsapp: profile.whatsapp || "",
     }),
     // â”€â”€ timestamps & status â”€â”€
-    createdAt:   new Date(),
-    isActive:    true,
+    createdAt: new Date(),
+    isActive:  true,
   });
 
   try { await sendWelcomeEmail(email, displayName); } catch (e) { console.warn("Email error:", e); }
