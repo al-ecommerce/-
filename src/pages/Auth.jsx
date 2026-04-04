@@ -204,30 +204,92 @@ export const LoginPage = () => {
   );
 };
 
+// ─── GHANA REGIONS ────────────────────────────────────────
+const GHANA_REGIONS = [
+  "Greater Accra", "Ashanti", "Western", "Eastern", "Central",
+  "Northern", "Upper East", "Upper West", "Volta", "Brong-Ahafo",
+  "Oti", "Bono East", "Ahafo", "Savannah", "North East", "Western North",
+];
+
+// ─── SECTION DIVIDER ─────────────────────────────────────
+const SectionDivider = ({ label }) => (
+  <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "20px 0 14px" }}>
+    <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+    <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.8px", whiteSpace: "nowrap" }}>
+      {label}
+    </span>
+    <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+  </div>
+);
+
 // ─── REGISTER ─────────────────────────────────────────────
 export const RegisterPage = () => {
   const navigate = useNavigate();
-  const [form,       setForm]       = useState({ displayName: "", email: "", password: "", confirmPassword: "" });
-  const [error,      setError]      = useState("");
-  const [loading,    setLoading]    = useState(false);
-  const [success,    setSuccess]    = useState(false);
-  const [showPass,   setShowPass]   = useState(false);
-  const [showConfirm,setShowConfirm]= useState(false);
+  const [form, setForm] = useState({
+    displayName:     "",
+    email:           "",
+    phone:           "",
+    password:        "",
+    confirmPassword: "",
+    region:          "",
+    city:            "",
+    address:         "",
+    accountType:     "buyer",   // "buyer" | "seller"
+    idType:          "",        // Ghana Card | Passport | Voter ID | NHIS
+    idNumber:        "",
+    agreedToTerms:   false,
+  });
+  const [error,       setError]       = useState("");
+  const [loading,     setLoading]     = useState(false);
+  const [success,     setSuccess]     = useState(false);
+  const [showPass,    setShowPass]    = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const strength = checkPasswordStrength(form.password);
+  const set = (key) => (e) => setForm(p => ({ ...p, [key]: e.target.value }));
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
-    if (!form.displayName.trim())    return setError("Please enter your full name");
+
+    // ── Validation ──
+    if (!form.displayName.trim())           return setError("Please enter your full name");
     if (form.displayName.trim().length < 2) return setError("Name must be at least 2 characters");
+
+    const phoneClean = form.phone.replace(/\s/g, "");
+    if (!phoneClean)                        return setError("Please enter your phone number");
+    if (!/^(\+233|0)[0-9]{9}$/.test(phoneClean))
+                                            return setError("Enter a valid Ghana phone number (e.g. 024XXXXXXX)");
+
+    if (!form.region)                       return setError("Please select your region");
+    if (!form.city.trim())                  return setError("Please enter your city or town");
+    if (!form.address.trim())               return setError("Please enter your delivery address");
+
+    if (form.accountType === "seller") {
+      if (!form.idType)                     return setError("Sellers must select an ID type");
+      if (!form.idNumber.trim())            return setError("Sellers must provide their ID number");
+      if (form.idNumber.trim().length < 6)  return setError("ID number appears too short");
+    }
+
     if (form.password !== form.confirmPassword) return setError("Passwords do not match");
-    if (form.password.length < 8)    return setError("Password must be at least 8 characters");
-    if (!strength.checks.uppercase)  return setError("Password must contain at least one uppercase letter (A-Z)");
-    if (!strength.checks.number)     return setError("Password must contain at least one number (0-9)");
+    if (form.password.length < 8)           return setError("Password must be at least 8 characters");
+    if (!strength.checks.uppercase)         return setError("Password must contain at least one uppercase letter (A-Z)");
+    if (!strength.checks.number)            return setError("Password must contain at least one number (0-9)");
+    if (!form.agreedToTerms)                return setError("You must agree to the Terms of Service to continue");
+
     setLoading(true);
     try {
-      await register(form.email, form.password, form.displayName.trim());
+      await register(form.email, form.password, form.displayName.trim(), {
+        phone:       phoneClean,
+        region:      form.region,
+        city:        form.city.trim(),
+        address:     form.address.trim(),
+        accountType: form.accountType,
+        ...(form.accountType === "seller" && {
+          idType:   form.idType,
+          idNumber: form.idNumber.trim(),
+        }),
+      });
       setSuccess(true);
     } catch (err) { setError(getAuthError(err.code)); }
     setLoading(false);
@@ -250,17 +312,111 @@ export const RegisterPage = () => {
     <AuthCard title="Create Account" subtitle="Join AlEcom — Ghana's trusted marketplace">
       {error && <Alert type="danger">{error}</Alert>}
       <form onSubmit={handleRegister}>
+
+        {/* ── Account type ── */}
+        <div className="form-group">
+          <label className="form-label">I want to join as *</label>
+          <div style={{ display: "flex", gap: 10 }}>
+            {[
+              { value: "buyer",  icon: "🛒", label: "Buyer",  desc: "Shop on AlEcom" },
+              { value: "seller", icon: "🏪", label: "Seller", desc: "Sell my products" },
+            ].map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setForm(p => ({ ...p, accountType: opt.value }))}
+                style={{
+                  flex: 1, padding: "12px 10px", textAlign: "center",
+                  border: `2px solid ${form.accountType === opt.value ? "var(--accent)" : "var(--border)"}`,
+                  borderRadius: "var(--radius-sm)",
+                  background: form.accountType === opt.value ? "var(--accent-glow)" : "var(--surface)",
+                  cursor: "pointer", fontFamily: "var(--font-body)",
+                }}
+              >
+                <div style={{ fontSize: 22, marginBottom: 4 }}>{opt.icon}</div>
+                <div style={{ fontWeight: 700, fontSize: 13, color: form.accountType === opt.value ? "var(--accent)" : "var(--text)" }}>{opt.label}</div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{opt.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Personal info ── */}
+        <SectionDivider label="Personal Information" />
+
         <FormInput label="Full Name *" value={form.displayName}
-          onChange={e => setForm(p => ({ ...p, displayName: e.target.value }))}
+          onChange={set("displayName")}
           placeholder="e.g. Kwame Mensah" required />
+
         <FormInput label="Email Address *" type="email" value={form.email}
-          onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+          onChange={set("email")}
           placeholder="you@example.com" required />
+
+        <FormInput
+          label="Phone Number *"
+          type="tel"
+          value={form.phone}
+          onChange={set("phone")}
+          placeholder="024XXXXXXX or +233XXXXXXXXX"
+          hint="Used for order updates and delivery coordination"
+          required
+        />
+
+        {/* ── Location ── */}
+        <SectionDivider label="Location & Delivery" />
+
+        <div className="form-group">
+          <label className="form-label">Region *</label>
+          <select className="form-select" value={form.region} onChange={set("region")} required>
+            <option value="">-- Select your region --</option>
+            {GHANA_REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <FormInput label="City / Town *" value={form.city}
+            onChange={set("city")}
+            placeholder="e.g. Kumasi" required />
+          <FormInput label="Area / Landmark" value={form.address}
+            onChange={set("address")}
+            placeholder="e.g. Near Kejetia" required />
+        </div>
+
+        {/* ── ID verification (sellers only) ── */}
+        {form.accountType === "seller" && (
+          <>
+            <SectionDivider label="Identity Verification (Sellers)" />
+            <Alert type="info" style={{ marginBottom: 14 }}>
+              Required for seller trust &amp; fraud prevention. Your ID is stored securely and never shared publicly.
+            </Alert>
+            <div className="form-group">
+              <label className="form-label">ID Type *</label>
+              <select className="form-select" value={form.idType} onChange={set("idType")} required>
+                <option value="">-- Select ID type --</option>
+                {["Ghana Card", "Passport", "Voter ID", "NHIS Card", "Driver's Licence"].map(t => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+            <FormInput
+              label="ID Number *"
+              value={form.idNumber}
+              onChange={set("idNumber")}
+              placeholder="Enter your ID number"
+              hint="Must match the selected ID exactly"
+              required
+            />
+          </>
+        )}
+
+        {/* ── Password ── */}
+        <SectionDivider label="Security" />
+
         <div className="form-group">
           <label className="form-label">Password *</label>
           <div style={{ position: "relative" }}>
             <input className="form-input" type={showPass ? "text" : "password"} value={form.password}
-              onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
+              onChange={set("password")}
               placeholder="Create a strong password" required style={{ paddingRight: 44 }} />
             <button type="button" onClick={() => setShowPass(v => !v)}
               style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", fontSize: 14, color: "var(--text-muted)" }}>
@@ -269,11 +425,12 @@ export const RegisterPage = () => {
           </div>
           <PasswordStrengthMeter password={form.password} />
         </div>
+
         <div className="form-group">
           <label className="form-label">Confirm Password *</label>
           <div style={{ position: "relative" }}>
             <input className="form-input" type={showConfirm ? "text" : "password"} value={form.confirmPassword}
-              onChange={e => setForm(p => ({ ...p, confirmPassword: e.target.value }))}
+              onChange={set("confirmPassword")}
               placeholder="Repeat your password" required style={{ paddingRight: 44 }} />
             <button type="button" onClick={() => setShowConfirm(v => !v)}
               style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", fontSize: 14, color: "var(--text-muted)" }}>
@@ -287,11 +444,23 @@ export const RegisterPage = () => {
             <span style={{ fontSize: 12, color: "var(--success)" }}>✓ Passwords match</span>
           )}
         </div>
-        <div style={{ margin: "12px 0 16px", fontSize: 12, color: "var(--text-muted)", lineHeight: 1.6 }}>
-          By creating an account you agree to AlEcom's <Link to="/policy" style={{ color: "var(--accent)" }}>Terms of Service</Link> and Platform Policy.
-        </div>
+
+        {/* ── Terms ── */}
+        <label style={{ display: "flex", alignItems: "flex-start", gap: 10, margin: "16px 0", cursor: "pointer" }}>
+          <input
+            type="checkbox"
+            checked={form.agreedToTerms}
+            onChange={e => setForm(p => ({ ...p, agreedToTerms: e.target.checked }))}
+            style={{ marginTop: 2, accentColor: "var(--accent)", flexShrink: 0 }}
+          />
+          <span style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.6 }}>
+            I agree to AlEcom's <Link to="/policy" style={{ color: "var(--accent)" }}>Terms of Service</Link> and Platform Policy. I confirm the information provided is accurate and my own.
+          </span>
+        </label>
+
         <Button type="submit" variant="primary" full loading={loading}>Create Account</Button>
       </form>
+
       <p style={{ textAlign: "center", marginTop: 20, fontSize: 14, color: "var(--text-muted)" }}>
         Already have an account? <Link to="/login" style={{ fontWeight: 700, color: "var(--accent)" }}>Sign In</Link>
       </p>
