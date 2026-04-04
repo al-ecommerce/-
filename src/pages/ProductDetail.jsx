@@ -115,6 +115,10 @@ export default function ProductDetail() {
   const openBuy = () => {
     if (!currentUser) { setShowGuestPrompt(true); return; }
     if (!currentUser.emailVerified) return toast.error("Please verify your email address first");
+    // SECURITY: prevent seller from purchasing their own listing
+    if (product.sellerId === currentUser.uid) return toast.error("You cannot purchase your own listing.");
+    // SECURITY: ensure product is still active
+    if (product.status !== "active" && product.status !== "approved") return toast.error("This listing is not currently available.");
     setPayStep("delivery");
     setPayMethod("momo");
     setMomoRef(generateRef());
@@ -196,6 +200,8 @@ export default function ProductDetail() {
   const handleMomoConfirm = async () => {
     if (!userRef.trim()) return toast.error("Please enter the reference/transaction ID from your MoMo message");
     if (userRef.trim().length < 4) return toast.error("Reference too short — check your MoMo SMS");
+    // SECURITY: prevent own-product purchase
+    if (product.sellerId === currentUser.uid) return toast.error("You cannot purchase your own listing.");
     setProcessing(true);
     try {
       // Create a PENDING order — becomes active only after admin confirms payment
@@ -316,6 +322,19 @@ export default function ProductDetail() {
               {product.category  && <Badge type="muted">📁 {product.category}</Badge>}
               {product.condition && <Badge type="muted">📊 {product.condition}</Badge>}
               {product.location  && <Badge type="muted">📍 {product.location}</Badge>}
+              {product.pricingType && product.pricingType !== "fixed" && (
+                <Badge type="primary">🏷 {{
+                  negotiable: "Negotiable", starting: "Starting From",
+                  per_hour: "Per Hour", per_day: "Per Day",
+                  per_unit: "Per Unit", free: "Free",
+                }[product.pricingType] || product.pricingType}</Badge>
+              )}
+              {product.deliveryMethod && (
+                <Badge type="muted">
+                  {product.deliveryMethod === "pickup" ? "🤝 Pickup Only" :
+                   product.deliveryMethod === "delivery" ? "🚚 Delivery" : "🚚 Delivery & Pickup"}
+                </Badge>
+              )}
               {product.stock !== undefined && (
                 <Badge type={product.stock > 0 ? "success" : "danger"}>
                   {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
@@ -370,7 +389,24 @@ export default function ProductDetail() {
           <div>
             <div className="card" style={{ position: "sticky", top: "calc(var(--nav-height) + 16px)" }}>
               <PriceTag amount={product.price} size="lg" />
-              <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>per unit</div>
+              {/* Dynamic pricing type label */}
+              <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>
+                {product.pricingType === "per_hour" ? "per hour" :
+                 product.pricingType === "per_day"  ? "per day"  :
+                 product.pricingType === "per_unit" ? "per unit" :
+                 product.pricingType === "starting" ? "starting from" :
+                 product.pricingType === "free"     ? "Free — contact seller" :
+                 product.pricingType === "negotiable" ? "negotiable — make an offer" :
+                 "per unit"}
+              </div>
+              {/* Delivery method indicator */}
+              {product.deliveryMethod && (
+                <div style={{ marginTop: 8, display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 600, padding: "4px 10px", borderRadius: 20, background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-muted)" }}>
+                  {product.deliveryMethod === "pickup"   ? "🤝 Pickup Only" :
+                   product.deliveryMethod === "delivery" ? "🚚 Delivery Available" :
+                   "🚚 Delivery & Pickup Available"}
+                </div>
+              )}
 
               <hr style={{ margin: "16px 0", borderColor: "var(--border)" }} />
 
@@ -495,14 +531,16 @@ export default function ProductDetail() {
               GHS {total.toFixed(2)} + delivery
             </div>
 
-            {/* Delivery type */}
+            {/* Delivery type — only show options the seller supports */}
             <div className="form-group">
               <label className="form-label">How do you want to receive this item?</label>
               <div style={{ display: "flex", gap: 10 }}>
                 {[
-                  { key: "delivery", icon: "🚚", label: "Home Delivery", sub: "Seller delivers to your location" },
-                  { key: "meetup",   icon: "🤝", label: "Meet-up",       sub: "Meet the seller in person" },
-                ].map(opt => (
+                  { key: "delivery", icon: "🚚", label: "Home Delivery", sub: "Seller delivers to your location",
+                    disabled: product.deliveryMethod === "pickup" },
+                  { key: "meetup",   icon: "🤝", label: "Meet-up / Pickup", sub: "Meet the seller or pick up in person",
+                    disabled: product.deliveryMethod === "delivery" },
+                ].filter(opt => !opt.disabled).map(opt => (
                   <div key={opt.key} onClick={() => setDeliveryType(opt.key)} style={{
                     flex: 1, padding: "12px 14px", border: `2px solid ${deliveryType === opt.key ? "var(--accent)" : "var(--border)"}`,
                     borderRadius: "var(--radius)", cursor: "pointer",
