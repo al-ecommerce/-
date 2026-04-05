@@ -1,11 +1,14 @@
 import {
-  collection, doc, addDoc, setDoc, getDoc, getDocs, updateDoc,
-  deleteDoc, query, where, orderBy, limit, onSnapshot,
-  serverTimestamp, increment, writeBatch, arrayUnion
+  collection, doc,
+  addDoc, setDoc, getDoc, getDocs,
+  updateDoc, deleteDoc,
+  query, where, orderBy, limit,
+  onSnapshot, serverTimestamp,
+  increment, writeBatch, arrayUnion
 } from "firebase/firestore";
 import { db } from "./config";
 
-// â”€â”€â”€ USERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── USERS ───────────────────────────────────────────────
 export const createUserDoc = async (uid, data) => {
   await setDoc(doc(db, "users", uid), {
     ...data,
@@ -25,43 +28,6 @@ export const getUserDoc = async (uid) => {
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 };
 
-/**
- * getPublicSellerProfile
- * Safe to call for guests and logged-in users alike.
- * Returns only the public-facing seller fields â€” never throws.
- * Use this anywhere a seller profile is loaded for display purposes
- * (product pages, service pages, store pages) instead of getUserDoc.
- */
-export const getPublicSellerProfile = async (uid) => {
-  try {
-    const snap = await getDoc(doc(db, "users", uid));
-    if (!snap.exists()) return null;
-    const d = snap.data();
-    // Return ONLY fields safe to expose publicly.
-    // Private fields (role, isSuspended, isBanned, email, etc.) are stripped.
-    return {
-      id:               snap.id,
-      displayName:      d.displayName      || "",
-      location:         d.location         || "",
-      city:             d.city             || "",
-      region:           d.region           || "",
-      address:          d.address          || "",   // public landmark / area
-      town:             d.town             || "",
-      isSellerVerified: d.isSellerVerified || false,
-      isSeller:         d.isSeller         || false,
-      // Phone & WhatsApp: included so the SellerCard reveal-button works for
-      // logged-in users. The component is responsible for masking these for guests.
-      phone:            d.phone            || "",
-      whatsapp:         d.whatsapp         || "",
-    };
-  } catch (e) {
-    // Firestore permission denied (guest reading a non-seller doc, network error, etc.)
-    // Return null gracefully so the page never crashes.
-    console.warn("getPublicSellerProfile:", e.code || e.message);
-    return null;
-  }
-};
-
 export const updateUserDoc = async (uid, data) => {
   await updateDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() });
 };
@@ -74,7 +40,7 @@ export const getAllUsers = async () => {
 export const listenToUser = (uid, cb) =>
   onSnapshot(doc(db, "users", uid), snap => cb(snap.exists() ? { id: snap.id, ...snap.data() } : null));
 
-// â”€â”€â”€ PRODUCTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── PRODUCTS ────────────────────────────────────────────
 export const createProduct = async (data) => {
   return await addDoc(collection(db, "products"), {
     ...data,
@@ -88,16 +54,22 @@ export const createProduct = async (data) => {
 
 export const getProducts = async (filters = {}) => {
   try {
+    // Only filter by status — no orderBy to avoid composite index requirements
     const constraints = [where("status", "==", "approved")];
     if (filters.sellerId) constraints.push(where("sellerId", "==", filters.sellerId));
-    constraints.push(orderBy("createdAt", "desc"));
-    if (filters.limit) constraints.push(limit(filters.limit));
     const snap = await getDocs(query(collection(db, "products"), ...constraints));
     let results = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Client-side sort and filter — avoids all composite index errors
+    results.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
     if (filters.category) results = results.filter(p => p.category === filters.category);
+    if (filters.limit)    results = results.slice(0, filters.limit);
     return results;
   } catch (e) {
     console.error("getProducts error:", e.message);
+    return [];
+  }
+};
+    // If index error, fall back to fetching without orderBy
     if (e.code === "failed-precondition" || e.message?.includes("index")) {
       const snap = await getDocs(query(collection(db, "products"), where("status", "==", "approved")));
       let results = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -122,11 +94,13 @@ export const updateProduct = async (id, data) =>
 export const deleteProduct = async (id) => deleteDoc(doc(db, "products", id));
 
 export const getAllProducts = async () => {
-  const snap = await getDocs(query(collection(db, "products"), orderBy("createdAt", "desc")));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(collection(db, "products"));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 };
 
-// â”€â”€â”€ SERVICES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── SERVICES ────────────────────────────────────────────
 export const createService = async (data) =>
   addDoc(collection(db, "services"), {
     ...data, status: "pending", views: 0,
@@ -137,23 +111,14 @@ export const getServices = async (filters = {}) => {
   try {
     const constraints = [where("status", "==", "approved")];
     if (filters.sellerId) constraints.push(where("sellerId", "==", filters.sellerId));
-    constraints.push(orderBy("createdAt", "desc"));
-    if (filters.limit) constraints.push(limit(filters.limit));
     const snap = await getDocs(query(collection(db, "services"), ...constraints));
     let results = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    results.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
     if (filters.category) results = results.filter(s => s.category === filters.category);
+    if (filters.limit)    results = results.slice(0, filters.limit);
     return results;
   } catch (e) {
     console.error("getServices error:", e.message);
-    if (e.code === "failed-precondition" || e.message?.includes("index")) {
-      const snap = await getDocs(query(collection(db, "services"), where("status", "==", "approved")));
-      let results = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      if (filters.sellerId) results = results.filter(s => s.sellerId === filters.sellerId);
-      if (filters.category) results = results.filter(s => s.category === filters.category);
-      results.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-      if (filters.limit) results = results.slice(0, filters.limit);
-      return results;
-    }
     return [];
   }
 };
@@ -169,11 +134,14 @@ export const updateService = async (id, data) =>
 export const deleteService = async (id) => deleteDoc(doc(db, "services", id));
 
 export const getAllServices = async () => {
-  const snap = await getDocs(query(collection(db, "services"), orderBy("createdAt", "desc")));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(collection(db, "services"));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+};
 };
 
-// â”€â”€â”€ REQUESTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── REQUESTS ────────────────────────────────────────────
 export const createRequest = async (data) =>
   addDoc(collection(db, "requests"), {
     ...data, status: "open",
@@ -182,11 +150,14 @@ export const createRequest = async (data) =>
 
 export const getRequests = async () => {
   try {
+    // Use only where() without orderBy() to avoid composite index requirement
     const snap = await getDocs(query(collection(db, "requests"), where("status", "==", "open")));
     const results = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Sort client-side
     return results.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
   } catch (e) {
     console.error("getRequests error:", e.message);
+    // Absolute fallback — fetch all and filter client-side
     try {
       const snap = await getDocs(collection(db, "requests"));
       return snap.docs
@@ -223,7 +194,7 @@ export const listenToRequests = (cb) =>
     }
   );
 
-// â”€â”€â”€ OFFERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── OFFERS ──────────────────────────────────────────────
 export const createOffer = async (data) =>
   addDoc(collection(db, "offers"), {
     ...data, status: "pending",
@@ -242,7 +213,7 @@ export const listenToOffersForRequest = (requestId, cb) =>
 export const updateOffer = async (id, data) =>
   updateDoc(doc(db, "offers", id), { ...data, updatedAt: serverTimestamp() });
 
-// â”€â”€â”€ ORDERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── ORDERS ──────────────────────────────────────────────
 export const createOrder = async (data) =>
   addDoc(collection(db, "orders"), {
     ...data, status: "pending",
@@ -284,11 +255,11 @@ export const listenToOrder = (id, cb) =>
     snap => cb(snap.exists() ? { id: snap.id, ...snap.data() } : null),
     err => {
       console.error("listenToOrder error:", err.code, err.message);
-      cb(null);
+      cb(null); // triggers navigate("/orders") in the component
     }
   );
 
-// â”€â”€â”€ MESSAGES / CHAT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── MESSAGES / CHAT ─────────────────────────────────────
 export const getChatId = (uid1, uid2) => [uid1, uid2].sort().join("_");
 
 export const sendMessage = async (chatId, data) =>
@@ -315,7 +286,7 @@ export const createOrGetChat = async (uid1, uid2) => {
   return chatId;
 };
 
-// â”€â”€â”€ REVIEWS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── REVIEWS ─────────────────────────────────────────────
 export const createReview = async (data) =>
   addDoc(collection(db, "reviews"), { ...data, createdAt: serverTimestamp() });
 
@@ -324,33 +295,15 @@ export const getReviewsForTarget = async (targetId) => {
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
-// â”€â”€â”€ BUYER REVIEWS (Seller rates Buyer) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-export const createBuyerReview = async (data) => {
-  try {
-    const docRef = await addDoc(collection(db, "buyerReviews"), {
-      buyerId:    data.buyerId,
-      buyerName:  data.buyerName  || "",
-      sellerId:   data.sellerId,
-      sellerName: data.sellerName || "",
-      orderId:    data.orderId,
-      rating:     data.rating,
-      comment:    data.comment    || "",
-      createdAt:  serverTimestamp(),
-    });
-    return docRef.id;
-  } catch (error) {
-    console.error("Error creating buyer review:", error);
-    throw error;
-  }
-};
-
-// â”€â”€â”€ NOTIFICATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── NOTIFICATIONS ───────────────────────────────────────
 export const createNotification = async (uid, data) =>
   addDoc(collection(db, "notifications"), {
     ...data, uid, read: false, createdAt: serverTimestamp()
   });
 
 export const listenToNotifications = (uid, cb) => {
+  // Use only where("uid") without orderBy to avoid needing a composite index.
+  // Sort client-side instead.
   return onSnapshot(
     query(collection(db, "notifications"), where("uid", "==", uid), limit(50)),
     snap => {
@@ -371,40 +324,36 @@ export const markNotificationRead = async (id) =>
   updateDoc(doc(db, "notifications", id), { read: true });
 
 export const markAllNotificationsRead = async (uid) => {
-  const snap = await getDocs(query(
-    collection(db, "notifications"),
-    where("uid", "==", uid),
-    where("read", "==", false)
-  ));
+  const snap = await getDocs(query(collection(db, "notifications"), where("uid", "==", uid), where("read", "==", false)));
   const batch = writeBatch(db);
   snap.docs.forEach(d => batch.update(d.ref, { read: true }));
   await batch.commit();
 };
 
-// â”€â”€â”€ REPORTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── REPORTS ─────────────────────────────────────────────
 export const createReport = async (data) =>
   addDoc(collection(db, "reports"), { ...data, status: "pending", createdAt: serverTimestamp() });
 
 export const getAllReports = async () => {
-  const snap = await getDocs(query(collection(db, "reports"), orderBy("createdAt", "desc")));
+  const snap = await getDocs(collection(db, "reports"));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
 export const updateReport = async (id, data) =>
   updateDoc(doc(db, "reports", id), { ...data, updatedAt: serverTimestamp() });
 
-// â”€â”€â”€ ADMIN LOGS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── ADMIN LOGS ──────────────────────────────────────────
 export const logAdminAction = async (adminId, action, details = {}) =>
   addDoc(collection(db, "adminLogs"), {
     adminId, action, details, createdAt: serverTimestamp()
   });
 
 export const getAdminLogs = async () => {
-  const snap = await getDocs(query(collection(db, "adminLogs"), orderBy("createdAt", "desc"), limit(100)));
+  const snap = await getDocs(collection(db, "adminLogs"));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
-// â”€â”€â”€ SELLER VERIFICATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── SELLER VERIFICATION ─────────────────────────────────
 export const applyForSellerVerification = async (uid, data) =>
   setDoc(doc(db, "sellerVerification", uid), {
     ...data, uid, status: "pending", createdAt: serverTimestamp()
@@ -416,14 +365,14 @@ export const getSellerVerification = async (uid) => {
 };
 
 export const getAllSellerVerifications = async () => {
-  const snap = await getDocs(query(collection(db, "sellerVerification"), orderBy("createdAt", "desc")));
+  const snap = await getDocs(collection(db, "sellerVerification"));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
 export const updateSellerVerification = async (uid, data) =>
   updateDoc(doc(db, "sellerVerification", uid), { ...data, updatedAt: serverTimestamp() });
 
-// â”€â”€â”€ WALLET â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── WALLET ──────────────────────────────────────────────
 export const getWallet = async (uid) => {
   const snap = await getDoc(doc(db, "wallets", uid));
   if (!snap.exists()) {
@@ -471,7 +420,7 @@ export const getAllTransactions = async () => {
     .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 };
 
-// â”€â”€â”€ ESCROW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── ESCROW ──────────────────────────────────────────────
 export const createEscrow = async (data) =>
   addDoc(collection(db, "escrow"), {
     ...data, status: "held", createdAt: serverTimestamp()
@@ -483,55 +432,29 @@ export const getEscrowByOrder = async (orderId) => {
 };
 
 export const getAllEscrow = async () => {
-  const snap = await getDocs(query(collection(db, "escrow"), orderBy("createdAt", "desc")));
+  const snap = await getDocs(collection(db, "escrow"));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
 export const updateEscrow = async (id, data) =>
   updateDoc(doc(db, "escrow", id), { ...data, updatedAt: serverTimestamp() });
 
-// â”€â”€â”€ DISPUTE EVIDENCE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-export const submitDisputeEvidence = async (orderId, userId, data) => {
-  try {
-    const docRef = await addDoc(collection(db, "disputes"), {
-      orderId,
-      submittedBy:  userId,
-      description:  data.description  || "",
-      photoURL:     data.photoURL      || "",
-      videoURL:     data.videoURL      || "",
-      chatSummary:  data.chatSummary   || "",
-      buyerId:      data.buyerId,
-      sellerId:     data.sellerId,
-      itemTitle:    data.itemTitle,
-      orderRef:     data.orderRef,
-      status:       "pending",
-      createdAt:    serverTimestamp(),
-    });
-    return docRef.id;
-  } catch (error) {
-    console.error("Error submitting dispute evidence:", error);
-    throw error;
-  }
-};
-
-// â”€â”€â”€ SUBSCRIPTIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── SUBSCRIPTIONS ───────────────────────────────────────
 export const createSubscription = async (data) =>
   addDoc(collection(db, "subscriptions"), { ...data, createdAt: serverTimestamp() });
 
 export const getUserSubscription = async (uid) => {
-  const snap = await getDocs(query(
-    collection(db, "subscriptions"),
-    where("uid", "==", uid),
-    where("status", "==", "active")
-  ));
+  const snap = await getDocs(query(collection(db, "subscriptions"),
+    where("uid", "==", uid), where("status", "==", "active")));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }))[0] || null;
 };
 
-// â”€â”€â”€ FEATURED LISTINGS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── FEATURED LISTINGS ───────────────────────────────────
 export const createFeaturedListing = async (data) =>
   addDoc(collection(db, "featuredListings"), { ...data, status: "pending", createdAt: serverTimestamp() });
 
 export const getFeaturedListings = async () => {
+  // Fetch all approved, filter expired client-side to avoid composite index
   const snap = await getDocs(query(collection(db, "featuredListings"), where("status", "==", "approved")));
   const now  = Date.now();
   return snap.docs
@@ -553,11 +476,9 @@ export const getAllFeaturedListings = async () => {
 export const updateFeaturedListing = async (id, data) =>
   updateDoc(doc(db, "featuredListings", id), { ...data, updatedAt: serverTimestamp() });
 
-// â”€â”€â”€ ADS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── ADS ─────────────────────────────────────────────────
 export const createAd = async (data) =>
-  addDoc(collection(db, "ads"), {
-    ...data, status: "pending", clicks: 0, impressions: 0, createdAt: serverTimestamp()
-  });
+  addDoc(collection(db, "ads"), { ...data, status: "pending", clicks: 0, impressions: 0, createdAt: serverTimestamp() });
 
 export const getApprovedAds = async () => {
   const snap = await getDocs(query(collection(db, "ads"), where("status", "==", "approved")));
@@ -574,7 +495,7 @@ export const getAllAds = async () => {
 export const updateAd = async (id, data) =>
   updateDoc(doc(db, "ads", id), { ...data, updatedAt: serverTimestamp() });
 
-// â”€â”€â”€ WITHDRAWALS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── WITHDRAWALS ─────────────────────────────────────────
 export const createWithdrawal = async (data) =>
   addDoc(collection(db, "withdrawals"), { ...data, status: "pending", createdAt: serverTimestamp() });
 
@@ -595,7 +516,7 @@ export const getAllWithdrawals = async () => {
 export const updateWithdrawal = async (id, data) =>
   updateDoc(doc(db, "withdrawals", id), { ...data, updatedAt: serverTimestamp() });
 
-// â”€â”€â”€ PLATFORM FEES / SETTINGS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── PLATFORM FEES / SETTINGS ────────────────────────────
 export const getPlatformSettings = async () => {
   const snap = await getDoc(doc(db, "platformFees", "settings"));
   if (!snap.exists()) return {
@@ -617,11 +538,12 @@ export const listenToPlatformSettings = (cb) =>
       basicSubscriptionPrice: 10, premiumSubscriptionPrice: 30
     }));
 
-// â”€â”€â”€ MOMO PAYMENTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── MOMO PAYMENTS ───────────────────────────────────────
+// Users submit proof of MoMo payment. Admin verifies and credits wallet.
 export const submitMomoPayment = async (data) =>
   addDoc(collection(db, "momoPayments"), {
     ...data,
-    status: "pending",
+    status: "pending",      // pending | verified | rejected
     createdAt: serverTimestamp()
   });
 
@@ -642,7 +564,9 @@ export const getAllMomoPayments = async () => {
 export const updateMomoPayment = async (id, data) =>
   updateDoc(doc(db, "momoPayments", id), { ...data, updatedAt: serverTimestamp() });
 
-// â”€â”€â”€ ACCOUNT DELETION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── ACCOUNT DELETION ────────────────────────────────────
+// Deletes all Firestore data belonging to a user.
+// Call this BEFORE deleting the Firebase Auth account.
 export const deleteUserData = async (uid) => {
   const ownedCollections = [
     ["notifications",      "uid"],
@@ -671,11 +595,15 @@ export const deleteUserData = async (uid) => {
     } catch (e) { console.warn(`Skip delete ${colName}:`, e.message); }
   }
 
+  // Delete user document
   deletePromises.push(deleteDoc(doc(db, "users", uid)));
+
   await Promise.allSettled(deletePromises);
 };
 
-// â”€â”€â”€ AUTO-RELEASE DELIVERY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── AUTO-RELEASE DELIVERY ───────────────────────────────
+// Called when seller marks delivered. Stores deadline for auto-release.
+// Auto-release fires after 7 days if buyer doesn't confirm.
 export const setDeliveryDeadline = async (orderId, days = 7) => {
   const deadline = new Date();
   deadline.setDate(deadline.getDate() + days);
@@ -687,6 +615,7 @@ export const setDeliveryDeadline = async (orderId, days = 7) => {
   });
 };
 
+// Check all delivered orders whose deadline has passed and auto-release them
 export const processAutoReleases = async () => {
   const now  = new Date();
   const snap = await getDocs(query(
@@ -704,3 +633,145 @@ export const processAutoReleases = async () => {
     });
   return overdue;
 };
+
+// ─── BUYER STRIKES ───────────────────────────────────────
+export const addBuyerStrike = async (uid, reason) => {
+  const ref  = doc(db, "users", uid);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return;
+  const current = snap.data().strikes || 0;
+  const newCount = current + 1;
+  const updates = {
+    strikes:       newCount,
+    lastStrikeReason: reason,
+    lastStrikeAt:  new Date().toISOString(),
+  };
+  if (newCount >= 3) {
+    updates.isSuspended = true;
+    updates.suspendedReason = `Auto-suspended after ${newCount} strikes. Latest: ${reason}`;
+  }
+  await updateDoc(ref, updates);
+  return newCount;
+};
+
+// ─── SELLER RATES BUYER ──────────────────────────────────
+export const createBuyerReview = async (data) =>
+  addDoc(collection(db, "buyerReviews"), {
+    ...data, createdAt: serverTimestamp()
+  });
+
+export const getBuyerReviews = async (buyerId) => {
+  const snap = await getDocs(query(collection(db, "buyerReviews"), where("buyerId", "==", buyerId)));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+
+// ─── DELIVERY FEE ────────────────────────────────────────
+export const getDeliveryFee = (sellerTown, buyerTown, sellerFee = 0) => {
+  // Simple same-town / different-town fee logic.
+  // Replace with real distance API when ready.
+  if (!buyerTown || !sellerTown) return sellerFee || 0;
+  const same = sellerTown.trim().toLowerCase() === buyerTown.trim().toLowerCase();
+  if (sellerFee > 0) return sellerFee;
+  return same ? 5 : 20; // GHS 5 same town, GHS 20 different town (fallback)
+};
+
+// ─── DISPUTE EVIDENCE ────────────────────────────────────
+export const submitDisputeEvidence = async (orderId, uid, data) =>
+  setDoc(doc(db, "disputeEvidence", orderId), {
+    ...data, submittedBy: uid, submittedAt: serverTimestamp()
+  }, { merge: true });
+
+export const getDisputeEvidence = async (orderId) => {
+  const snap = await getDoc(doc(db, "disputeEvidence", orderId));
+  return snap.exists() ? snap.data() : null;
+};
+
+// ─── EXPORT INDEX ─────────────────────────────────────────
+// This section documents every public export from this module.
+// All functions are already exported inline above with `export const`.
+// This index exists purely for documentation and IDE discoverability.
+//
+// USERS
+//   createUserDoc, getUserDoc, updateUserDoc, getAllUsers, listenToUser
+//
+// PRODUCTS
+//   createProduct, getProducts, getProductById, updateProduct,
+//   deleteProduct, getAllProducts
+//
+// SERVICES
+//   createService, getServices, getServiceById, updateService,
+//   deleteService, getAllServices
+//
+// REQUESTS & OFFERS
+//   createRequest, getRequests, getAllRequestsAdmin, getRequestById,
+//   updateRequest, listenToRequests,
+//   createOffer, getOffersForRequest, listenToOffersForRequest, updateOffer
+//
+// ORDERS
+//   createOrder, getOrderById, getUserOrders, getSellerOrders,
+//   getAllOrders, updateOrder, listenToOrder
+//
+// CHAT & MESSAGES
+//   getChatId, sendMessage, listenToMessages, getUserChats,
+//   createOrGetChat, listenToUserChats
+//
+// REVIEWS
+//   createReview, getReviewsForTarget
+//
+// NOTIFICATIONS
+//   createNotification, listenToNotifications,
+//   markNotificationRead, markAllNotificationsRead
+//
+// REPORTS
+//   createReport, getAllReports
+//
+// ADMIN
+//   logAdminAction, getAdminLogs
+//
+// SELLER VERIFICATION
+//   applyForSellerVerification, getSellerVerification,
+//   getAllSellerVerifications, updateSellerVerification
+//
+// WALLET & TRANSACTIONS
+//   getWallet, listenToWallet, creditWallet, debitWallet,
+//   getTransactions, getAllTransactions
+//
+// ESCROW
+//   createEscrow, getEscrowByOrder, getAllEscrow, updateEscrow
+//
+// SUBSCRIPTIONS
+//   createSubscription, getUserSubscription
+//
+// FEATURED LISTINGS
+//   createFeaturedListing, getFeaturedListings,
+//   getAllFeaturedListings, updateFeaturedListing
+//
+// ADS
+//   createAd, getApprovedAds, getAllAds, updateAd
+//
+// WITHDRAWALS
+//   createWithdrawal, getUserWithdrawals, getAllWithdrawals, updateWithdrawal
+//
+// PLATFORM SETTINGS
+//   getPlatformSettings, updatePlatformSettings, listenToPlatformSettings
+//
+// MOMO PAYMENTS
+//   submitMomoPayment, getUserMomoPayments, getAllMomoPayments, updateMomoPayment
+//
+// ACCOUNT DELETION
+//   deleteUserData
+//
+// DELIVERY & AUTO-RELEASE
+//   setDeliveryDeadline, processAutoReleases
+//
+// BUYER STRIKES
+//   addBuyerStrike
+//
+// BUYER REVIEWS (seller rates buyer)
+//   createBuyerReview, getBuyerReviews
+//
+// DELIVERY FEE
+//   getDeliveryFee
+//
+// DISPUTE EVIDENCE
+//   submitDisputeEvidence, getDisputeEvidence
