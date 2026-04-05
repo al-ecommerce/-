@@ -69,19 +69,6 @@ export const getProducts = async (filters = {}) => {
     return [];
   }
 };
-    // If index error, fall back to fetching without orderBy
-    if (e.code === "failed-precondition" || e.message?.includes("index")) {
-      const snap = await getDocs(query(collection(db, "products"), where("status", "==", "approved")));
-      let results = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      if (filters.sellerId) results = results.filter(p => p.sellerId === filters.sellerId);
-      if (filters.category) results = results.filter(p => p.category === filters.category);
-      results.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-      if (filters.limit) results = results.slice(0, filters.limit);
-      return results;
-    }
-    return [];
-  }
-};
 
 export const getProductById = async (id) => {
   const snap = await getDoc(doc(db, "products", id));
@@ -138,7 +125,6 @@ export const getAllServices = async () => {
   return snap.docs
     .map(d => ({ id: d.id, ...d.data() }))
     .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-};
 };
 
 // ─── REQUESTS ────────────────────────────────────────────
