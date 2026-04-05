@@ -242,13 +242,9 @@ export default function StorePage() {
 
               {/* Location tiles */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
-                <InfoTile icon="🏙" label="City / Town"     value={seller.city} />
+                
                 <InfoTile icon="🗺" label="Region"          value={seller.region} />
-                <InfoTile
-                  icon="📌" label="Area / Landmark"
-                  value={seller.address}
-                  style={{ gridColumn: "1 / -1" }}
-                />
+                
               </div>
               {seller.address && (
                 <div style={{
