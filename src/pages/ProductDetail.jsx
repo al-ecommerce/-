@@ -232,7 +232,7 @@ const GuestGate = ({ navigate, product }) => (
 export default function ProductDetail() {
   const { id }      = useParams();
   const navigate    = useNavigate();
-  const { currentUser, userDoc } = useAuth();
+  const { currentUser, userDoc, loading: authLoading } = useAuth();
 
   const [product,         setProduct]         = useState(null);
   const [reviews,         setReviews]         = useState([]);
@@ -259,7 +259,12 @@ export default function ProductDetail() {
   const [deliveryNote,     setDeliveryNote]      = useState("");
 
   // ── Load product (safe for guests) ───────────────────────
+  // Wait for Firebase auth to resolve first so we know if the user is
+  // logged in or a guest. This prevents the flash of guest content for
+  // logged-in users and ensures the view counter only fires for real users.
   useEffect(() => {
+    if (authLoading) return; // wait — auth not resolved yet
+
     const load = async () => {
       try {
         const [p, r, s] = await Promise.all([
@@ -289,7 +294,7 @@ export default function ProductDetail() {
       setLoading(false);
     };
     load();
-  }, [id]);
+  }, [id, authLoading]); // re-run if auth state changes
 
   // ── Derived values ────────────────────────────────────────
   const total        = (product?.price || 0) * qty;
@@ -297,7 +302,10 @@ export default function ProductDetail() {
   const grandTotal   = total + escrowFeeAmt;
   const isLarge      = grandTotal >= 500;
   const avgRating    = reviews.length ? reviews.reduce((a, r) => a + r.rating, 0) / reviews.length : 0;
-  const isGuest      = !currentUser;
+  const isGuest = !currentUser;
+
+  // Guests see a quick preview then are nudged strongly to register.
+  // The GuestGate component handles the CTA inline on the page.
 
   const deliveryFee = (() => {
     if (deliveryType === "meetup") return 0;
@@ -410,8 +418,8 @@ export default function ProductDetail() {
 
   const handleExpire = () => { setExpired(true); toast.error("Payment time expired. Please try again."); };
 
-  if (loading)   return <Spinner center />;
-  if (!product)  return null;
+  if (authLoading || loading) return <Spinner center />;
+  if (!product) return null;
 
   // ── RENDER ────────────────────────────────────────────────
   return (
