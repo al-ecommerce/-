@@ -161,6 +161,10 @@ export default function ProductDetail() {
       landmarkACRef.current = null;
     };
   }, [showBuyModal, payStep, deliveryType]);
+
+  // ── Load product data ─────────────────────────────────
+  useEffect(() => {
+    const load = async () => {
       try {
         const [p, r, s] = await Promise.all([
           getProductById(id),
@@ -169,8 +173,12 @@ export default function ProductDetail() {
         ]);
         if (!p) { navigate("/products"); return; }
         setProduct(p); setReviews(r); setSettings(s);
-        await updateProduct(id, { views: (p.views || 0) + 1 });
-        if (p.sellerId) setSeller(await getPublicSellerProfile(p.sellerId));
+        if (currentUser) {
+          try { await updateProduct(id, { views: (p.views || 0) + 1 }); } catch (_) {}
+        }
+        if (p.sellerId) {
+          try { setSeller(await getPublicSellerProfile(p.sellerId)); } catch (_) {}
+        }
       } catch (e) { console.error(e); }
       setLoading(false);
     };
