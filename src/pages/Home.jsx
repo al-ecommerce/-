@@ -147,7 +147,7 @@ export default function Home() {
               <span style={{
                 fontFamily: "var(--font-display)", fontWeight: 700,
                 fontSize: 28, color: "#fff", letterSpacing: "-0.5px",
-              }}>ASVAN</span>
+              }}>AlEcom</span>
             </div>
 
             {/* Slide badge */}
@@ -404,7 +404,7 @@ export default function Home() {
             <h2 style={{
               fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700,
               letterSpacing: "-0.3px", marginBottom: 8,
-            }}>How ASVAN Works</h2>
+            }}>How AlEcom Works</h2>
             <p style={{ color: "var(--text-muted)", fontSize: 14, maxWidth: 480, margin: "0 auto" }}>
               Transparent, secure, and simple — from browsing to delivery.
             </p>
@@ -484,7 +484,7 @@ export default function Home() {
         <section style={{ padding: "48px 0 0" }}>
           <div style={{ textAlign: "center", marginBottom: 32 }}>
             <h2 style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, letterSpacing: "-0.3px", marginBottom: 8 }}>
-              Why Businesses Choose ASVAN
+              Why Businesses Choose AlEcom
             </h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
