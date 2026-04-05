@@ -19,27 +19,29 @@ const CATEGORIES = [
   { label: "Other",       icon: "📦" },
 ];
 
+
 // Rotating hero banner slides
 const HERO_SLIDES = [
   {
     headline: "Ghana's Most Trusted Marketplace",
     sub: "Buy products, hire services, and post requests — all protected by escrow.",
-    bg: "linear-gradient(135deg, #0A0F1E 0%, #1a2744 60%, #0d2060 100%)",
+    image: "https://lh3.googleusercontent.com/pw/AP1GczOBVoGb1ypNyC9gHh0wGKSq0QJoysOBPGR-_5ZMdUC-BkdYrqde3Z3uhHPCPuCm3INKJ_C_oZYaEcETfdak6g0P52gAMdzTLqZeoeqAUdQ9ExL14wY",
     accent: "#4F8EFF",
   },
   {
     headline: "Sell to Thousands of Buyers",
     sub: "List your products and services for free. Admin-verified. Escrow-secured payments.",
-    bg: "linear-gradient(135deg, #0f1f12 0%, #1a3a1f 60%, #0f2a1a 100%)",
+    image: "https://lh3.googleusercontent.com/pw/AP1GczMSCvo4xoh8piU_LjEp_1Ccc7euCwxBv0mttD1KOipMEhJwvl7wO-P9nTVDNn2aNjMqmCAFBObOJC520b9SfMIbHJW8oLwYMYrlePdtGDp6cER_rHQ",
     accent: "#34D399",
   },
   {
     headline: "Secure Payments. Every Time.",
     sub: "Funds held in escrow until delivery confirmed. No risk. No scams. Full buyer protection.",
-    bg: "linear-gradient(135deg, #1a0f2e 0%, #2d1a4a 60%, #1f1060 100%)",
+    image: "https://lh3.googleusercontent.com/pw/AP1GczNiIymU5Be_YKALPXP6-5yq-7FpHFJcfNQ5SFm4c0SrH6xjGZoci6d6bfz48xXKB3-G0naxQ-4zT75D73YDTPBx2n6GPLuLKiClJVJEAFh8cHCDBTY",
     accent: "#A78BFA",
   },
 ];
+
 
 // Marquee trust items
 const TRUST_ITEMS = [
@@ -95,13 +97,15 @@ export default function Home() {
 
       {/* ── HERO BANNER ─────────────────────────────────────── */}
       <section style={{
-        background: slide.bg,
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(${slide.image})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
         minHeight: 480,
         position: "relative",
         overflow: "hidden",
         display: "flex",
         alignItems: "center",
-        transition: "background 0.8s ease",
+        transition: "background-image 0.8s ease",
       }}>
         {/* Decorative circles */}
         <div style={{
@@ -134,13 +138,12 @@ export default function Home() {
             }}>
               <div style={{
                 width: 52, height: 52,
-                background: `linear-gradient(135deg, ${slide.accent}, ${slide.accent}99)`,
+                backgroundImage: "url('/logo.png')",backgroundSize: "cover",
+        backgroundPosition: "center",
                 borderRadius: 14,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "var(--font-display)", fontWeight: 700,
-                color: "#fff", fontSize: 22,
-                boxShadow: `0 8px 24px ${slide.accent}44`,
-              }}>A</div>
+                fontFamily: "var(--font-display)"
+              }}></div>
               <span style={{
                 fontFamily: "var(--font-display)", fontWeight: 700,
                 fontSize: 28, color: "#fff", letterSpacing: "-0.5px",
