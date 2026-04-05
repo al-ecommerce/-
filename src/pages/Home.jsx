@@ -24,19 +24,19 @@ const HERO_SLIDES = [
   {
     headline: "Ghana's Most Trusted Marketplace",
     sub: "Buy products, hire services, and post requests — all protected by escrow.",
-    image: "https://lh3.googleusercontent.com/pw/AP1GczOBVoGb1ypNyC9gHh0wGKSq0QJoysOBPGR-_5ZMdUC-BkdYrqde3Z3uhHPCPuCm3INKJ_C_oZYaEcETfdak6g0P52gAMdzTLqZeoeqAUdQ9ExL14wY",
+    bg: "linear-gradient(135deg, #0A0F1E 0%, #1a2744 60%, #0d2060 100%)",
     accent: "#4F8EFF",
   },
   {
     headline: "Sell to Thousands of Buyers",
     sub: "List your products and services for free. Admin-verified. Escrow-secured payments.",
-    image: "https://lh3.googleusercontent.com/pw/AP1GczMSCvo4xoh8piU_LjEp_1Ccc7euCwxBv0mttD1KOipMEhJwvl7wO-P9nTVDNn2aNjMqmCAFBObOJC520b9SfMIbHJW8oLwYMYrlePdtGDp6cER_rHQ",
+    bg: "linear-gradient(135deg, #0f1f12 0%, #1a3a1f 60%, #0f2a1a 100%)",
     accent: "#34D399",
   },
   {
     headline: "Secure Payments. Every Time.",
     sub: "Funds held in escrow until delivery confirmed. No risk. No scams. Full buyer protection.",
-    image: "https://lh3.googleusercontent.com/pw/AP1GczNiIymU5Be_YKALPXP6-5yq-7FpHFJcfNQ5SFm4c0SrH6xjGZoci6d6bfz48xXKB3-G0naxQ-4zT75D73YDTPBx2n6GPLuLKiClJVJEAFh8cHCDBTY",
+    bg: "linear-gradient(135deg, #1a0f2e 0%, #2d1a4a 60%, #1f1060 100%)",
     accent: "#A78BFA",
   },
 ];
@@ -75,9 +75,9 @@ export default function Home() {
     const load = async () => {
       try {
         const [p, s, r] = await Promise.all([
-          getProducts({ limit: 8 }),
-          getServices({ limit: 4 }),
-          getRequests(),
+          getProducts({ limit: 8 }).catch(() => []),
+          getServices({ limit: 4 }).catch(() => []),
+          getRequests().catch(() => []),
         ]);
         setProducts(p);
         setServices(s);
@@ -95,15 +95,13 @@ export default function Home() {
 
       {/* ── HERO BANNER ─────────────────────────────────────── */}
       <section style={{
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(${slide.image})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+        background: slide.bg,
         minHeight: 480,
         position: "relative",
         overflow: "hidden",
         display: "flex",
         alignItems: "center",
-        transition: "background-image 0.8s ease",
+        transition: "background 0.8s ease",
       }}>
         {/* Decorative circles */}
         <div style={{
@@ -129,25 +127,24 @@ export default function Home() {
         <div className="container" style={{ position: "relative", padding: "60px 16px" }}>
           <div style={{ maxWidth: 660, margin: "0 auto", textAlign: "center" }}>
 
-            {/* AlEcom Logo mark */}
+            {/* ASVAN Logo mark */}
             <div className="hero-float" style={{
               display: "inline-flex", alignItems: "center", gap: 12,
               marginBottom: 28,
             }}>
               <div style={{
                 width: 52, height: 52,
-                backgroundImage: "url('/logo.png')",backgroundSize: "cover",
-        backgroundPosition: "center",
+                background: `linear-gradient(135deg, ${slide.accent}, ${slide.accent}99)`,
                 borderRadius: 14,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontFamily: "var(--font-display)", fontWeight: 700,
                 color: "#fff", fontSize: 22,
                 boxShadow: `0 8px 24px ${slide.accent}44`,
-              }}></div>
+              }}>A</div>
               <span style={{
                 fontFamily: "var(--font-display)", fontWeight: 700,
                 fontSize: 28, color: "#fff", letterSpacing: "-0.5px",
-              }}>AlEcom</span>
+              }}>ASVAN</span>
             </div>
 
             {/* Slide badge */}
@@ -404,7 +401,7 @@ export default function Home() {
             <h2 style={{
               fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700,
               letterSpacing: "-0.3px", marginBottom: 8,
-            }}>How AlEcom Works</h2>
+            }}>How ASVAN Works</h2>
             <p style={{ color: "var(--text-muted)", fontSize: 14, maxWidth: 480, margin: "0 auto" }}>
               Transparent, secure, and simple — from browsing to delivery.
             </p>
@@ -480,11 +477,11 @@ export default function Home() {
           ) : null}
         </section>
 
-        {/* ── WHY AlEcom ─────────────────────────────────────── */}
+        {/* ── WHY ASVAN ─────────────────────────────────────── */}
         <section style={{ padding: "48px 0 0" }}>
           <div style={{ textAlign: "center", marginBottom: 32 }}>
             <h2 style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, letterSpacing: "-0.3px", marginBottom: 8 }}>
-              Why Businesses Choose AlEcom
+              Why Businesses Choose ASVAN
             </h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
@@ -530,7 +527,7 @@ export default function Home() {
                 fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 700,
                 color: "#fff", marginBottom: 10, letterSpacing: "-0.3px",
               }}>
-                Ready to Start Selling on AlEcom?
+                Ready to Start Selling on ASVAN?
               </h2>
               <p style={{ color: "rgba(255,255,255,0.68)", fontSize: 15, lineHeight: 1.7, margin: 0 }}>
                 Join verified sellers across Ghana. List your products and services today — escrow payments, real buyers, zero risk.
