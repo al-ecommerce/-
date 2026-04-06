@@ -6,59 +6,7 @@ import { ListingCard } from "../components/ListingCard";
 import { Spinner, Button, Badge, StarRating, VerifiedBadge, EmptyState, Tabs, Avatar } from "../components/UI";
 import { SellerBadgeList } from "../components/SellerBadges";
 
-// ── MASKED CONTACT ROW ───────────────────────────────────
-const ContactRow = ({ icon, label, value, href, actionLabel, actionStyle = {} }) => {
-  const [revealed, setRevealed] = useState(false);
-  const masked = value
-    ? value.replace(/\s/g, "").slice(0, 4) + "•••••" + value.replace(/\s/g, "").slice(-3)
-    : null;
-  if (!value) return null;
-  return (
-    <div style={{
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-      padding: "10px 14px", borderRadius: "var(--radius-sm)",
-      background: "var(--surface-2)", border: "1px solid var(--border)",
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <span style={{ fontSize: 18 }}>{icon}</span>
-        <div>
-          <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}>{label}</div>
-          <div style={{ fontSize: 14, fontWeight: 700, fontFamily: "monospace" }}>
-            {revealed ? value : masked}
-          </div>
-        </div>
-      </div>
-      <div style={{ display: "flex", gap: 6 }}>
-        <button
-          onClick={() => setRevealed(v => !v)}
-          style={{
-            fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 6,
-            cursor: "pointer", background: "var(--surface)", border: "1px solid var(--border)",
-            color: "var(--accent)", fontFamily: "var(--font-body)",
-          }}
-        >
-          {revealed ? "Hide" : "Reveal"}
-        </button>
-        {revealed && (
-          <a
-            href={href}
-            target={href.startsWith("http") ? "_blank" : undefined}
-            rel="noopener noreferrer"
-            style={{
-              fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 6,
-              cursor: "pointer", textDecoration: "none", color: "#fff",
-              border: "1px solid transparent", fontFamily: "var(--font-body)",
-              background: actionStyle.background || "var(--accent)",
-              ...actionStyle,
-            }}
-          >
-            {actionLabel}
-          </a>
-        )}
-      </div>
-    </div>
-  );
-};
+
 
 // ── INFO TILE ────────────────────────────────────────────
 const InfoTile = ({ icon, label, value }) => {
@@ -246,49 +194,8 @@ export default function StorePage() {
                 <InfoTile icon="🗺" label="Region"          value={seller.region} />
                 
               </div>
-              {seller.address && (
-                <div style={{
-                  padding: "10px 12px", background: "var(--surface-2)",
-                  borderRadius: "var(--radius-sm)", border: "1px solid var(--border)",
-                  marginBottom: 14,
-                }}>
-                  <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, marginBottom: 2 }}>
-                    📌 Area / Landmark
-                  </div>
-                  <div style={{ fontSize: 13, fontWeight: 700 }}>{seller.address}</div>
-                </div>
-              )}
-
-              {/* Contact — only for logged-in users */}
-              {currentUser ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
-                  <ContactRow
-                    icon="📞" label="Phone"
-                    value={seller.phone}
-                    href={`tel:${seller.phone}`}
-                    actionLabel="Call"
-                  />
-                  <ContactRow
-                    icon="💬" label="WhatsApp"
-                    value={seller.whatsapp}
-                    href={`https://wa.me/${waNumber}`}
-                    actionLabel="Chat"
-                    actionStyle={{ background: "#25D366" }}
-                  />
-                </div>
-              ) : (
-                <div style={{
-                  padding: "12px 14px", marginBottom: 14,
-                  background: "var(--surface-2)", borderRadius: "var(--radius-sm)",
-                  border: "1px solid var(--border)", fontSize: 13,
-                  color: "var(--text-muted)", textAlign: "center",
-                }}>
-                  🔒 <strong
-                    style={{ color: "var(--accent)", cursor: "pointer" }}
-                    onClick={() => navigate("/login")}
-                  >Sign in</strong> to view phone &amp; WhatsApp
-                </div>
-              )}
+              
+     
 
               {/* Member since */}
               {seller.createdAt?.seconds && (
@@ -302,20 +209,6 @@ export default function StorePage() {
                 <Button variant="primary" full onClick={() => navigate(`/chat?with=${uid}`)}>
                   💬 Message Seller
                 </Button>
-                {seller.whatsapp && currentUser && (
-                  <a
-                    href={`https://wa.me/${waNumber}`}
-                    target="_blank" rel="noopener noreferrer"
-                    style={{
-                      display: "block", textAlign: "center", padding: "10px",
-                      background: "#25D366", color: "#fff", fontWeight: 700,
-                      fontSize: 14, borderRadius: "var(--radius-sm)",
-                      textDecoration: "none", fontFamily: "var(--font-body)",
-                    }}
-                  >
-                    📲 WhatsApp Seller
-                  </a>
-                )}
               </div>
             </div>
 
