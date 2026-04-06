@@ -102,9 +102,9 @@ const SellerCard = ({ seller, sellerId, navigate, currentUser }) => {
 
       {/* Info tiles */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
-        {seller.city   && <div style={tileWrap}><div style={tileLabel}>🏙 City</div><div style={tileValue}>{seller.city}</div></div>}
+        
         {seller.region && <div style={tileWrap}><div style={tileLabel}>🗺 Region</div><div style={tileValue}>{seller.region}</div></div>}
-        {seller.address && <div style={{ ...tileWrap, gridColumn: "1 / -1" }}><div style={tileLabel}>📌 Landmark</div><div style={tileValue}>{seller.address}</div></div>}
+        
       </div>
 
       {/* Contact — logged-in only */}
