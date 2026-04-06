@@ -59,22 +59,13 @@ const Countdown = ({ seconds, onExpire }) => {
 const tileWrap  = { padding: "10px 12px", background: "var(--surface-2)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)" };
 const tileLabel = { fontSize: 11, color: "var(--text-muted)", fontWeight: 600, marginBottom: 2 };
 const tileValue = { fontSize: 13, fontWeight: 700, color: "var(--text)" };
-const revealBtn = { fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 6, cursor: "pointer", background: "var(--surface)", border: "1px solid var(--border)", color: "var(--accent)", fontFamily: "var(--font-body)" };
-const actionBtn = { fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 6, cursor: "pointer", textDecoration: "none", background: "var(--accent)", border: "1px solid var(--accent)", color: "#fff", fontFamily: "var(--font-body)", display: "inline-block" };
 
 // ─── SELLER CARD ─────────────────────────────────────────
-const SellerCard = ({ seller, sellerId, navigate, currentUser }) => {
-  const [showPhone,    setShowPhone]    = useState(false);
-  const [showWhatsApp, setShowWhatsApp] = useState(false);
-
-  const mask = (num) => {
-    if (!num) return null;
-    const c = num.replace(/\s/g, "");
-    return c.slice(0, 4) + "•••••" + c.slice(-3);
-  };
-
-  const locationStr = [seller.address, seller.city, seller.region]
-    .filter(Boolean).join(", ") || seller.location || "Ghana";
+// Only shows public, non-sensitive info: name, verified status, region, badges.
+// Phone, WhatsApp, and full address are intentionally excluded to prevent fraud.
+const SellerCard = ({ seller, sellerId, navigate }) => {
+  // Safe public fields only — never expose phone, WhatsApp, or precise address
+  const regionLabel = seller.region || null;
 
   return (
     <div className="card" style={{ marginBottom: 24 }}>
@@ -95,84 +86,53 @@ const SellerCard = ({ seller, sellerId, navigate, currentUser }) => {
             <span style={{ fontWeight: 700, fontSize: 15 }}>{seller.displayName}</span>
             {seller.isSellerVerified && <VerifiedBadge />}
           </div>
-          <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>📍 {locationStr}</div>
-          <div style={{ marginTop: 6 }}><SellerBadgeList userDoc={seller} size="sm" /></div>
+          {/* Show region only — not city, town, or street-level info */}
+          {regionLabel && (
+            <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>
+              📍 {regionLabel}, Ghana
+            </div>
+          )}
+          <div style={{ marginTop: 6 }}>
+            <SellerBadgeList userDoc={seller} size="sm" />
+          </div>
         </div>
       </div>
 
-      {/* Info tiles */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
-        
-        {seller.region && <div style={tileWrap}><div style={tileLabel}>🗺 Region</div><div style={tileValue}>{seller.region}</div></div>}
-        
-      </div>
-
-     {/* Contact — logged-in only */}
-      
-/* {currentUser ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
-          {seller.phone && (
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "var(--surface-2)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span>📞</span>
-                <div>
-                  <div style={tileLabel}>Phone</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, fontFamily: "monospace" }}>
-                    {showPhone ? seller.phone : mask(seller.phone)}
-                  </div>
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={() => setShowPhone(v => !v)} style={revealBtn}>{showPhone ? "Hide" : "Reveal"}</button>
-                {showPhone && <a href={`tel:${seller.phone}`} style={actionBtn}>Call</a>}
-              </div>
-            </div>
-          )}
-      
-    {seller.whatsapp && (
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "rgba(37,211,102,0.06)", borderRadius: "var(--radius-sm)", border: "1px solid rgba(37,211,102,0.2)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span>💬</span>
-                <div>
-                  <div style={tileLabel}>WhatsApp</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, fontFamily: "monospace" }}>
-                    {showWhatsApp ? seller.whatsapp : mask(seller.whatsapp)}
-                  </div>
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={() => setShowWhatsApp(v => !v)} style={revealBtn}>{showWhatsApp ? "Hide" : "Reveal"}</button>
-                {showWhatsApp && (
-                  <a
-                    href={`https://wa.me/${seller.whatsapp.replace(/^0/, "233").replace(/\s/g, "")}`}
-                    target="_blank" rel="noopener noreferrer"
-                    style={{ ...actionBtn, background: "#25D366", borderColor: "#25D366" }}
-                  >
-                    Chat
-                  </a>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div style={{ padding: "12px 14px", marginBottom: 16, background: "var(--surface-2)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", fontSize: 13, color: "var(--text-muted)", textAlign: "center" }}>
-          🔒 <strong>Sign in</strong> to view seller's phone &amp; WhatsApp
+      {/* Region tile — only if available */}
+      {regionLabel && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={tileWrap}>
+            <div style={tileLabel}>🗺 Region</div>
+            <div style={tileValue}>{regionLabel}</div>
+          </div>
         </div>
       )}
 
+      {/* Info notice — direct contact handled securely via platform chat */}
+      <div style={{
+        padding: "10px 12px", marginBottom: 14,
+        background: "rgba(79,142,255,0.06)",
+        border: "1px solid rgba(79,142,255,0.18)",
+        borderRadius: "var(--radius-sm)",
+        fontSize: 12, color: "var(--text-muted)", lineHeight: 1.6,
+      }}>
+        💬 Contact the seller safely through our in-platform messaging — no personal details needed.
+      </div>
+
+      {/* Actions — platform-mediated only */}
       <div style={{ display: "flex", gap: 8 }}>
-        <Button variant="secondary" size="sm" full onClick={() => navigate(`/store/${sellerId}`)}>🏪 View Store</Button>
-        <Button variant="outline" size="sm" full onClick={() => navigate(`/chat?with=${sellerId}`)}>💬 Message</Button>
+        <Button variant="secondary" size="sm" full onClick={() => navigate(`/store/${sellerId}`)}>
+          🏪 View Store
+        </Button>
+        <Button variant="outline" size="sm" full onClick={() => navigate(`/chat?with=${sellerId}`)}>
+          💬 Message Seller
+        </Button>
       </div>
     </div>
   );
 };
 
-*/
-
-// ─── GUEST GATE ───────────────────────────────────────────
-// Shown to guests in place of description, seller contact, reviews, and buy box.
+// ─── GUEST GATE ──────────────────────────────────────────
 const GuestGate = ({ navigate, product }) => (
   <div style={{ margin: "28px 0", border: "1.5px solid var(--border)", borderRadius: "var(--radius-xl)", overflow: "hidden" }}>
 
@@ -183,7 +143,7 @@ const GuestGate = ({ navigate, product }) => (
         lineHeight: 1.8, filter: "blur(5px)", userSelect: "none",
         pointerEvents: "none", maxHeight: 96,
       }}>
-        {product.description || "Full product description, seller contact details, reviews, and secure checkout are available to registered members."}
+        {product.description || "Full product description, seller details, reviews, and secure checkout are available to registered members."}
       </div>
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 64, background: "linear-gradient(transparent, var(--surface))" }} />
     </div>
@@ -195,20 +155,25 @@ const GuestGate = ({ navigate, product }) => (
         Sign in to see the full listing
       </div>
       <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", marginBottom: 20, lineHeight: 1.7, maxWidth: 320, margin: "0 auto 20px" }}>
-        Free members unlock the full description, seller contact, all reviews, delivery options, and escrow-protected checkout.
+        Free members unlock the full description, seller profile, all reviews, delivery options, and escrow-protected checkout.
       </p>
 
       {/* What you unlock */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22, textAlign: "left" }}>
         {[
           "📝 Full product description",
-          "📞 Seller phone & WhatsApp",
+          "🏪 Seller profile & store",
           "⭐ All reviews & ratings",
           "🚚 Delivery options & fee",
           "🔒 Escrow-protected checkout",
-          "💬 Direct seller chat",
+          "💬 Direct seller messaging",
         ].map(item => (
-          <div key={item} style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", display: "flex", alignItems: "center", gap: 6, padding: "7px 10px", background: "rgba(255,255,255,0.07)", borderRadius: "var(--radius-sm)" }}>
+          <div key={item} style={{
+            fontSize: 12, color: "rgba(255,255,255,0.8)",
+            display: "flex", alignItems: "center", gap: 6,
+            padding: "7px 10px", background: "rgba(255,255,255,0.07)",
+            borderRadius: "var(--radius-sm)",
+          }}>
             {item}
           </div>
         ))}
@@ -259,41 +224,37 @@ export default function ProductDetail() {
   const [deliveryType,     setDeliveryType]     = useState("delivery");
   const [deliveryAddress,  setDeliveryAddress]  = useState("");
   const [deliveryLandmark, setDeliveryLandmark] = useState("");
-  const [preferredTime,    setPreferredTime]     = useState("");
-  const [deliveryNote,     setDeliveryNote]      = useState("");
+  const [preferredTime,    setPreferredTime]    = useState("");
+  const [deliveryNote,     setDeliveryNote]     = useState("");
 
-  // ── Load product (safe for guests) ───────────────────────
-  // Wait for Firebase auth to resolve first so we know if the user is
-  // logged in or a guest. This prevents the flash of guest content for
-  // logged-in users and ensures the view counter only fires for real users.
+  // ── Load product ─────────────────────────────────────────
   useEffect(() => {
-    if (authLoading) return; // wait — auth not resolved yet
+    if (authLoading) return;
 
     const load = async () => {
       try {
-        // Load each piece independently so one failure never blanks the page
         const p = await getProductById(id).catch(() => null);
         if (!p) { navigate("/products"); return; }
         setProduct(p);
 
-        // Reviews and settings load in parallel — failures just use defaults
         const [r, s] = await Promise.all([
           getReviewsForTarget(id).catch(() => []),
-          getPlatformSettings().catch(() => ({
-            commissionRate: 10, escrowFee: 2, withdrawalFee: 1.5
-          })),
+          getPlatformSettings().catch(() => ({ commissionRate: 10, escrowFee: 2, withdrawalFee: 1.5 })),
         ]);
         setReviews(r);
         setSettings(s);
 
-        // Seller profile — isolated, never blocks page render
         if (p.sellerId) {
           getUserDoc(p.sellerId)
-            .then(s => setSeller(s))
+            .then(sellerData => {
+              // Strip sensitive fields before storing in state — defence in depth.
+              // Even if getUserDoc returns them, we never put them in component state.
+              const { phone, whatsapp, email, address, street, houseNumber, ...safe } = sellerData || {};
+              setSeller(safe);
+            })
             .catch(e => console.warn("Seller load:", e.message));
         }
 
-        // View counter — auth-only, silently skip for guests
         if (currentUser) {
           updateProduct(id, { views: (p.views || 0) + 1 }).catch(() => {});
         }
@@ -311,18 +272,16 @@ export default function ProductDetail() {
   const grandTotal   = total + escrowFeeAmt;
   const isLarge      = grandTotal >= 500;
   const avgRating    = reviews.length ? reviews.reduce((a, r) => a + r.rating, 0) / reviews.length : 0;
-  const isGuest = !currentUser;
-
-  // Guests see a quick preview then are nudged strongly to register.
-  // The GuestGate component handles the CTA inline on the page.
+  const isGuest      = !currentUser;
 
   const deliveryFee = (() => {
     if (deliveryType === "meetup") return 0;
     if (product?.deliveryFee > 0) return product.deliveryFee;
-    const st = (seller?.town || seller?.city || seller?.location || "").split(",")[0].toLowerCase().trim();
-    const bt = (deliveryAddress || userDoc?.town || "").split(",")[0].toLowerCase().trim();
-    if (!st || !bt) return 10;
-    return st === bt ? 5 : 20;
+    // Compare only region/town — not precise address
+    const sellerRegion = (seller?.region || "").toLowerCase().trim();
+    const buyerTown    = (deliveryAddress || userDoc?.town || "").split(",")[0].toLowerCase().trim();
+    if (!sellerRegion || !buyerTown) return 10;
+    return sellerRegion.includes(buyerTown) || buyerTown.includes(sellerRegion) ? 5 : 20;
   })();
 
   const openBuy = () => {
@@ -342,9 +301,11 @@ export default function ProductDetail() {
 
   const deliveryData = {
     deliveryType, deliveryFee,
-    deliveryAddress: deliveryAddress.trim(),
+    deliveryAddress:  deliveryAddress.trim(),
     deliveryLandmark: deliveryLandmark.trim(),
-    preferredTime, deliveryNote: deliveryNote.trim(),
+    preferredTime,
+    deliveryNote:     deliveryNote.trim(),
+    // Store buyer's own phone for delivery coordination — never seller's
     buyerPhone: userDoc?.phone || "",
     buyerTown:  userDoc?.town  || "",
   };
@@ -439,14 +400,11 @@ export default function ProductDetail() {
           style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, color: "var(--text-muted)", fontSize: 14, marginBottom: 20 }}
         >← Back</button>
 
-        {/* ════════════════ GUEST LAYOUT ════════════════ */}
+        {/* ════════════ GUEST LAYOUT ════════════ */}
         {isGuest ? (
           <div style={{ maxWidth: 680, margin: "0 auto" }}>
-
-            {/* Gallery — always visible */}
             <ProductGallery product={product} />
 
-            {/* Title + rating + share */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginTop: 24, marginBottom: 12 }}>
               <div>
                 <h1 style={{ fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 700 }}>{product.title}</h1>
@@ -460,15 +418,13 @@ export default function ProductDetail() {
               <ShareProductButton product={product} />
             </div>
 
-            {/* Price + basic badges */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
               <PriceTag amount={product.price} size="lg" />
               {product.category  && <Badge type="muted">📁 {product.category}</Badge>}
               {product.condition && <Badge type="muted">📊 {product.condition}</Badge>}
-              {product.location  && <Badge type="muted">📍 {product.location}</Badge>}
+              {/* Location badge intentionally omitted for guests */}
             </div>
 
-            {/* First sentence of description — teaser */}
             {product.description && (
               <p style={{ color: "var(--text-secondary)", lineHeight: 1.7, fontSize: 15, marginBottom: 0 }}>
                 {product.description.split(/[.!?]/)[0].trim()}
@@ -476,10 +432,9 @@ export default function ProductDetail() {
               </p>
             )}
 
-            {/* ── GUEST GATE ── hides the rest */}
             <GuestGate navigate={navigate} product={product} />
 
-            {/* Seller teaser — name + location only, no contact */}
+            {/* Seller teaser — name + verified only, zero contact info */}
             {seller && (
               <div style={{
                 padding: "14px 18px", border: "1px solid var(--border)",
@@ -494,8 +449,9 @@ export default function ProductDetail() {
                     {seller.displayName}
                     {seller.isSellerVerified && <VerifiedBadge />}
                   </div>
+                  {/* No location, no contact hint */}
                   <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                    {seller.location || "Ghana"} · Sign in to see contact details
+                    Sign in to view seller profile and message safely
                   </div>
                 </div>
                 <Button variant="secondary" size="sm" onClick={() => navigate("/login")}>Sign In</Button>
@@ -504,7 +460,7 @@ export default function ProductDetail() {
           </div>
 
         ) : (
-          /* ════════════════ LOGGED-IN LAYOUT ════════════════ */
+          /* ════════════ LOGGED-IN LAYOUT ════════════ */
           <div style={{ display: "grid", gridTemplateColumns: "1fr min(340px,100%)", gap: 28 }} className="detail-grid">
 
             {/* LEFT column */}
@@ -544,11 +500,19 @@ export default function ProductDetail() {
                 {product.condition && <Badge type="muted">📊 {product.condition}</Badge>}
                 {product.location  && <Badge type="muted">📍 {product.location}</Badge>}
                 {product.pricingType && product.pricingType !== "fixed" && (
-                  <Badge type="primary">🏷 {({ negotiable:"Negotiable", starting:"Starting From", per_hour:"Per Hour", per_day:"Per Day", per_unit:"Per Unit", free:"Free" })[product.pricingType] || product.pricingType}</Badge>
+                  <Badge type="primary">🏷 {({
+                    negotiable: "Negotiable", starting: "Starting From",
+                    per_hour: "Per Hour", per_day: "Per Day",
+                    per_unit: "Per Unit", free: "Free",
+                  })[product.pricingType] || product.pricingType}</Badge>
                 )}
                 {product.deliveryMethod && (
                   <Badge type="muted">
-                    {product.deliveryMethod === "pickup" ? "🤝 Pickup Only" : product.deliveryMethod === "delivery" ? "🚚 Delivery" : "🚚 Delivery & Pickup"}
+                    {product.deliveryMethod === "pickup"
+                      ? "🤝 Pickup Only"
+                      : product.deliveryMethod === "delivery"
+                        ? "🚚 Delivery"
+                        : "🚚 Delivery & Pickup"}
                   </Badge>
                 )}
                 {product.stock !== undefined && (
@@ -558,11 +522,20 @@ export default function ProductDetail() {
                 )}
               </div>
 
-              {seller && <SellerCard seller={seller} sellerId={product.sellerId} navigate={navigate} currentUser={currentUser} />}
+              {/* SellerCard — safe fields only (phone/WhatsApp stripped at load) */}
+              {seller && (
+                <SellerCard
+                  seller={seller}
+                  sellerId={product.sellerId}
+                  navigate={navigate}
+                />
+              )}
 
               {/* Reviews */}
               <div>
-                <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 16 }}>Reviews ({reviews.length})</h3>
+                <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: 16 }}>
+                  Reviews ({reviews.length})
+                </h3>
                 {reviews.length === 0 ? (
                   <p style={{ color: "var(--text-muted)", fontSize: 14 }}>No reviews yet. Be the first after purchasing!</p>
                 ) : reviews.map(r => (
@@ -582,7 +555,14 @@ export default function ProductDetail() {
               <div className="card" style={{ position: "sticky", top: "calc(var(--nav-height) + 16px)" }}>
                 <PriceTag amount={product.price} size="lg" />
                 <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>
-                  {({ per_hour:"per hour", per_day:"per day", per_unit:"per unit", starting:"starting from", free:"Free — contact seller", negotiable:"negotiable — make an offer" })[product.pricingType] || "per unit"}
+                  {({
+                    per_hour:   "per hour",
+                    per_day:    "per day",
+                    per_unit:   "per unit",
+                    starting:   "starting from",
+                    free:       "Free — contact seller",
+                    negotiable: "negotiable — make an offer",
+                  })[product.pricingType] || "per unit"}
                 </div>
 
                 <hr style={{ margin: "16px 0", borderColor: "var(--border)" }} />
@@ -600,14 +580,17 @@ export default function ProductDetail() {
 
                     <div style={{ background: "var(--surface-2)", borderRadius: "var(--radius-sm)", padding: 14, marginBottom: 16 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 6 }}>
-                        <span style={{ color: "var(--text-muted)" }}>Subtotal</span><span>GHS {total.toFixed(2)}</span>
+                        <span style={{ color: "var(--text-muted)" }}>Subtotal</span>
+                        <span>GHS {total.toFixed(2)}</span>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 6 }}>
-                        <span style={{ color: "var(--text-muted)" }}>Escrow fee ({settings.escrowFee || 2}%)</span><span>GHS {escrowFeeAmt.toFixed(2)}</span>
+                        <span style={{ color: "var(--text-muted)" }}>Escrow fee ({settings.escrowFee || 2}%)</span>
+                        <span>GHS {escrowFeeAmt.toFixed(2)}</span>
                       </div>
                       <hr style={{ margin: "8px 0", borderColor: "var(--border)" }} />
                       <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700 }}>
-                        <span>Total</span><span style={{ color: "var(--accent)" }}>GHS {grandTotal.toFixed(2)}</span>
+                        <span>Total</span>
+                        <span style={{ color: "var(--accent)" }}>GHS {grandTotal.toFixed(2)}</span>
                       </div>
                     </div>
 
@@ -643,9 +626,9 @@ export default function ProductDetail() {
         isOpen={showBuyModal}
         onClose={() => { if (payStep !== "momo" || expired) setShowBuyModal(false); }}
         title={
-          payStep === "delivery" ? "Delivery Details" :
-          payStep === "choose"   ? "Choose Payment Method" :
-          payStep === "momo"     ? "Complete MoMo Payment" :
+          payStep === "delivery"  ? "Delivery Details" :
+          payStep === "choose"    ? "Choose Payment Method" :
+          payStep === "momo"      ? "Complete MoMo Payment" :
           "Payment Submitted!"
         }
       >
@@ -702,8 +685,8 @@ export default function ProductDetail() {
                 </div>
                 <div style={{ padding: "12px 14px", background: "var(--surface-2)", borderRadius: "var(--radius-sm)", marginBottom: 12, fontSize: 13 }}>
                   {[
-                    ["Item subtotal", `GHS ${total.toFixed(2)}`],
-                    ["Delivery fee (estimated)", `GHS ${deliveryFee.toFixed(2)}`],
+                    ["Item subtotal",             `GHS ${total.toFixed(2)}`],
+                    ["Delivery fee (estimated)",   `GHS ${deliveryFee.toFixed(2)}`],
                     [`Escrow fee (${settings.escrowFee || 2}%)`, `GHS ${escrowFeeAmt.toFixed(2)}`],
                   ].map(([k, v]) => (
                     <div key={k} style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
@@ -754,7 +737,7 @@ export default function ProductDetail() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
               {[
-                { key: "momo",   icon: "📱", label: "Pay via MoMo",   sub: "MTN MoMo · Vodafone Cash · AirtelTigo — pay at checkout" },
+                { key: "momo",   icon: "📱", label: "Pay via MoMo",   sub: "MTN MoMo · Vodafone Cash · AirtelTigo" },
                 { key: "wallet", icon: "💰", label: "Pay from Wallet", sub: "Use your ASVAN wallet balance — instant" },
               ].map(opt => (
                 <div key={opt.key} onClick={() => setPayMethod(opt.key)} style={{
@@ -769,7 +752,9 @@ export default function ProductDetail() {
                       <div style={{ fontWeight: 700, fontSize: 15 }}>{opt.label}</div>
                       <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{opt.sub}</div>
                     </div>
-                    {payMethod === opt.key && <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--accent)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>✓</div>}
+                    {payMethod === opt.key && (
+                      <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--accent)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>✓</div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -798,10 +783,10 @@ export default function ProductDetail() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
               {[
-                { n:"1", icon:"📱", text:`Dial *170# or open your MoMo app` },
-                { n:"2", icon:"💸", text:`Send GHS ${grandTotal.toFixed(2)} to 0549548274 (ASVAN)` },
-                { n:"3", icon:"✏️", text:`Narration/reference: ${momoRef}`, highlight: true },
-                { n:"4", icon:"📋", text:`Paste the transaction ID from your SMS below` },
+                { n: "1", icon: "📱", text: "Dial *170# or open your MoMo app" },
+                { n: "2", icon: "💸", text: `Send GHS ${grandTotal.toFixed(2)} to 0549548274 (ASVAN)` },
+                { n: "3", icon: "✏️", text: `Narration/reference: ${momoRef}`, highlight: true },
+                { n: "4", icon: "📋", text: "Paste the transaction ID from your SMS below" },
               ].map(s => (
                 <div key={s.n} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 14px", background: s.highlight ? "rgba(26,86,219,0.06)" : "var(--surface-2)", border: `1px solid ${s.highlight ? "rgba(26,86,219,0.2)" : "var(--border)"}`, borderRadius: "var(--radius-sm)" }}>
                   <div style={{ width: 24, height: 24, borderRadius: "50%", flexShrink: 0, background: "var(--accent)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>{s.n}</div>
@@ -860,7 +845,7 @@ export default function ProductDetail() {
             Free to join. You get escrow-protected payments, buyer protection, order tracking, and direct seller messaging.
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
-            {["🔒 Escrow-protected payments", "🛡 Buyer protection on every order", "📦 Full order tracking", "💬 Direct seller chat", "💰 Wallet for fast checkout"].map(f => (
+            {["🔒 Escrow-protected payments","🛡 Buyer protection on every order","📦 Full order tracking","💬 Direct seller chat","💰 Wallet for fast checkout"].map(f => (
               <div key={f} style={{ fontSize: 13, color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "var(--surface-2)", borderRadius: "var(--radius-sm)", textAlign: "left" }}>
                 {f}
               </div>
