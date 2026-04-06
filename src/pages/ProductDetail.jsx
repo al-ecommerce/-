@@ -107,8 +107,9 @@ const SellerCard = ({ seller, sellerId, navigate, currentUser }) => {
         
       </div>
 
-      {/* Contact — logged-in only */}
-      {currentUser ? (
+     {/* Contact — logged-in only */}
+      
+/* {currentUser ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
           {seller.phone && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "var(--surface-2)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)" }}>
@@ -127,7 +128,8 @@ const SellerCard = ({ seller, sellerId, navigate, currentUser }) => {
               </div>
             </div>
           )}
-          {seller.whatsapp && (
+      
+    {seller.whatsapp && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "rgba(37,211,102,0.06)", borderRadius: "var(--radius-sm)", border: "1px solid rgba(37,211,102,0.2)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span>💬</span>
@@ -166,6 +168,8 @@ const SellerCard = ({ seller, sellerId, navigate, currentUser }) => {
     </div>
   );
 };
+
+*/
 
 // ─── GUEST GATE ───────────────────────────────────────────
 // Shown to guests in place of description, seller contact, reviews, and buy box.
