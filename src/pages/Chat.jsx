@@ -480,6 +480,7 @@ export default function Chat() {
             </div>
 <br/>
 <br/>
+<br/>
           </>
         ) : (
           /* ── Empty state — no chat selected ── */
