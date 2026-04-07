@@ -478,6 +478,8 @@ export default function Chat() {
                 {sending ? "⏳" : "➤"}
               </button>
             </div>
+<br/>
+<br/>
           </>
         ) : (
           /* ── Empty state — no chat selected ── */
